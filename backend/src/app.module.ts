@@ -10,6 +10,8 @@ import { CorrelationIdInterceptor } from './common/interceptors/correlation-id.i
 import { PrismaModule } from './common/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { CareerModule } from './modules/career/career.module';
+import { ProfilesModule } from './modules/profiles/profiles.module';
 import { ReferenceModule } from './modules/reference/reference.module';
 
 @Module({
@@ -26,6 +28,8 @@ import { ReferenceModule } from './modules/reference/reference.module';
     PrismaModule,
     AuthModule,
     ReferenceModule,
+    ProfilesModule,
+    CareerModule,
   ],
   controllers: [AppController],
   providers: [
