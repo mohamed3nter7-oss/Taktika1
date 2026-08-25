@@ -1,0 +1,134 @@
+# CLAUDE.md — Taktika
+
+Project rulebook. **This file is loaded into context on every session.** Keep it lean — anything that belongs to only one side of the stack goes in `backend/CLAUDE.md` or `frontend/CLAUDE.md`.
+
+---
+
+## 1. What this is
+
+Taktika is a professional networking platform for the football industry, launching in Egypt. Six role-typed users — Player, Coach, Scout, Performance Analyst, Physical Therapist, Club Admin — with structured profiles, career history, a text-and-image feed, search, and 1:1 messaging.
+
+Solo developer, ~13 weeks to launch, infrastructure budget under $30/month.
+
+**Core loop:** register → complete profile → post → discover → message.
+
+**Not in v1:** video, payments, real-time messaging, ranked feed, groups, OAuth, native apps.
+
+---
+
+## 2. Repository layout
+
+```
+/
+├─ CLAUDE.md              ← this file (universal rules)
+├─ backend/               NestJS 11 + Prisma 7 + PostgreSQL 16
+│  └─ CLAUDE.md           backend-only conventions
+├─ frontend/              Next.js + Tailwind v4 + next-intl
+│  └─ CLAUDE.md           frontend-only conventions
+└─ docs/
+   ├─ prd/                PRD, one file per section (00–29)
+   ├─ 02-DATA-MODEL.md
+   ├─ 03-ARCHITECTURE.md
+   └─ 04-ROADMAP.md
+```
+
+Directory names are **lowercase**. This is non-negotiable: Linux and Railway are case-sensitive, macOS is not, and a casing mismatch produces a build that works locally and fails in deployment.
+
+---
+
+## 3. Source of truth
+
+1. `docs/prd/` — what to build. Requirement IDs (`FR-AUTH-3`) are stable; reference them in commits and discussion.
+2. This file and the two subdirectory files — how to build it.
+3. Section 17 below — every deviation from 1 or 2, with its reason.
+
+If a request contradicts a rule here, **say so before implementing**, don't silently comply and don't silently refuse.
+
+---
+
+## 4. Architecture — applies to every module, no exceptions
+
+**Pragmatic modular monolith. Controller → Service → Prisma.**
+
+No repositories. No use-case classes. No mappers. No 4-layer Clean Architecture, anywhere, including auth and messaging.
+
+Repositories exist to abstract a database you intend to swap. Postgres is not being swapped, and Prisma is already the abstraction. The extra layer costs a file and a mapping function per operation, permanently, and buys nothing.
+
+Cross-module needs are met by **injecting the other module's service and calling a narrow exported method**. Never reach into another module's tables.
+
+---
+
+## 5. Decisions both sides must know
+
+These appear in backend validation *and* frontend rendering. Getting them wrong on one side produces a bug that looks like it lives on the other.
+
+| Rule | Detail |
+| --- | --- |
+| Role is immutable | Chosen at registration, permanently non-editable. No UI path, no API path. |
+| Age is public, date of birth is not | API returns `age: 22`. `dateOfBirth` never appears in any public response, at any nesting level. Users can be 12. |
+| Clubs are entities, not accounts | `clubs` is its own table. Deleting a Club Admin must never destroy club history. |
+| Asymmetric follows | No requests, no approvals, no pending state. |
+| Messaging is ungated | No follow required to send a first message. Rate-limited instead. |
+| Cursor pagination everywhere | `(created_at, id)`. Never `OFFSET`, on any list endpoint. |
+| 404, not 403, for foreign resources | 403 confirms the resource exists. That's an existence oracle. |
+| Errors carry a stable machine `code` | Backend sends `AFFILIATION_ALREADY_OPEN`. Frontend owns both language strings. The API never sends user-facing prose. |
+| EXIF stripped from every image | Phone photos carry GPS. Minors post training pictures. |
+| Affiliations are date ranges | `start_date` / `end_date`. `end_date IS NULL` = current. Never a scalar `current_club`. |
+
+---
+
+## 6. Workflow
+
+- **Plan before code.** Present the plan, get approval, then implement.
+- **Manual approve per file and per command.** Not auto-accept mode.
+- **One module at a time**, in the build order (Section 7). Don't start the next before the current one's tests pass.
+- **If interrupted mid-task:** run `git status`, then verify each planned file's completion state before continuing. Never resume blind.
+- **Commit per logical unit**, not per file and not per session.
+
+---
+
+## 7. Build order
+
+```
+common → reference → auth → profiles → career → posts
+  → feed → social → search → messaging → notifications
+```
+
+Dependency-driven. Nothing is built against a stub, so nothing needs revisiting when its dependency lands.
+
+---
+
+## 8. Definition of done
+
+A module is done when all of these hold:
+
+1. Acceptance criteria from the PRD section pass as automated e2e tests.
+2. **Tests verified non-vacuous** — comment out the implementation, confirm the test fails, restore. A test that passes against a broken implementation is worse than no test, because it's trusted.
+3. Error paths return the documented codes from PRD Section 13.
+4. No new `any` types, no new lint suppressions.
+5. Any deviation is logged in Section 17.
+
+---
+
+## 9. Language
+
+Mohamed works in English and Arabic (Egyptian dialect) interchangeably. Match the language of the message. Prefers short, direct answers — decision first, then reasoning. Pushback is expected, not tolerated.
+
+---
+
+## 17. Divergence log
+
+Every deviation from the PRD or from these rules, with its reason. An undocumented deviation is indistinguishable from a bug six months later — that's the entire purpose of this section.
+
+Format:
+
+```
+### D-001 — <short title>
+**PRD ref:** FR-XXX-N / Section N
+**Decided:** <date>
+**Divergence:** what was built instead
+**Reason:** why
+**Reversal cost:** trivial / migration / rewrite
+```
+
+*(No entries yet.)*

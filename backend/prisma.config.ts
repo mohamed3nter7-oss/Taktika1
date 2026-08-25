@@ -23,6 +23,6 @@ export default defineConfig({
     path: 'prisma/migrations',
     // ts-node rather than tsx: already a devDependency, and §15 gates adding
     // dependencies. `-r ts-node/register` so resolution never depends on .bin.
-    seed: 'node -r ts-node/register prisma/seed.ts',
+    seed: 'npx tsx prisma/seed.ts',
   },
 });

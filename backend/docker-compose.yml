@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: mydatabase
+      POSTGRES_DB: taktika_dev
     ports:
       # Host 5433, not 5432: a native `postgresql-x64-18` Windows service owns
       # 5432 on this machine, so a 5432 mapping silently never receives a
