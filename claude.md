@@ -131,4 +131,16 @@ Format:
 **Reversal cost:** trivial / migration / rewrite
 ```
 
-*(No entries yet.)*
+### D-001 — bcrypt cost 12, not argon2id
+**PRD ref:** `backend/CLAUDE.md` § Validation and security
+**Decided:** 2026-08-25
+**Divergence:** The rule specified argon2id at 19 MiB / t=2 / p=1 and prohibited bcrypt outright. What exists is bcrypt at cost factor 12: hashed in `auth.service.ts`, documented on `users.password_hash` in `schema.prisma`, and pinned by a unit test asserting the `$2[aby]$12$` prefix. The rule has been rewritten to specify bcrypt cost 12 as the V1 standard. The "never SHA" half of the prohibition is unchanged and still stands.
+**Reason:** bcrypt at cost 12 is adequate for the V1 threat model. Moving to argon2id is not a config swap — it needs a verify-then-rehash-on-login path so existing hashes keep working, and that is deferred work. The doc/code contradiction was the actual risk here, not the algorithm: a rule the entire codebase visibly ignores teaches everyone to discount the rest of the file.
+**Reversal cost:** migration — verify-then-rehash-on-login, plus the unit test and the `schema.prisma` comment.
+
+### D-002 — Error envelope wraps in `success` / `error` and carries `correlationId`
+**PRD ref:** `backend/CLAUDE.md` § API conventions
+**Decided:** 2026-08-25
+**Divergence:** The rule specified a flat `{ statusCode, code, message, details? }`. `AllExceptionsFilter` emits `{ success: false, error: { code, message, details, correlationId } }` — nested under `error`, no `statusCode` in the body, `details` always present as an array rather than optional, and an added `correlationId`. The rule has been rewritten to document the emitted shape.
+**Reason:** `correlationId` in the error body is required for support and observability — it is echoed in the `X-Correlation-Id` header and written to the request's log line, so a user can quote one string and have the failure located. The frontend axios interceptor is already built against this shape, and the e2e suite asserts it, so the flat form was never the real contract.
+**Reversal cost:** migration — the filter, the e2e assertions and the frontend axios interceptor have to change together.

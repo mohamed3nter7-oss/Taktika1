@@ -74,7 +74,7 @@ app.useGlobalPipes(new ValidationPipe({
 
 - `role` and `status` are **never** accepted from a request body, on any endpoint.
 - Ownership checks live in the service, never the controller, and return **404** on failure.
-- Passwords: argon2id, 19 MiB / t=2 / p=1. Never bcrypt, never SHA.
+- Passwords: **bcrypt, cost factor 12.** This is the V1 standard. Never SHA, never any fast general-purpose hash. The cost factor is load-bearing in three places and they move together or not at all: the constant in `auth.service.ts`, the `$2[aby]$12$` prefix a unit test asserts so the cost cannot be quietly lowered to speed up a suite, and the column comment on `users.password_hash` in `schema.prisma`. argon2id remains the intended V2 target — root `CLAUDE.md` §17 D-001 records why it was deferred.
 - Refresh tokens stored **hashed**. A database leak must not yield usable tokens.
 - A serialisation interceptor strips `email`, `passwordHash`, `dateOfBirth`, `status` from public responses. Defence in depth — individual DTOs already exclude them, but one forgotten DTO on one new endpoint leaks PII.
 - Never log a password, token, or email address.
@@ -94,7 +94,23 @@ Consequence worth knowing before you debug it: after `POST /auth/register/profil
 
 - Base path `/api/v1`. Plural nouns.
 - `camelCase` in payloads, `snake_case` in the database. Prisma's `@map` handles the boundary.
-- Error envelope: `{ statusCode, code, message, details? }`. `code` is the contract; `message` is for developers, never shown to users.
+- Error envelope — every failure, produced by `AllExceptionsFilter` and nowhere else:
+
+  ```json
+  {
+    "success": false,
+    "error": {
+      "code": "AFFILIATION_ALREADY_OPEN",
+      "message": "for developers, never rendered to a user",
+      "details": [],
+      "correlationId": "95b8619d-58ed-4281-8b8e-7fcaf4616a53"
+    }
+  }
+  ```
+
+  `code` is the contract. `message` is a developer aid and is never shown to users — the frontend owns both language strings. `details` carries the `ValidationPipe`'s per-constraint list and is `[]` otherwise, never absent. There is no `statusCode` in the body; the HTTP status already carries it. `correlationId` is a UUID, echoed in the `X-Correlation-Id` response header and written to that request's log line, so a user can quote one string and have the failure found.
+
+  **This shape is asserted by the e2e suite.** Changing any key is a breaking API change: the filter, the e2e assertions and the frontend axios interceptor have to move in the same commit. See root `CLAUDE.md` §17 D-002.
 - Pagination: request `?cursor=&limit=20`, response `{ data: [], nextCursor: string | null }`.
 - Likes and follows use `PUT` / `DELETE`, so a double-tap is a no-op rather than an error.
 

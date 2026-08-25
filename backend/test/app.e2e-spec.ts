@@ -1,29 +1,23 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { createE2eApp, type E2eContext } from './support/e2e';
 
 describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+  let ctx: E2eContext;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
+  beforeAll(async () => {
+    ctx = await createE2eApp();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
+  afterAll(async () => {
+    await ctx.close();
+  });
+
+  it('/api/v1 (GET)', () => {
+    // Booted through the same `configureApp` the server runs, against the real
+    // Prisma client — no stub, so this doubles as an end-to-end startup check.
+    return request(ctx.server)
+      .get('/api/v1')
       .expect(200)
       .expect('Hello World!');
-  });
-
-  afterEach(async () => {
-    await app.close();
   });
 });

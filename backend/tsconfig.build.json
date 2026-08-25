@@ -1,4 +1,15 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+  // prisma.config.ts and prisma/ are CLI-side files (config + seed), never
+  // part of the runtime bundle. Excluding them keeps the computed rootDir at
+  // src/, so the build emits dist/main.js — which `node dist/main`
+  // (start:prod, Railway) depends on.
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "**/*spec.ts",
+    "prisma",
+    "prisma.config.ts"
+  ]
 }
