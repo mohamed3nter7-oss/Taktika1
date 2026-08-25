@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: mydatabase
+    ports:
+      # Host 5433, not 5432: a native `postgresql-x64-18` Windows service owns
+      # 5432 on this machine, so a 5432 mapping silently never receives a
+      # connection. The app must talk to THIS container — CLAUDE.md §2 pins
+      # PostgreSQL 16, and the native server is 18.
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

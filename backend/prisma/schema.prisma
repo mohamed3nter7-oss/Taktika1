@@ -1,0 +1,828 @@
+// =============================================================================
+// Kooora Network — Prisma Schema (PostgreSQL)
+// Source of truth for the database. PRD v1.2, Appendix A (27 tables).
+//
+// PRISMA 7 NOTES
+//  - No `url` here: connection config lives in prisma.config.ts (v7 change).
+//  - Client is generated into src/generated/prisma (new `prisma-client`
+//    generator). Import from there, never from '@prisma/client'.
+//  - Runtime connects through a driver adapter (@prisma/adapter-pg).
+//
+// CONVENTIONS
+//  - Models: PascalCase singular → tables: snake_case plural via @@map.
+//  - Fields: camelCase → columns: snake_case via @map.
+//  - PKs: UUID for user-generated entities; Int autoincrement for reference
+//    data; BigInt autoincrement for high-volume append-only streams
+//    (messages, profile_views, admin_actions). Message ids MUST be monotonic —
+//    server-assigned id is the sole ordering authority (PRD 9.8).
+//  - Timestamps: timestamptz. Calendar facts (DOB, affiliation dates): date.
+//  - Soft deletes via deletedAt on posts/comments/messages. Users are
+//    anonymised, never hard-deleted (PRD 20.5).
+//
+// NOT EXPRESSIBLE IN PRISMA — lives in hand-written SQL migrations
+// (see CLAUDE.md §6 for the verbatim SQL):
+//  - CHECK constraints (self-follow, conversation ordering, temporal sanity)
+//  - Partial indexes (feed, current affiliations, unread notifications)
+//  - pg_trgm + unaccent extensions and GIN trigram indexes
+//  - Counter triggers (likes/comments/followers/last_message_at)
+// =============================================================================
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs" // NestJS compiles to CommonJS; the v7 generator defaults to ESM
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum UserRole {
+  PLAYER
+  COACH
+  SCOUT
+  ANALYST
+  PHYSICAL_THERAPIST
+  CLUB_ADMIN
+
+  @@map("user_role")
+}
+
+enum UserStatus {
+  PENDING_VERIFICATION // registered, email not yet verified
+  PENDING_PROFILE      // verified, role extension row not yet created (FR-AUTH-2)
+  ACTIVE
+  SUSPENDED
+  DELETED              // anonymised; row retained for referential integrity
+
+  @@map("user_status")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+
+  @@map("gender")
+}
+
+enum PreferredFoot {
+  LEFT
+  RIGHT
+  BOTH
+
+  @@map("preferred_foot")
+}
+
+enum PlayerPosition {
+  GOALKEEPER
+  RIGHT_BACK
+  CENTER_BACK
+  LEFT_BACK
+  DEFENSIVE_MIDFIELDER
+  CENTRAL_MIDFIELDER
+  ATTACKING_MIDFIELDER
+  RIGHT_WINGER
+  LEFT_WINGER
+  STRIKER
+
+  @@map("player_position")
+}
+
+enum LeagueLevel {
+  PREMIER
+  SECOND_DIVISION
+  THIRD_DIVISION
+  YOUTH_ACADEMY
+  AMATEUR
+
+  @@map("league_level")
+}
+
+enum CoachType {
+  HEAD
+  ASSISTANT
+  GOALKEEPING
+  FITNESS
+  YOUTH
+
+  @@map("coach_type")
+}
+
+enum ScoutType {
+  CLUB
+  INDEPENDENT
+  AGENCY
+
+  @@map("scout_type")
+}
+
+enum AnalystType {
+  VIDEO
+  DATA
+  TACTICAL
+  OPPOSITION
+
+  @@map("analyst_type")
+}
+
+enum AdminLevel {
+  MODERATOR
+  SUPER_ADMIN
+
+  @@map("admin_level")
+}
+
+// Deliberately single-valued at launch. Adding a discriminator to a large
+// table later is a disruptive migration; carrying an unused one is free
+// (PRD 9.4). OPPORTUNITY / ANNOUNCEMENT arrive in V2 as additive values.
+enum PostType {
+  STANDARD
+
+  @@map("post_type")
+}
+
+// Role a person held AT a club, over time (club_affiliations.role_at_club).
+enum ClubRole {
+  PLAYER
+  COACH
+  SCOUT
+  ANALYST
+  PHYSICAL_THERAPIST
+  STAFF
+
+  @@map("club_role")
+}
+
+// PROFILE_VIEWED deliberately absent — replaced by the anonymous
+// profile_views rolling-window count (PRD v1.2, Appendix D Q-5).
+enum NotificationType {
+  NEW_FOLLOWER
+  POST_LIKED
+  POST_COMMENTED
+  COMMENT_REPLIED
+  NEW_MESSAGE
+  ADMIN_NOTICE
+
+  @@map("notification_type")
+}
+
+enum EntityType {
+  USER
+  POST
+  COMMENT
+  MESSAGE
+  CONVERSATION
+
+  @@map("entity_type")
+}
+
+enum ReportTargetType {
+  USER
+  POST
+  COMMENT
+
+  @@map("report_target_type")
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  INAPPROPRIATE_CONTENT
+  IMPERSONATION
+  FAKE_PROFILE
+  OTHER
+
+  @@map("report_reason")
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+
+  @@map("report_status")
+}
+
+enum AdminActionType {
+  SUSPEND_USER
+  UNSUSPEND_USER
+  REMOVE_POST
+  REMOVE_COMMENT
+  RESOLVE_REPORT
+  DISMISS_REPORT
+  GRANT_ADMIN
+  REVOKE_ADMIN
+
+  @@map("admin_action_type")
+}
+
+// =============================================================================
+// REFERENCE DATA — countries, cities, leagues, clubs
+// Bilingual name_en / name_ar columns: proper nouns are DATA, not enums
+// (PRD 9.12, three-tier translation model). name_ar nullable — fall back to
+// name_en on data-entry gaps rather than rendering blank.
+// =============================================================================
+
+model Country {
+  id     Int     @id @default(autoincrement())
+  code   String  @unique @db.Char(2) // ISO 3166-1 alpha-2
+  nameEn String  @map("name_en")
+  nameAr String? @map("name_ar")
+
+  cities  City[]
+  users   User[]
+  clubs   Club[]
+  leagues League[]
+
+  @@map("countries")
+}
+
+model City {
+  id        Int     @id @default(autoincrement())
+  countryId Int     @map("country_id")
+  nameEn    String  @map("name_en")
+  nameAr    String? @map("name_ar")
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  users   User[]
+  clubs   Club[]
+
+  @@unique([countryId, nameEn])
+  @@map("cities")
+}
+
+model League {
+  id        Int     @id @default(autoincrement())
+  countryId Int     @map("country_id")
+  nameEn    String  @map("name_en")
+  nameAr    String? @map("name_ar")
+  level     Int? // 1 = top flight; orders leagues within a country
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  clubs   Club[]
+
+  @@unique([countryId, nameEn])
+  @@map("leagues")
+}
+
+// Clubs are PERMANENT INDEPENDENT ENTITIES, separate from the admin accounts
+// that manage them. Deleting an admin must never touch club history — this is
+// the single most important modelling decision in the profile layer (PRD 6).
+model Club {
+  id          Int     @id @default(autoincrement())
+  nameEn      String  @map("name_en")
+  nameAr      String? @map("name_ar")
+  shortNameEn String? @map("short_name_en")
+  shortNameAr String? @map("short_name_ar")
+  countryId   Int     @map("country_id")
+  cityId      Int?    @map("city_id")
+  leagueId    Int?    @map("league_id")
+  logoUrl     String? @map("logo_url")
+  description String?
+  foundedYear Int?    @map("founded_year")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  country      Country           @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  city         City?             @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  league       League?           @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+  adminProfile ClubAdminProfile? // unique club_id ⇒ one admin per club in v1
+  affiliations ClubAffiliation[]
+  posts        Post[] // posts published AS the club
+
+  @@unique([nameEn, countryId]) // prevents duplicate club entities (PRD A.2)
+  @@index([countryId])
+  @@index([leagueId])
+  @@map("clubs")
+}
+
+// =============================================================================
+// IDENTITY — users + 1:1 role extension tables
+// PK of every profile table IS the FK to users.id: 1:1 enforced structurally,
+// and hydrating a full profile is a PK-to-PK join (PRD 7.2).
+// =============================================================================
+
+model User {
+  id           String  @id @default(uuid()) @db.Uuid
+  // Lowercased + trimmed at the DTO layer before storage; plain unique index.
+  // (citext alternative documented in PRD 9.1 — app-layer normalisation chosen.)
+  email        String  @unique
+  passwordHash String  @map("password_hash") // bcrypt cost 12; NEVER serialised
+  fullName     String  @map("full_name")
+
+  role     UserRole
+  headline String?
+  bio      String?
+
+  countryId Int @map("country_id")
+  cityId    Int @map("city_id")
+
+  avatarUrl   String?  @map("avatar_url")
+  // REQUIRED: role-aware minimum age (PLAYER ≥ 12, others ≥ 18) is enforced
+  // server-side at registration and cannot exist without this (PRD FR-AUTH-1).
+  dateOfBirth DateTime @map("date_of_birth") @db.Date
+  gender      Gender?
+  phone       String? // NEVER exposed through any public API response
+
+  status           UserStatus @default(PENDING_VERIFICATION)
+  emailVerifiedAt  DateTime?  @map("email_verified_at") @db.Timestamptz(6)
+  suspendedUntil   DateTime?  @map("suspended_until") @db.Timestamptz(6)
+  suspensionReason String?    @map("suspension_reason")
+  lastSeenAt       DateTime?  @map("last_seen_at") @db.Timestamptz(6) // presence survives a Redis flush
+
+  // Documented 3NF exceptions — maintained by DB triggers ONLY, never by
+  // application code (PRD A.4). Nightly reconciliation recomputes.
+  followersCount Int @default(0) @map("followers_count")
+  followingCount Int @default(0) @map("following_count")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  city    City    @relation(fields: [cityId], references: [id], onDelete: Restrict)
+
+  // --- 1:1 role extensions (exactly one exists per user; enforced in service layer) ---
+  playerProfile    PlayerProfile?
+  coachProfile     CoachProfile?
+  scoutProfile     ScoutProfile?
+  analystProfile   AnalystProfile?
+  therapistProfile TherapistProfile?
+  clubAdminProfile ClubAdminProfile?
+  adminProfile     AdminProfile?     @relation("AdminProfileUser")
+
+  // --- career ---
+  certifications Certification[]
+  affiliations   ClubAffiliation[]
+
+  // --- content ---
+  posts      Post[]
+  postLikes  PostLike[]
+  savedPosts SavedPost[]
+  comments   Comment[]
+
+  // --- graph ---
+  following Follow[] @relation("FollowerUser") // rows where this user follows others
+  followers Follow[] @relation("FollowingUser") // rows where others follow this user
+
+  // --- messaging ---
+  conversationsAsA Conversation[] @relation("ParticipantA")
+  conversationsAsB Conversation[] @relation("ParticipantB")
+  messagesSent     Message[]
+
+  // --- signals ---
+  notifications        Notification[] @relation("NotificationRecipient")
+  notificationsActed   Notification[] @relation("NotificationActor")
+  profileViewsMade     ProfileView[]  @relation("ProfileViewer")
+  profileViewsReceived ProfileView[]  @relation("ProfileViewed")
+
+  // --- governance ---
+  reportsMade    Report[]       @relation("ReportReporter")
+  reportsHandled Report[]       @relation("ReportHandler")
+  adminActions   AdminAction[]
+  adminsGranted  AdminProfile[] @relation("AdminGrantedBy")
+  refreshTokens  RefreshToken[]
+
+  @@index([role, status])
+  @@index([countryId, cityId])
+  @@map("users")
+}
+
+model PlayerProfile {
+  userId            String          @id @map("user_id") @db.Uuid
+  primaryPosition   PlayerPosition  @map("primary_position")
+  secondaryPosition PlayerPosition? @map("secondary_position")
+  preferredFoot     PreferredFoot   @map("preferred_foot")
+  leagueLevel       LeagueLevel     @map("league_level")
+  heightCm          Int?            @map("height_cm")
+  weightKg          Int?            @map("weight_kg")
+  jerseyNumber      Int?            @map("jersey_number")
+  portfolioLink     String?         @map("portfolio_link")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Scout search hot path (PRD 19.2)
+  @@index([primaryPosition, leagueLevel, preferredFoot])
+  @@map("player_profiles")
+}
+
+model CoachProfile {
+  userId             String    @id @map("user_id") @db.Uuid
+  coachType          CoachType @map("coach_type")
+  yearsExperience    Int?      @map("years_experience")
+  preferredFormation String?   @map("preferred_formation")
+  portfolioLink      String?   @map("portfolio_link")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([coachType])
+  @@map("coach_profiles")
+}
+
+model ScoutProfile {
+  userId             String    @id @map("user_id") @db.Uuid
+  scoutType          ScoutType @map("scout_type")
+  regionsCovered     String?   @map("regions_covered")
+  playersRecommended Int       @default(0) @map("players_recommended")
+  yearsExperience    Int?      @map("years_experience")
+  portfolioLink      String?   @map("portfolio_link")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([scoutType])
+  @@map("scout_profiles")
+}
+
+model AnalystProfile {
+  userId          String      @id @map("user_id") @db.Uuid
+  analystType     AnalystType @map("analyst_type")
+  toolsUsed       String?     @map("tools_used")
+  yearsExperience Int?        @map("years_experience")
+  portfolioLink   String?     @map("portfolio_link")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([analystType])
+  @@map("analyst_profiles")
+}
+
+model TherapistProfile {
+  userId          String  @id @map("user_id") @db.Uuid
+  specialization  String
+  yearsExperience Int?    @map("years_experience")
+  clinicName      String? @map("clinic_name")
+  portfolioLink   String? @map("portfolio_link")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("therapist_profiles")
+}
+
+// The PERSON who manages a club account — not the club itself (PRD 6, Sara).
+model ClubAdminProfile {
+  userId        String  @id @map("user_id") @db.Uuid
+  clubId        Int     @unique @map("club_id") // unique ⇒ one admin per club in v1 (PRD A.2)
+  positionTitle String? @map("position_title")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+
+  @@map("club_admin_profiles")
+}
+
+// Platform administrator — orthogonal to the six professional roles (PRD 7.1).
+// NEVER assignable via registration.
+model AdminProfile {
+  userId      String     @id @map("user_id") @db.Uuid
+  adminLevel  AdminLevel @map("admin_level")
+  grantedById String?    @map("granted_by") @db.Uuid
+  grantedAt   DateTime   @default(now()) @map("granted_at") @db.Timestamptz(6)
+
+  user      User  @relation("AdminProfileUser", fields: [userId], references: [id], onDelete: Cascade)
+  grantedBy User? @relation("AdminGrantedBy", fields: [grantedById], references: [id], onDelete: SetNull)
+
+  @@map("admin_profiles")
+}
+
+// =============================================================================
+// CAREER — certifications, club_affiliations
+// =============================================================================
+
+// 1-to-many, NOT a column: any professional holds several, and each will need
+// its own verification state in v2 (is_verified carried now, unused at launch).
+model Certification {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  name       String
+  issuer     String?
+  issueDate  DateTime? @map("issue_date") @db.Date
+  // CHECK (expiry_date > issue_date) in SQL migration
+  expiryDate DateTime? @map("expiry_date") @db.Date
+  isVerified Boolean   @default(false) @map("is_verified")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("certifications")
+}
+
+// Replaces current_club/former_clubs columns: club history is time-varying
+// facts. Current club = the row where end_date IS NULL (PRD 7.3).
+model ClubAffiliation {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  clubId     Int       @map("club_id")
+  roleAtClub ClubRole  @map("role_at_club")
+  startDate  DateTime  @map("start_date") @db.Date
+  // CHECK (end_date > start_date) in SQL migration.
+  // Partial index on (club_id) WHERE end_date IS NULL in SQL migration.
+  endDate    DateTime? @map("end_date") @db.Date
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([clubId])
+  @@map("club_affiliations")
+}
+
+// =============================================================================
+// CONTENT — posts, post_images, post_likes, comments, saved_posts
+// =============================================================================
+
+model Post {
+  id       String   @id @default(uuid()) @db.Uuid
+  authorId String   @map("author_id") @db.Uuid
+  // Set when a CLUB_ADMIN publishes AS the club: attribution is stored on the
+  // post itself so it survives the admin later leaving the club (AC-06).
+  clubId   Int?     @map("club_id")
+  postType PostType @default(STANDARD) @map("post_type")
+  content  String // 1–3000 chars, DTO-enforced
+
+  // Trigger-maintained counters — documented 3NF exception (PRD A.4).
+  likesCount    Int @default(0) @map("likes_count")
+  commentsCount Int @default(0) @map("comments_count")
+
+  editedAt  DateTime? @map("edited_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6) // soft delete (FR-POST-4)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  author User  @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  club   Club? @relation(fields: [clubId], references: [id], onDelete: Restrict)
+
+  images   PostImage[]
+  likes    PostLike[]
+  saves    SavedPost[]
+  comments Comment[]
+
+  // Feed index is PARTIAL — (created_at DESC, id DESC) WHERE deleted_at IS NULL
+  // — created in SQL migration, deliberately not duplicated here.
+  @@index([authorId, createdAt(sort: Desc)])
+  @@index([clubId])
+  @@map("posts")
+}
+
+// Own table, not a delimited column — 1NF (PRD 9.4 "required v1 migration").
+model PostImage {
+  id       String @id @default(uuid()) @db.Uuid
+  postId   String @map("post_id") @db.Uuid
+  // R2 object key, e.g. posts/{userId}/{uuid}.webp — public URL derived at read
+  key      String
+  width    Int?
+  height   Int?
+  position Int // 0–3
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, position]) // deterministic ordering (PRD A.2)
+  @@map("post_images")
+}
+
+// Composite PK ⇒ idempotent by construction: a second like is a constraint
+// violation, not application logic (PRD A.2).
+model PostLike {
+  userId    String   @map("user_id") @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@map("post_likes")
+}
+
+model SavedPost {
+  userId    String   @map("user_id") @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([userId, createdAt(sort: Desc)]) // "my saved posts" listing
+  @@index([postId])
+  @@map("saved_posts")
+}
+
+model Comment {
+  id              String  @id @default(uuid()) @db.Uuid
+  postId          String  @map("post_id") @db.Uuid
+  authorId        String  @map("author_id") @db.Uuid
+  // Single-level replies (V1.1 feature; column carried from v1 — PRD A.3)
+  parentCommentId String? @map("parent_comment_id") @db.Uuid
+  content         String // 1–1000 chars, DTO-enforced
+
+  editedAt  DateTime? @map("edited_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  post    Post      @relation(fields: [postId], references: [id], onDelete: Restrict)
+  author  User      @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  parent  Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: SetNull)
+  replies Comment[] @relation("CommentReplies")
+
+  @@index([postId, createdAt])
+  @@index([authorId])
+  @@map("comments")
+}
+
+// =============================================================================
+// GRAPH — follows
+// =============================================================================
+
+model Follow {
+  followerId  String   @map("follower_id") @db.Uuid
+  followingId String   @map("following_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  follower  User @relation("FollowerUser", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("FollowingUser", fields: [followingId], references: [id], onDelete: Cascade)
+
+  // CHECK (follower_id <> following_id) in SQL migration — no self-follow.
+  @@id([followerId, followingId])
+  @@index([followingId]) // "who follows X"
+  @@map("follows")
+}
+
+// =============================================================================
+// MESSAGING — conversations, messages
+// =============================================================================
+
+// CHECK (participant_a_id < participant_b_id) in SQL migration: combined with
+// the unique pair below, duplicate conversations become structurally
+// impossible rather than a race the application has to lose gracefully.
+model Conversation {
+  id             String    @id @default(uuid()) @db.Uuid
+  participantAId String    @map("participant_a_id") @db.Uuid
+  participantBId String    @map("participant_b_id") @db.Uuid
+  // Trigger-maintained on message insert — documented denormalisation (PRD A.4)
+  lastMessageAt  DateTime? @map("last_message_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  participantA User @relation("ParticipantA", fields: [participantAId], references: [id], onDelete: Restrict)
+  participantB User @relation("ParticipantB", fields: [participantBId], references: [id], onDelete: Restrict)
+
+  messages Message[]
+
+  @@unique([participantAId, participantBId])
+  @@index([participantAId, lastMessageAt(sort: Desc)])
+  @@index([participantBId, lastMessageAt(sort: Desc)])
+  @@map("conversations")
+}
+
+// BigInt monotonic id ON PURPOSE: "server-assigned id is the sole ordering
+// authority" (PRD 9.8). Random UUIDs cannot order a conversation.
+model Message {
+  id             BigInt    @id @default(autoincrement())
+  conversationId String    @map("conversation_id") @db.Uuid
+  senderId       String    @map("sender_id") @db.Uuid
+  content        String // ≤ 2000 chars, DTO-enforced; 64 KB socket payload cap
+  deliveredAt    DateTime? @map("delivered_at") @db.Timestamptz(6)
+  readAt         DateTime? @map("read_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Restrict)
+
+  @@index([conversationId, id(sort: Desc)]) // keyset backwards from newest (PRD 9.8)
+  @@map("messages")
+}
+
+// =============================================================================
+// SIGNALS — notifications, profile_views
+// =============================================================================
+
+// entityId is polymorphic WITHOUT an FK — documented 3NF exception (PRD A.4):
+// notifications are ephemeral (90-day retention) and resolved at read time
+// with a graceful fallback. String because targets span UUID and BigInt ids.
+model Notification {
+  id         String           @id @default(uuid()) @db.Uuid
+  userId     String           @map("user_id") @db.Uuid // recipient
+  actorId    String?          @map("actor_id") @db.Uuid // null for ADMIN_NOTICE
+  type       NotificationType
+  entityType EntityType?      @map("entity_type")
+  entityId   String?          @map("entity_id")
+  readAt     DateTime?        @map("read_at") @db.Timestamptz(6)
+  createdAt  DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user  User  @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  actor User? @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  // Partial unread index — (user_id) WHERE read_at IS NULL — in SQL migration.
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+// Anonymous rolling-window profile view count. Replaces the identity-revealing
+// PROFILE_VIEWED notification (PRD v1.2, Appendix D Q-5). Append-only stream.
+model ProfileView {
+  id           BigInt   @id @default(autoincrement())
+  viewerId     String   @map("viewer_id") @db.Uuid
+  viewedUserId String   @map("viewed_user_id") @db.Uuid
+  viewedAt     DateTime @default(now()) @map("viewed_at") @db.Timestamptz(6)
+
+  viewer     User @relation("ProfileViewer", fields: [viewerId], references: [id], onDelete: Cascade)
+  viewedUser User @relation("ProfileViewed", fields: [viewedUserId], references: [id], onDelete: Cascade)
+
+  @@index([viewedUserId, viewedAt(sort: Desc)])
+  @@map("profile_views")
+}
+
+// =============================================================================
+// GOVERNANCE — reports, admin_actions, refresh_tokens
+// =============================================================================
+
+model Report {
+  id             String           @id @default(uuid()) @db.Uuid
+  reporterId     String           @map("reporter_id") @db.Uuid
+  targetType     ReportTargetType @map("target_type")
+  targetId       String           @map("target_id") // polymorphic, no FK (same rationale as notifications)
+  reason         ReportReason
+  description    String?
+  status         ReportStatus     @default(PENDING)
+  handledById    String?          @map("handled_by") @db.Uuid
+  resolvedAt     DateTime?        @map("resolved_at") @db.Timestamptz(6)
+  resolutionNote String?          @map("resolution_note")
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  reporter  User  @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Restrict)
+  handledBy User? @relation("ReportHandler", fields: [handledById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([reporterId]) // queue shows reporter history (PRD 9.10)
+  @@map("reports")
+}
+
+// APPEND-ONLY audit trail. No updatedAt by design — rows are never modified.
+model AdminAction {
+  id         BigInt          @id @default(autoincrement())
+  adminId    String          @map("admin_id") @db.Uuid
+  actionType AdminActionType @map("action_type")
+  targetType EntityType?     @map("target_type")
+  targetId   String?         @map("target_id")
+  reason     String?
+  metadata   Json?
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  admin User @relation(fields: [adminId], references: [id], onDelete: Restrict)
+
+  @@index([adminId, createdAt(sort: Desc)])
+  @@index([targetType, targetId])
+  @@map("admin_actions")
+}
+
+// Rotation + reuse detection (FR-AUTH-5). Tokens stored HASHED — a database
+// leak must not yield usable sessions. familyId is what makes "revoke the
+// whole family on reuse" a single indexed UPDATE.
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  familyId  String    @map("family_id") @db.Uuid
+  userAgent String?   @map("user_agent")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
