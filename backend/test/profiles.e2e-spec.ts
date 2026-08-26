@@ -429,15 +429,23 @@ describe('Profiles (e2e, real Postgres)', () => {
       expect(Object.keys(body.profile)).not.toContain('coachType');
     });
 
+    // `isFollowing` joined this block when the follows module landed. Kept as
+    // an exact-shape assertion rather than loosened to toMatchObject: the point
+    // of asserting the viewer block exactly is that a new key cannot appear
+    // here unnoticed, and that is worth one deliberate edit per addition.
     it('marks the caller own profile with viewer.isSelf', async () => {
       const own = await authed(`/users/${subject.id}`, subject.token).expect(200);
-      expect(asJson<{ viewer: unknown }>(own).viewer).toEqual({ isSelf: true });
+      expect(asJson<{ viewer: unknown }>(own).viewer).toEqual({
+        isSelf: true,
+        isFollowing: false,
+      });
 
       const foreign = await authed(`/users/${subject.id}`, viewer.token).expect(
         200,
       );
       expect(asJson<{ viewer: unknown }>(foreign).viewer).toEqual({
         isSelf: false,
+        isFollowing: false,
       });
     });
 

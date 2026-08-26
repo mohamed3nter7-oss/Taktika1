@@ -11,6 +11,7 @@ import { PrismaModule } from './common/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { CareerModule } from './modules/career/career.module';
+import { FollowsModule } from './modules/follows/follows.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { ReferenceModule } from './modules/reference/reference.module';
 
@@ -30,6 +31,7 @@ import { ReferenceModule } from './modules/reference/reference.module';
     ReferenceModule,
     ProfilesModule,
     CareerModule,
+    FollowsModule,
   ],
   controllers: [AppController],
   providers: [

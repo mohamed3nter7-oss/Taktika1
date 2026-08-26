@@ -23,8 +23,15 @@
 // (see CLAUDE.md §6 for the verbatim SQL):
 //  - CHECK constraints (self-follow, conversation ordering, temporal sanity)
 //  - Partial indexes (feed, current affiliations, unread notifications)
-//  - pg_trgm + unaccent extensions and GIN trigram indexes
+//  - CREATE EXTENSION for pg_trgm and unaccent
 //  - Counter triggers (likes/comments/followers/last_message_at)
+//
+// The GIN TRIGRAM INDEXES themselves are NOT in that list, though this comment
+// used to say they were. `type:` and `ops: raw(...)` have been GA since
+// Prisma 4, so they are declared on User and Club below. The distinction is
+// exact: creating the EXTENSION is still hand-written SQL, declaring an INDEX
+// that uses it is not. Anything in this file's blind spot is something
+// `prisma migrate dev` proposes to DROP on sight (D-009).
 // =============================================================================
 
 generator client {
@@ -83,6 +90,13 @@ enum PlayerPosition {
   CENTER_BACK
   LEFT_BACK
   DEFENSIVE_MIDFIELDER
+  // Order here mirrors `enumsortorder` in the database, NOT footballing sense.
+  // A Postgres enum's order is fixed when the type is created and cannot be
+  // changed without recreating the type, so this file must follow the database
+  // rather than the other way round. Nothing should ORDER BY this column —
+  // display order belongs in an explicit map in code (D-008).
+  LEFT_MIDFIELDER
+  RIGHT_MIDFIELDER
   CENTRAL_MIDFIELDER
   ATTACKING_MIDFIELDER
   RIGHT_WINGER
@@ -298,6 +312,10 @@ model Club {
   @@unique([nameEn, countryId]) // prevents duplicate club entities (PRD A.2)
   @@index([countryId])
   @@index([leagueId])
+  // Both the Latin and Arabic names must resolve to the same club
+  // (migration.sql:86-87). See the note on User for why these are declared.
+  @@index([nameEn(ops: raw("gin_trgm_ops"))], type: Gin, map: "idx_clubs_name_en_trgm")
+  @@index([nameAr(ops: raw("gin_trgm_ops"))], type: Gin, map: "idx_clubs_name_ar_trgm")
   @@map("clubs")
 }
 
@@ -389,6 +407,12 @@ model User {
 
   @@index([role, status])
   @@index([countryId, cityId])
+  // Trigram search over names. Declared here rather than left to hand-written
+  // SQL: `type` + `ops` have been GA since Prisma 4, and an index the schema
+  // does not know about is one `prisma migrate dev` proposes to DROP every
+  // time (D-009). Must match migration.sql:84 exactly — a definition that
+  // differs produces a drop-and-recreate rather than silence.
+  @@index([fullName(ops: raw("gin_trgm_ops"))], type: Gin, map: "idx_users_full_name_trgm")
   @@map("users")
 }
 
@@ -675,7 +699,18 @@ model Follow {
 
   // CHECK (follower_id <> following_id) in SQL migration — no self-follow.
   @@id([followerId, followingId])
-  @@index([followingId]) // "who follows X"
+  // Covering keyset indexes, one per list direction. Both carry the full
+  // ordering tuple so (created_at, follower_id) < (?, ?) is an Index Cond on
+  // an Index Only Scan — no Sort node, no heap lookup for the page window.
+  //
+  // TWO indexes, not one: the PK leading column serves the follower_id FILTER
+  // but carries no created_at, so the "who X follows" direction still planned
+  // a Sort. Verified by EXPLAIN before this was written.
+  //
+  // Every column DESC, matching the ORDER BY exactly. A mixed-direction index
+  // cannot satisfy a row-value comparison and pushes the tiebreak into a Filter.
+  @@index([followingId, createdAt(sort: Desc), followerId(sort: Desc)], map: "idx_follows_following") // "who follows X"
+  @@index([followerId, createdAt(sort: Desc), followingId(sort: Desc)], map: "idx_follows_follower") // "who X follows"
   @@map("follows")
 }
 

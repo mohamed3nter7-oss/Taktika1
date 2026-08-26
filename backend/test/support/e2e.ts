@@ -61,6 +61,13 @@ export class ApiClient {
       .set('X-Forwarded-For', this.ip);
   }
 
+  /** Toggle writes (follows, and likes/bookmarks when they land) use PUT. */
+  put(path: string) {
+    return request(this.server)
+      .put(`/${API_PREFIX}${path}`)
+      .set('X-Forwarded-For', this.ip);
+  }
+
   patch(path: string) {
     return request(this.server)
       .patch(`/${API_PREFIX}${path}`)

@@ -45,6 +45,34 @@ Prisma checksums applied migrations. Editing one produces a `P3018` failure that
 - If history diverges, recreate the migration with the exact recorded timestamp rather than editing in place.
 - Local dev DB: Postgres 16 in Docker, host port **5433**, named volume so data survives container rebuilds.
 
+### `prisma migrate dev` is not a diagnostic
+
+It is a write. It applies every pending migration first, then generates a new migration file
+from whatever it believes the difference to be — and that file can be destructive. Running it
+"just to see what it thinks" has already, in this repository, applied a migration and written a
+file that dropped three GIN indexes (root `CLAUDE.md` §17 D-009), and separately proposed an
+`ALTER TYPE` recreate over two enum values (D-008). Both appeared as unannounced extra hunks
+attached to an unrelated change.
+
+**To inspect, use `prisma migrate diff`.** It is read-only, and `--exit-code` makes it a gate
+(0 empty, 2 non-empty, 1 error):
+
+```bash
+npx prisma migrate diff --from-config-datasource --to-schema ./prisma/schema.prisma --script --exit-code
+```
+
+That answers "does `schema.prisma` match the live database" — i.e. what `migrate dev` would
+propose. To answer "does `schema.prisma` match what the migration history builds", use
+`--from-migrations ./prisma/migrations`; it needs `datasource.shadowDatabaseUrl` in
+`prisma.config.ts`, which is deliberately not committed — set it for the run and remove it.
+
+Run **both** before trusting a schema change. The first alone cannot catch a declaration that
+matches the database but differs from the migration that created it, which is precisely the
+case that turns into a silent drop-and-recreate later.
+
+When `migrate dev` genuinely is the right command, read the file it produced before applying
+it. Every hunk that is not the change you intended is a bug report.
+
 ---
 
 ## Testing
@@ -112,6 +140,17 @@ Consequence worth knowing before you debug it: after `POST /auth/register/profil
 
   **This shape is asserted by the e2e suite.** Changing any key is a breaking API change: the filter, the e2e assertions and the frontend axios interceptor have to move in the same commit. See root `CLAUDE.md` §17 D-002.
 - Pagination: request `?cursor=&limit=20`, response `{ data: [], nextCursor: string | null }`.
+
+  **End of list is `nextCursor === null`, and nothing else.** A page may contain fewer rows
+  than `limit` and still have more pages behind it: the keyset window is taken over the
+  owning table, while rows are dropped afterwards during hydration when the referenced user
+  is no longer ACTIVE. `GET /users/:id/followers` returning 2 rows for `limit=5` with a live
+  cursor is correct, not the last page. A client that infers the end from `data.length`
+  stops early and silently — and the shorter the page, the likelier it does.
+
+  The keyset itself is unaffected by that filtering: the cursor tracks the window, so
+  nothing is skipped or repeated. `follows` is the reference implementation; root
+  `CLAUDE.md` §17 D-007 records the predicate form to copy and the one not to.
 - Likes and follows use `PUT` / `DELETE`, so a double-tap is a no-op rather than an error.
 
 ---

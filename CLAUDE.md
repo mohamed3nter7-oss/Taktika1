@@ -90,8 +90,8 @@ These appear in backend validation *and* frontend rendering. Getting them wrong 
 ## 7. Build order
 
 ```
-common → reference → auth → profiles → career → posts
-  → feed → social → search → messaging → notifications
+common → reference → auth → profiles → career → follows
+  → posts → feed → search → messaging → notifications
 ```
 
 Dependency-driven. Nothing is built against a stub, so nothing needs revisiting when its dependency lands.
@@ -173,3 +173,87 @@ Format:
 **Reversal cost:** trivial — add the query DTO, thread the cursor through, and return a real `nextCursor`. The envelope already has the key, so no response shape changes and no consumer breaks.
 
 **Test coverage.** `career.e2e-spec.ts` carries a characterization test pinning this behaviour, named so that its failure reads as "pagination arrived" rather than "a test broke". The cap itself is NOT covered — no test creates 101 rows — so a regression that drops or changes `take` would go unnoticed.
+
+### D-006 — the graph module is `follows`, and it is built before `posts`
+**PRD ref:** §7 Build order / `frontend/.docs/03-ARCHITECTURE.md` line 27
+**Decided:** 2026-08-26
+**Divergence:** §7 named the graph module `social` and placed it after `posts` and `feed`. It is named `follows` and is built immediately after `career`. §7 has been rewritten to match; the architecture doc has NOT been edited and still carries the old order.
+**Reason:** Two separate corrections.
+
+*Name.* `social` is a category, not a boundary. A category-named module accrues whatever is vaguely social — likes, blocks, mentions, mutes — because nothing about the name argues against it. `follows` owns the `follows` table and the four routes over it, which is a boundary that fits in a sentence. Note this resolves a contradiction rather than creating one: D-005 already committed to the name `follows` in writing ("First real keyset implementation lands in the `follows` module"), so §7 and §17 disagreed before this entry existed. The PRD agrees too — its requirement IDs are `FR-FOLW`, and "Social graph" there is a feature heading, not a module name.
+
+*Order.* `follows` has no dependency on `posts`. `feed` has a hard dependency on `follows` — a feed is a query over the follow graph — so the original order had `feed` built before the thing it reads from existed. Moving `follows` earlier makes the sequence dependency-driven again, which is what §7 claims to be.
+
+**Reversal cost:** trivial for the ordering (nothing was built against it). The name is a directory rename plus imports.
+
+### D-007 — two keyset implementations coexist; `follows` is the template
+**PRD ref:** `backend/CLAUDE.md` § API conventions / root §5 "Cursor pagination everywhere"
+**Decided:** 2026-08-26
+**Divergence:** The codebase now contains two different keyset predicates. `FollowsService` builds the ordering comparison as a SQL row-value, `(created_at, follower_id) < ($1, $2)`, in a `$queryRaw` tagged template. `ReferenceService.listClubs` builds it through the Prisma typed API, which can only emit the OR-decomposed form `a > $1 OR (a = $1 AND b > $2)`. Both return correct results. They do not plan the same way.
+
+**Reason:** Prisma cannot express a row-value comparison, and the difference is not cosmetic. Measured with `EXPLAIN` against the existing `idx_posts_feed` before either was written:
+
+| Form | Plan |
+| --- | --- |
+| row-value | `Index Only Scan`, comparison under **`Index Cond`**, no Sort |
+| OR-decomposed | `Bitmap Heap Scan`, comparison under **`Filter`**, plus a **`Sort`** |
+
+The OR form reads every row matching the leading column and sorts them to return twenty. On `clubs` that is bounded and static, so it is fine. On a follow graph, a feed, or a search result it is a table scan wearing an index's name.
+
+**The template for `posts`, `feed` and `search` is `follows`, specifically:** a covering index carrying the full ordering tuple; every column in the same direction (a mixed-direction index cannot satisfy a row-value comparison and pushes the tiebreak back into a `Filter`); a composite cursor whose columns match the index columns exactly; and the timestamp carried as **text**, never as a JavaScript `Date` — see D-007's companion note below.
+
+**Timestamp precision, the non-obvious half.** `created_at` is `timestamptz(6)`; a JS `Date` is millisecond. Encoding a cursor through a `Date` truncates downward, so a cursor taken from a row at `.123789` reads `.123000`, and a sibling row at `.123456` is *greater* than the cursor — it fails the comparison on that page and on every page after it, and is never returned to anyone. The failure is a silent omission, not a duplicate, and no boundary-collision test can find it: truncation preserves equality, so rows *sharing* a timestamp still page correctly. `follows.e2e-spec.ts` covers it with rows separated by microseconds inside a single millisecond.
+
+**Outstanding debt, logged not fixed:** `ReferenceService.listClubs` keeps the OR form. It is bounded by the fact that reference tables are small, static, and read rarely. It should be migrated when something makes that untrue, and it must not be copied.
+
+**Reversal cost:** trivial — `follows` is the only consumer of the raw form and nothing depends on the plan shape.
+
+### D-008 — `schema.prisma` had lost two enum values; resolved toward the migration history
+**PRD ref:** PRD 7.2 / `frontend/.docs/02-DATA-MODEL.md`
+**Decided:** 2026-08-26
+**Divergence:** None standing. This entry records drift that existed and is now closed. `PlayerPosition` in `schema.prisma` listed ten values; `20260806153229_init` creates the `player_position` type with **twelve**, and the live database has twelve. The two missing were `LEFT_MIDFIELDER` and `RIGHT_MIDFIELDER`. Resolved by adding them back to `schema.prisma` — a schema-file edit only, with no migration, because the history and the database already agreed with each other and only the schema file disagreed with both.
+
+**Reason:** Resolved toward the history rather than the file because the positions are product-correct. A left midfielder is not a left winger — different defensive responsibility, different position on the pitch, different player. With the values absent, the nearest registration option is `LEFT_WINGER`, so every left midfielder on the platform would be recorded as a winger. That corrupts scout position filtering, which is the core value loop (PRD FR-SRCH-2 filters on role-specific attributes, position first). Deleting the values would have required a destructive `ALTER TYPE` recreate; adding them to the file required nothing.
+
+**Why it was silent.** `prisma migrate deploy` does not run drift detection — it applies unapplied migrations and reports "Database schema is up to date!", which is what `migrate status` said throughout. Only `migrate dev` diffs the schema file against the database, and it surfaces the problem as a *warning attached to an unrelated migration*: the enum removal appeared while generating an index migration for `follows`. Had that migration been accepted unread, an unrelated destructive `ALTER TYPE` would have shipped inside it.
+
+**Enum ordering is not drift, and that is a trap — amended.** The values were first placed after `ATTACKING_MIDFIELDER`, which is where they belong in footballing terms. The database has them after `DEFENSIVE_MIDFIELDER`. Prisma proposes no migration for the difference — verified — so the mismatch would have persisted indefinitely without ever failing anything. They have since been **moved to match the database**, and the reason is that the database is the side that cannot move: a Postgres enum's ordering is `enumsortorder`, fixed when `CREATE TYPE` runs, and changing it means recreating the type and rewriting every column that uses it. Between a file that can be edited freely and a type that cannot, the file follows.
+
+**The consequence, and it is the actionable half:** `ORDER BY primary_position` sorts by `enumsortorder`, which is now an arbitrary historical artefact rather than anything meaningful — `LEFT_MIDFIELDER` sorts before `CENTRAL_MIDFIELDER` for no reason a user would recognise. **Nothing may `ORDER BY` this column, or any other enum column, to produce a user-facing order.** Display ordering belongs in an explicit map in application code, where it can be changed in a commit instead of a migration, and where it can differ per locale. The same applies to every enum in this schema; `PlayerPosition` is merely the one that surfaced it.
+
+**Reversal cost:** trivial — two lines in `schema.prisma`.
+
+**A second drift surfaced while fixing this one** — three GIN indexes `schema.prisma` did not declare. Closed in D-009.
+
+### D-009 — the GIN trigram indexes are declared in `schema.prisma`, not left to raw SQL
+**PRD ref:** `backend/CLAUDE.md` § Prisma / `schema.prisma` header
+**Decided:** 2026-08-26
+**Divergence:** None standing. This entry closes a standing destructive proposal. `schema.prisma`'s header listed "pg_trgm + unaccent extensions and GIN trigram indexes" among the things not expressible in Prisma, so `idx_users_full_name_trgm`, `idx_clubs_name_en_trgm` and `idx_clubs_name_ar_trgm` existed only in `20260806153549`. All three are now declared on `User` and `Club` with `type: Gin` and `ops: raw("gin_trgm_ops")`, and the header comment has been corrected.
+
+**Reason:** the comment was **out of date, not wrong when written**. `type:` and `ops:` left preview in Prisma 4 and need no feature flag. The cost of the stale comment was not cosmetic: an index absent from `schema.prisma` is an index Prisma believes should not exist, so **every `prisma migrate dev` proposed dropping all three**, and it proposed it as a silent extra hunk attached to whatever migration was actually being written. It surfaced here inside an unrelated index migration for `follows`. Accepting that migration unread — which is the normal way people accept migrations — would have deleted the three indexes the `search` module (FR-SRCH-1/3) is built on, on a search path chosen specifically because Egyptian names arrive as Mohamed / Mohammed / Muhammad. The failure mode is a search feature that silently degrades to a sequential scan, with no error anywhere.
+
+**The distinction the corrected comment now draws is exact:** `CREATE EXTENSION` remains hand-written SQL. Declaring an index that *uses* the extension does not. Conflating the two is what produced a three-year-stale blind spot in the file that is supposed to be the schema's source of truth.
+
+**Verified with `prisma migrate diff`, not `migrate dev`** — twice, both empty, both exit code 0:
+
+```
+--from-config-datasource --to-schema ./prisma/schema.prisma   -> "-- This is an empty migration."
+--from-migrations ./prisma/migrations --to-schema ...          -> "-- This is an empty migration."
+```
+
+The first proves `schema.prisma` matches the live database; the second proves it matches what the migration history builds. Both were necessary: a declaration that differs from `migration.sql` in any detail produces a drop-and-recreate rather than silence, and only the second diff would have caught that.
+
+**Reversal cost:** trivial — three `@@index` lines.
+
+### D-010 — `isFollowing` is computed in two places (debt, not resolved)
+**PRD ref:** FR-FOLW / this module
+**Decided:** 2026-08-26
+**Divergence:** The same wire field is derived by two independent code paths. `GET /users/:id` resolves it through `viewerFollowSelect` in `follows.map.ts` — a filtered relation on the `users` aggregate root, existence-probed with `take: 1`. `GET /users/:id/followers` and `/following` resolve it in `FollowsService.hydrate` — one `follow.findMany` over the page's ids, mapped to a `Set`. Neither calls the other.
+
+**Reason it exists:** the two reads have genuinely different shapes. The profile embed needs one boolean for one user and gets it free as a relation of a row it is already fetching; the list route needs *n* booleans for a page and must not issue *n* queries. Collapsing them today would mean either an extra round trip on every profile view or a helper awkward enough to obscure both call sites.
+
+**Reason it is debt anyway:** two implementations of one field diverge, and this pair has already demonstrated it. `follows.e2e-spec.ts` now pins both, but those tests were not written from review — the list-route test existed and read as if it covered the field, while the profile path had no test that bound to its filter at all. **Source mutation found it: replacing `followerId: viewerId` with `followerId: undefined` in `follows.map.ts` left all 185 tests green.** Prisma drops an `undefined` where-value rather than matching nothing, so the probe silently became "does *anyone* follow this user", returning `true` for every user with at least one follower. Every existing test used a target whose only follower was the viewer, so none could tell the difference. A test now covers exactly that arrangement.
+
+**Consolidation path when a third consumer appears** (post authors and search hits both need this field, so it will): one exported method on `FollowsService` — `followedSubset(viewerId, ids): Promise<Set<string>>` — with the profile embed passing a single-element array. That makes the *n*-query shape the only shape, keeps the anti-N+1 property in one place, and costs the profile read one extra query. That trade is currently not worth it and becomes worth it the moment a third caller exists.
+
+**Reversal cost:** trivial today, and the tests pinning both paths are what keep it trivial.
