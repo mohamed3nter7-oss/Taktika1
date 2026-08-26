@@ -1,0 +1,125 @@
+{
+  "app": {
+    "title": "Taktika",
+    "description": "Professional networking for the football industry."
+  },
+  "dev": {
+    "title": "Player profile fixtures",
+    "description": "Every state the profile page ships. Temporary — this goes when the real feed lands.",
+    "complete": "Complete profile",
+    "completeHint": "Every optional field present",
+    "sparse": "Sparse profile",
+    "sparseHint": "Sixteen-year-old academy player",
+    "own": "Own profile",
+    "ownHint": "Follow and message replaced by edit",
+    "slow": "Loading state",
+    "slowHint": "Delayed so the skeletons render",
+    "english": "English",
+    "arabic": "Arabic"
+  },
+  "roles": {
+    "PLAYER": "Player",
+    "COACH": "Coach",
+    "SCOUT": "Scout",
+    "ANALYST": "Analyst",
+    "PHYSICAL_THERAPIST": "Physio",
+    "CLUB_ADMIN": "Club"
+  },
+  "positions": {
+    "GOALKEEPER": "Goalkeeper",
+    "RIGHT_BACK": "Right back",
+    "CENTER_BACK": "Centre back",
+    "LEFT_BACK": "Left back",
+    "DEFENSIVE_MIDFIELDER": "Defensive midfielder",
+    "CENTRAL_MIDFIELDER": "Central midfielder",
+    "ATTACKING_MIDFIELDER": "Attacking midfielder",
+    "LEFT_MIDFIELDER": "Left midfielder",
+    "RIGHT_MIDFIELDER": "Right midfielder",
+    "LEFT_WINGER": "Left winger",
+    "RIGHT_WINGER": "Right winger",
+    "STRIKER": "Striker"
+  },
+  "foot": {
+    "LEFT": "Left foot",
+    "RIGHT": "Right foot",
+    "BOTH": "Both feet"
+  },
+  "league": {
+    "PREMIER": "Premier",
+    "SECOND_DIVISION": "Second division",
+    "THIRD_DIVISION": "Third division",
+    "YOUTH_ACADEMY": "Youth academy",
+    "AMATEUR": "Amateur"
+  },
+  "units": {
+    "cm": "{value} cm",
+    "kg": "{value} kg"
+  },
+  "profile": {
+    "followers": "{count, plural, =0 {No followers} one {{value} follower} other {{value} followers}}",
+    "following": "{value} following",
+    "age": "Age {value}",
+    "location": "{city}, {country}",
+    "follow": "Follow",
+    "following_action": "Following",
+    "sendMessage": "Send message",
+    "editProfile": "Edit profile",
+    "notFoundTitle": "Profile not found",
+    "notFoundDescription": "No player matches that link. Check it and try again."
+  },
+  "tabs": {
+    "posts": "Posts",
+    "about": "About",
+    "career": "Career",
+    "label": "Profile sections"
+  },
+  "about": {
+    "position": "Position",
+    "preferredFoot": "Preferred foot",
+    "leagueLevel": "League level",
+    "age": "Age",
+    "height": "Height",
+    "weight": "Weight",
+    "jerseyNumber": "Shirt number",
+    "basedIn": "Based in",
+    "portfolio": "Portfolio"
+  },
+  "details": {
+    "title": "Details",
+    "height": "Height",
+    "weight": "Weight",
+    "jerseyNumber": "Shirt number",
+    "viewPortfolio": "View portfolio"
+  },
+  "certifications": {
+    "title": "Certifications",
+    "verified": "Verified",
+    "issued": "Issued {date}",
+    "expires": "Expires {date}"
+  },
+  "career": {
+    "current": "Current",
+    "range": "{start} – {end}",
+    "present": "present",
+    "emptyTitle": "No club history yet",
+    "emptyVisitor": "{name} has not added a club yet.",
+    "emptyOwner": "Add a club to show scouts where you have played."
+  },
+  "posts": {
+    "emptyTitle": "No posts yet",
+    "emptyVisitor": "{name} has not shared an update yet.",
+    "emptyOwner": "Share an update to start building your profile.",
+    "seeCareer": "See career history",
+    "createPost": "Create post",
+    "showMore": "Show more",
+    "like": "Like post",
+    "unlike": "Unlike post",
+    "comment": "Comment",
+    "edited": "Edited"
+  },
+  "time": {
+    "minutesAgo": "{value}m ago",
+    "hoursAgo": "{value}h ago",
+    "daysAgo": "{value}d ago"
+  }
+}

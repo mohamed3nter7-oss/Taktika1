@@ -1,26 +1,344 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------------------------------------------------------------------------
+   Taktika design tokens.
+
+   Ported by value from the Claude Design system
+   `taktika-design-system-be64d561` (tokens/*.css + readme.md). Nothing from
+   that project's `styles.css` or `_ds_bundle.js` is imported - they are a
+   parallel styling system and would fight Tailwind.
+
+   Every namespace is reset with `--<ns>-*: initial` before being redefined.
+   That is deliberate, and it is what makes the house rules mechanical rather
+   than a matter of review: with `--color-*` reset, `bg-red-500` does not
+   exist; with `--font-weight-*` reset, `font-bold` does not exist, which is
+   the design system's ban on 700-weight Latin enforced by the compiler.
+--------------------------------------------------------------------------- */
+
+@theme {
+  /* -- reset ------------------------------------------------------------ */
+  --color-*: initial;
+  --font-*: initial;
+  --font-weight-*: initial;
+  --text-*: initial;
+  --tracking-*: initial;
+  --leading-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --breakpoint-*: initial;
+  --container-*: initial;
+  --ease-*: initial;
+  --animate-*: initial;
+  --blur-*: initial;
+
+  /* Keyword colours have to survive the reset by name. `border-transparent`
+     holds layout on unbordered button variants sitting beside bordered ones,
+     and `*-current` is how an icon inherits its text colour. */
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+
+  /* -- surfaces --------------------------------------------------------- *
+     Elevation is lightness, never shadow. Max two levels above base.
+     The base is not neutral black: it carries a green cast below conscious
+     notice that ties every surface to the accent.                          */
+  --color-surface: #0a0f0c;
+  --color-raised: #111814;
+  --color-overlay: #161e19;
+  --color-sunken: #070a08;
+  /* Mandatory behind every user-uploaded image. Crests and certificates are
+     overwhelmingly transparent PNGs with dark linework. */
+  --color-plate: #e8ede9;
+
+  /* -- foreground ------------------------------------------------------- */
+  --color-fg: #e7ebe5;
+  --color-fg-secondary: #93a08f;
+  --color-fg-muted: #66705f;
+  --color-on-accent: #ffffff;
+  --color-fg-inverse: #0a0f0c;
+
+  /* -- accent ----------------------------------------------------------- *
+     `--color-accent` is ILLEGAL as text: 3.4:1 at body size, fails AA.
+     `--color-accent-text` (8.9:1) is the only accent value legal on text.   */
+  --color-accent: #16a34a;
+  --color-accent-hover: #1bb854;
+  --color-accent-pressed: #128840;
+  --color-accent-subtle: #0f2a1a;
+  --color-accent-text: #4ade80;
+  --color-accent-text-hover: #6ee7a0;
+
+  /* -- semantic --------------------------------------------------------- *
+     Success shares the accent hex deliberately.                            */
+  --color-success: #16a34a;
+  --color-success-tint: #0f2a1a;
+  --color-success-text: #4ade80;
+  --color-danger: #dc2626;
+  --color-danger-tint: #2a1010;
+  --color-danger-text: #f87171;
+  --color-warning: #d97706;
+  --color-warning-tint: #2a1d08;
+  --color-warning-text: #fbbf24;
+  --color-info: #2563eb;
+  --color-info-tint: #101b33;
+  --color-info-text: #60a5fa;
+
+  /* -- edges ------------------------------------------------------------ *
+     Alpha over the foreground, so one token reads correctly on every
+     surface instead of needing a variant per background.                   */
+  --color-edge-subtle: rgba(231, 235, 229, 0.06);
+  --color-edge: rgba(231, 235, 229, 0.11);
+  --color-edge-strong: rgba(231, 235, 229, 0.18);
+
+  /* -- signature -------------------------------------------------------- *
+     One 1px rule beneath the profile header, once per page maximum. It is
+     the entire athletic-personality budget of the visual system.           */
+  --color-pitch: rgba(22, 163, 74, 0.24);
+
+  /* Ported for completeness; nothing on this page renders a modal. */
+  --color-scrim: rgba(0, 0, 0, 0.7);
+
+  /* -- type ------------------------------------------------------------- *
+     Modular scale, ratio 1.2, whole pixels. Three weights only.            */
+  --font-latin: var(--font-inter), system-ui, sans-serif;
+  --font-arabic: var(--font-cairo), system-ui, sans-serif;
+  --font-numeric: var(--font-inter), ui-monospace, monospace;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  --text-display: 40px;
+  --text-display--line-height: 48px;
+  --text-display--font-weight: 600;
+  --text-h1: 32px;
+  --text-h1--line-height: 40px;
+  --text-h1--font-weight: 600;
+  --text-h2: 24px;
+  --text-h2--line-height: 32px;
+  --text-h2--font-weight: 600;
+  --text-h3: 20px;
+  --text-h3--line-height: 28px;
+  --text-h3--font-weight: 500;
+  --text-body-lg: 17px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+  --text-body: 15px;
+  --text-body--line-height: 24px;
+  --text-body--font-weight: 400;
+  --text-sm: 13px;
+  --text-sm--line-height: 20px;
+  --text-sm--font-weight: 400;
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-xs--font-weight: 500;
+
+  /* Latin only. Negative tracking disconnects joined Arabic letterforms,
+     which is a legibility failure rather than a style preference - the base
+     layer below forces it back to 0 under `:lang(ar)`. */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  /* The one uppercase treatment in the system: rail section overlines. */
+  --tracking-overline: 0.06em;
+
+  /* -- spacing ---------------------------------------------------------- *
+     4px grid. The design system names nine steps - 4 8 12 16 20 24 32 48 64
+     - which are exactly `1 2 3 4 5 6 8 12 16` on this unit.
+
+     Layout spacing (the space between things) uses only those nine.
+     Component-internal padding on small elements may use half-steps on the
+     same unit: rounding a badge's 2px vertical padding up to 4px degrades
+     the component to satisfy a rule written for layout. See D-015.         */
+  --spacing: 4px;
+
+  /* -- radius ----------------------------------------------------------- *
+     Graduated: softness sits where elements repeat most. Inner radius is
+     always smaller than its container's.
+     NOTE: this reassigns Tailwind's defaults - `rounded-lg` is 12px here,
+     not 8px - and the reset removes `rounded-xl`/`rounded-2xl` entirely.   */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* -- motion ----------------------------------------------------------- *
+     Only `transform` and `opacity` animate. Anything else forces layout
+     every frame and drops frames on the mid-range Android hardware most of
+     the market uses.                                                       */
+  --transition-duration-fast: 120ms;
+  --transition-duration-base: 200ms;
+  --transition-duration-slow: 300ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --animate-pulse-soft: pulse-soft 300ms var(--ease-in-out) infinite alternate;
+
+  @keyframes pulse-soft {
+    from {
+      opacity: 0.5;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* -- layout ----------------------------------------------------------- */
+  --container-page: 1240px;
+  /* 1240 container - 48 padding - 240 left rail - 300 right rail - 48 gaps.
+     The left rail is not built (see D-011), but the content column keeps the
+     width the design gives it. */
+  --container-content: 604px;
+  --container-rail: 300px;
+  /* Bio measure - roughly where the eye stops losing its place between
+     lines at this size. */
+  --container-bio: 60ch;
+
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-wide: 1280px;
 }
+
+/* ---------------------------------------------------------------------------
+   Role colours.
+
+   Muted by design, and legal in RoleBadge and nowhere else. The mechanism is
+   the design system's own: plain custom properties cascading from a
+   `data-role` attribute, exposed to Tailwind through `@theme inline` so the
+   generated utility emits `var(--role-bg)` and resolves the attribute at
+   runtime rather than baking one role's colour in at build time.
+
+   Keys are the `UserRole` values from `backend/prisma/schema.prisma`, not the
+   design system's own `PHYSIO`/`CLUB` shorthands. See D-013.
+--------------------------------------------------------------------------- */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-role-bg: var(--role-bg);
+  --color-role-text: var(--role-text);
+  --color-role-border: var(--role-border);
 }
 
-@media (prefers-color-scheme: dark) {
+:root {
+  --role-bg: var(--color-sunken);
+  --role-text: var(--color-fg-secondary);
+  --role-border: var(--color-edge);
+}
+
+[data-role="PLAYER"] {
+  --role-bg: #12241c;
+  --role-text: #5eead4;
+  --role-border: #1f4a3c;
+}
+
+[data-role="COACH"] {
+  --role-bg: #1c1f2e;
+  --role-text: #a5b4fc;
+  --role-border: #333a5c;
+}
+
+[data-role="SCOUT"] {
+  --role-bg: #241c2e;
+  --role-text: #d8b4fe;
+  --role-border: #4a335c;
+}
+
+[data-role="ANALYST"] {
+  --role-bg: #12202e;
+  --role-text: #93c5fd;
+  --role-border: #1f3a5c;
+}
+
+[data-role="PHYSICAL_THERAPIST"] {
+  --role-bg: #2e1c22;
+  --role-text: #fda4af;
+  --role-border: #5c333d;
+}
+
+[data-role="CLUB_ADMIN"] {
+  --role-bg: #2a2412;
+  --role-text: #fcd34d;
+  --role-border: #5c4a1f;
+}
+
+/* ---------------------------------------------------------------------------
+   Base layer.
+--------------------------------------------------------------------------- */
+
+@layer base {
+  /* Dark-only. There is no light palette and no `prefers-color-scheme`
+     branch - see D-012. */
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-fg);
+    font-family: var(--font-latin);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Arabic optical correction: +1px on body sizes, +2px line-height,
+     tracking never negative. Overriding the tokens rather than the elements
+     means every `text-body` call site corrects itself. */
+  :root:lang(ar) {
+    --text-body: 16px;
+    --text-body--line-height: 26px;
+    --text-body-lg: 18px;
+    --text-body-lg--line-height: 30px;
+    --text-sm: 14px;
+    --text-sm--line-height: 22px;
+    --tracking-tight: 0;
+  }
+
+  :lang(ar) {
+    font-family: var(--font-arabic);
+    letter-spacing: 0;
+  }
+
+  /* Cairo 700 is where Arabic gets its emphasis; Latin maps it to 600. */
+  :lang(ar) strong,
+  :lang(ar) b {
+    font-weight: 700;
+  }
+
+  /* One treatment everywhere. `outline: none` without a replacement is a
+     defect, not a style. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+
+  ::selection {
+    background-color: var(--color-accent-subtle);
+    color: var(--color-fg);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Custom utilities.
+--------------------------------------------------------------------------- */
+
+/**
+ * A Latin run inside Arabic text.
+ *
+ * Ported from the design system's own `.bidi-isolate`. Without it a sequence
+ * of position codes reorders inside an Arabic sentence: the bidi algorithm
+ * treats the whole run as one directional block and reverses the pair, so
+ * "ST · LW" comes out "LW · ST". Applies to position codes, jersey numbers,
+ * and any Latin substring in Arabic copy.
+ */
+@utility bidi-isolate {
+  unicode-bidi: isolate;
 }

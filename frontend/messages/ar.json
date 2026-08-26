@@ -1,0 +1,125 @@
+{
+  "app": {
+    "title": "تاكتيكا",
+    "description": "شبكة مهنية لصناعة كرة القدم."
+  },
+  "dev": {
+    "title": "حالات صفحة اللاعب",
+    "description": "كل الحالات التي تشحن مع صفحة الملف الشخصي. مؤقتة — تُحذف عند وصول التغذية الفعلية.",
+    "complete": "ملف مكتمل",
+    "completeHint": "كل الحقول الاختيارية موجودة",
+    "sparse": "ملف شبه فارغ",
+    "sparseHint": "لاعب أكاديمية عمره ستة عشر عامًا",
+    "own": "ملفي الشخصي",
+    "ownHint": "المتابعة والرسالة تتحولان إلى تعديل",
+    "slow": "حالة التحميل",
+    "slowHint": "مؤجلة حتى تظهر الهياكل",
+    "english": "الإنجليزية",
+    "arabic": "العربية"
+  },
+  "roles": {
+    "PLAYER": "لاعب",
+    "COACH": "مدرب",
+    "SCOUT": "كشاف",
+    "ANALYST": "محلل أداء",
+    "PHYSICAL_THERAPIST": "أخصائي علاج طبيعي",
+    "CLUB_ADMIN": "نادي"
+  },
+  "positions": {
+    "GOALKEEPER": "حارس مرمى",
+    "RIGHT_BACK": "ظهير أيمن",
+    "CENTER_BACK": "قلب دفاع",
+    "LEFT_BACK": "ظهير أيسر",
+    "DEFENSIVE_MIDFIELDER": "وسط دفاعي",
+    "CENTRAL_MIDFIELDER": "وسط ملعب",
+    "ATTACKING_MIDFIELDER": "صانع ألعاب",
+    "LEFT_MIDFIELDER": "وسط أيسر",
+    "RIGHT_MIDFIELDER": "وسط أيمن",
+    "LEFT_WINGER": "جناح أيسر",
+    "RIGHT_WINGER": "جناح أيمن",
+    "STRIKER": "مهاجم"
+  },
+  "foot": {
+    "LEFT": "القدم اليسرى",
+    "RIGHT": "القدم اليمنى",
+    "BOTH": "كلتا القدمين"
+  },
+  "league": {
+    "PREMIER": "الدوري الممتاز",
+    "SECOND_DIVISION": "الدرجة الثانية",
+    "THIRD_DIVISION": "الدرجة الثالثة",
+    "YOUTH_ACADEMY": "أكاديمية ناشئين",
+    "AMATEUR": "هواة"
+  },
+  "units": {
+    "cm": "{value} سم",
+    "kg": "{value} كجم"
+  },
+  "profile": {
+    "followers": "{count, plural, =0 {لا يوجد متابعون} one {متابع واحد} two {متابعان} few {{value} متابعين} many {{value} متابعًا} other {{value} متابع}}",
+    "following": "يتابع {value}",
+    "age": "العمر {value}",
+    "location": "{city}، {country}",
+    "follow": "متابعة",
+    "following_action": "تتابعه",
+    "sendMessage": "إرسال رسالة",
+    "editProfile": "تعديل الملف",
+    "notFoundTitle": "الملف غير موجود",
+    "notFoundDescription": "لا يوجد لاعب بهذا الرابط. راجع الرابط وحاول مرة أخرى."
+  },
+  "tabs": {
+    "posts": "المنشورات",
+    "about": "نبذة",
+    "career": "المسيرة",
+    "label": "أقسام الملف"
+  },
+  "about": {
+    "position": "المركز",
+    "preferredFoot": "القدم المفضلة",
+    "leagueLevel": "مستوى الدوري",
+    "age": "العمر",
+    "height": "الطول",
+    "weight": "الوزن",
+    "jerseyNumber": "رقم القميص",
+    "basedIn": "مقيم في",
+    "portfolio": "ملف الأعمال"
+  },
+  "details": {
+    "title": "تفاصيل",
+    "height": "الطول",
+    "weight": "الوزن",
+    "jerseyNumber": "رقم القميص",
+    "viewPortfolio": "عرض ملف الأعمال"
+  },
+  "certifications": {
+    "title": "الشهادات",
+    "verified": "موثقة",
+    "issued": "صدرت في {date}",
+    "expires": "تنتهي في {date}"
+  },
+  "career": {
+    "current": "الحالي",
+    "range": "{start} – {end}",
+    "present": "الآن",
+    "emptyTitle": "لا توجد أندية بعد",
+    "emptyVisitor": "لم يضف {name} أي نادٍ بعد.",
+    "emptyOwner": "أضف ناديًا ليعرف الكشافون أين لعبت."
+  },
+  "posts": {
+    "emptyTitle": "لا توجد منشورات بعد",
+    "emptyVisitor": "لم يشارك {name} أي تحديث بعد.",
+    "emptyOwner": "شارك تحديثًا لتبدأ في بناء ملفك.",
+    "seeCareer": "عرض المسيرة",
+    "createPost": "إنشاء منشور",
+    "showMore": "عرض المزيد",
+    "like": "إعجاب بالمنشور",
+    "unlike": "إلغاء الإعجاب",
+    "comment": "تعليق",
+    "edited": "مُعدَّل"
+  },
+  "time": {
+    "minutesAgo": "منذ {value} د",
+    "hoursAgo": "منذ {value} س",
+    "daysAgo": "منذ {value} ي"
+  }
+}

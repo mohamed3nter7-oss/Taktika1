@@ -257,3 +257,50 @@ The first proves `schema.prisma` matches the live database; the second proves it
 **Consolidation path when a third consumer appears** (post authors and search hits both need this field, so it will): one exported method on `FollowsService` — `followedSubset(viewerId, ids): Promise<Set<string>>` — with the profile embed passing a single-element array. That makes the *n*-query shape the only shape, keeps the anti-N+1 property in one place, and costs the profile read one extra query. That trade is currently not worth it and becomes worth it the moment a third caller exists.
 
 **Reversal cost:** trivial today, and the tests pinning both paths are what keep it trivial.
+
+### D-011 — the player profile ships without the application shell
+**PRD ref:** `frontend/.docs/03-ARCHITECTURE.md` / Claude Design `PlayerProfileScreen.dc.html`
+**Decided:** 2026-08-27
+**Divergence:** The design screen is a full three-column app: a 64px `TopNav` (Feed / Network / Messages / Alerts, viewer avatar, notification count) and a 240px `LeftRail` (Feed / Saved profiles / Shortlists / Messages plus a clubs list) around the content column. Neither is built. The page renders the 604px content column and the 300px rail as a centred pair.
+**Reason:** Nothing behind either would work. There is no feed, no search, no messaging and no session, so every control in both would be a dead target — and a dead target in a nav bar is worse than an absent one, because it teaches the user the product is broken rather than unfinished. The content column keeps the exact width the 1240px container gives it (1240 − 48 padding − 240 − 300 − 48 gaps = 604), so when the shell does land the profile does not reflow. `--container-content: 604px` in `globals.css` carries that arithmetic.
+**Also dropped with it:** the rail clubs list, "Saved profiles", "Shortlists", the notification count, and `PostCard`'s save and post-options controls. No field in the profile data contract backs any of them.
+**Reversal cost:** trivial — the two components and a wrapper. No existing markup changes.
+
+### D-012 — dark-only, not dark-first
+**PRD ref:** `frontend/CLAUDE.md` § Styling
+**Decided:** 2026-08-27
+**Divergence:** The rule said "Dark-first: pitch green on near-black". The design system document says **dark-only**, and that is what is built: `color-scheme: dark`, one palette, no `prefers-color-scheme` branch, and the `create-next-app` light default deleted from `globals.css`. The rule has been rewritten to say dark-only.
+**Reason:** "Dark-first" implies a light theme arrives later, and none of the ported tokens have light values — surfaces are defined as an elevation ladder in lightness (`#0A0F0C` → `#111814` → `#161E19`), borders are alpha over the foreground, and the accent was chosen at a luminance that leaves contrast headroom *downward*. A light theme is not a second value per token; it is a second design. Writing "dark-first" invites someone to add `dark:` variants that will never be exercised and a `prefers-color-scheme` block that silently renders unreadable text.
+**Consequence, stated plainly:** a user whose OS is set to light gets the dark UI. That is intended.
+**Reversal cost:** rewrite — a light palette has to be designed, not derived.
+
+### D-013 — role keys follow `schema.prisma`, not the design system
+**PRD ref:** PRD 7.2 / Claude Design `components/identity/roleConfig.js`
+**Decided:** 2026-08-27
+**Divergence:** The design system's `ROLE_CONFIG` keys the six roles as `PLAYER`, `COACH`, `SCOUT`, `ANALYST`, `PHYSIO`, `CLUB`. `UserRole` in `schema.prisma` is `PLAYER`, `COACH`, `SCOUT`, `ANALYST`, `PHYSICAL_THERAPIST`, `CLUB_ADMIN`. `frontend/src/lib/role-config.ts`, the `[data-role]` blocks in `globals.css` and the `roles.*` message keys all use the **schema** names.
+**Reason:** the role key is a wire value. It arrives from the API on every profile, post author and search hit, and it is what `data-role` is set to. A presentation-layer alias means a translation table at every boundary, and the day someone forgets it the role badge silently falls through to the neutral default rather than erroring — a wrong colour, not a crash. `PHYSIO` and `CLUB` are also lossy: a Club Admin is a person administering a club, not the club, and `clubs` is a separate table precisely because those are different things (root §5).
+**Note:** the *labels* still differ per locale and stay in `messages/*.json`; only the keys are unified. The design system document has the same two keys wrong and should be corrected there too.
+**Reversal cost:** trivial — six keys in three places.
+
+### D-014 — fonts via `next/font/google`, not `next/font/local`
+**PRD ref:** Claude Design `_ds/.../readme.md` § Gaps and substitutions
+**Decided:** 2026-08-27
+**Divergence:** The design system specifies Inter and Cairo self-hosted through `next/font/local` with per-script subsetting. They are loaded with `next/font/google` in `[locale]/layout.tsx`, subset `latin` and `arabic` respectively.
+**Reason:** no woff2 binaries were provided — the design system flags this as an open gap on its own side, where the fonts come from the Google Fonts CDN. `next/font/google` downloads and self-hosts at build time, so the runtime result is the same as `next/font/local`: no CDN request, no third-party connection, no layout shift. What is lost is manual subsetting control, which matters for Cairo's Arabic range on mid-range Android. That is a byte-budget question to revisit with real font files, not a correctness one.
+**Reversal cost:** trivial — two `next/font` calls, once the woff2 files exist.
+
+### D-015 — the 4px grid governs layout spacing; component internals may use half-steps
+**PRD ref:** Claude Design `_ds/.../readme.md` § Visual foundations, Spacing
+**Decided:** 2026-08-27
+**Divergence:** The design system names nine spacing values (4 8 12 16 20 24 32 48 64) and states the grid as universal. Three components use half-steps on the same 4px unit: `Badge` at 2px vertical padding, `RoleBadge` at 10px horizontal, `ClubCrest` at 2px inset, and the 2px label/value gap in the About and certification rows. These are the design system's own values — its component specs already use them while its foundations text says they do not exist.
+**Reason:** the grid is a layout instrument. It governs the space *between* things, where a consistent rhythm is what makes a page scannable. Component-internal padding on a small element is a different problem: rounding a badge's 2px vertical padding to 4px makes a 12px-text pill visibly chunky and breaks its alignment with the 20px text beside it. That degrades the component to satisfy a rule not written for it. Material and Carbon both draw the line in the same place.
+**The amendment, precisely:** the nine steps are mandatory for margin, padding and gap **between** components. Within a component, padding may use half-steps (`0.5`, `2.5`) on the same 4px unit. Nothing may use a value off that unit. The design system document should be amended to say so — it is the doc that is wrong here, not the padding.
+**Reversal cost:** trivial — four class changes, at a visible cost to three components.
+
+### D-016 — no `danger` button variant
+**PRD ref:** Claude Design `components/core/Button.jsx`
+**Decided:** 2026-08-27
+**Divergence:** `ui/button.tsx` implements `primary`, `secondary`, `ghost` and `link`. The design system also defines `danger`.
+**Reason:** nothing on this page destroys anything, and the design system's `danger` hover and pressed values are raw hexes — `#E33B3B` and `#B91C1C` — with no tokens behind them and no stated relationship to `--color-danger` `#DC2626`. Every other variant derives its states from its base token (`--color-accent` → `-hover` → `-pressed`). Shipping `danger` now would mean either inventing two tokens or hardcoding two colours, both to support a control that does not exist yet.
+**When it lands:** derive `--color-danger-hover` and `--color-danger-pressed` from `--color-danger` the way the accent triple is derived, and add them to `globals.css` as tokens before writing the variant.
+**Reversal cost:** trivial — one variant entry and two tokens.
