@@ -659,14 +659,26 @@ describe('Career (e2e, real Postgres)', () => {
     });
 
     /**
-     * Career lists are bounded and take no cursor: neither route declares a
-     * query parameter and both return nextCursor null unconditionally. This
-     * pins that contract, so adding pagination later fails a test instead of
-     * silently changing the response. The app's only keyset-paginated endpoint
-     * is GET /reference/clubs, walked across a page boundary in
+     * CHARACTERIZATION TEST — documents what the code does today, NOT what it
+     * should do. Read D-005 before changing it.
+     *
+     * Career lists are unpaginated: neither route declares a cursor or limit
+     * parameter, both cap at CAREER_LIST_CAP rows, and both return nextCursor
+     * null unconditionally. That is a known, logged divergence from §5's
+     * "cursor pagination everywhere", not a design this suite endorses.
+     *
+     * IF THIS TEST FAILS, the most likely cause is that somebody implemented
+     * pagination — which is the intended end state, not a regression. In that
+     * case delete this test and replace it with real boundary coverage: page
+     * through more than one page, assert no duplicates and no gaps across the
+     * boundary, and assert nextCursor is null only on the final page. The
+     * model to copy is the keyset walk over GET /reference/clubs in
      * reference.e2e-spec.ts.
+     *
+     * What this test does NOT cover: the cap itself. Nothing here creates 101
+     * rows, so a change to `take` would not be caught.
      */
-    it('returns every row in one page and ignores cursor and limit', async () => {
+    it('CHARACTERIZATION (D-005): unpaginated today — cursor and limit are ignored', async () => {
       const owner = await activeUser();
       const viewer = await activeUser();
 

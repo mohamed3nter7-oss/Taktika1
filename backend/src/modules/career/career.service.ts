@@ -36,6 +36,14 @@ import {
  * never disagree, so the CHECK stays what it is meant to be: the line a second
  * write path cannot bypass, not a code path this one relies on.
  */
+/**
+ * Hard cap on both career list routes (D-005). Not pagination — there is no
+ * cursor to continue from, so a 101st row is simply unreachable until the
+ * keyset work lands in `follows`. Both sets are naturally bounded per user,
+ * so the cap is a blast radius limit rather than a page size.
+ */
+const CAREER_LIST_CAP = 100;
+
 const utcDay = (d: Date): number =>
   Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 
@@ -67,13 +75,15 @@ export class CareerService {
    * makes for a bounded set. A person holds a handful of certifications, the
    * PRD defines no cursor parameter for this route, and GET /users/:id embeds
    * the whole list anyway, so a keyset here would contradict the embed while
-   * adding a second cursor codec. The envelope keeps the door open if that changes.
+   * adding a second cursor codec. The envelope keeps the door open if that
+   * changes; `CAREER_LIST_CAP` bounds it in the meantime (D-005).
    */
   async listMyCertifications(sub: string) {
     const items = await this.prisma.certification.findMany({
       where: { userId: sub },
       select: CERTIFICATION_SELECT,
       orderBy: CERTIFICATION_ORDER_BY,
+      take: CAREER_LIST_CAP,
     });
     return { data: items, nextCursor: null };
   }
@@ -158,6 +168,7 @@ export class CareerService {
       where: { userId },
       select: AFFILIATION_SELECT,
       orderBy: AFFILIATION_ORDER_BY,
+      take: CAREER_LIST_CAP,
     });
     return { data: rows.map(mapAffiliation), nextCursor: null };
   }

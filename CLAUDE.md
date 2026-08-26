@@ -162,3 +162,14 @@ Format:
 **Reversal cost:** trivial today — six return statements and the reference e2e assertions. It stops being trivial the moment a frontend consumer or a second paginated module exists, which is why it was settled now rather than after `posts`/`feed`.
 
 **How this survived review.** The audit that ported `career` checked the envelope against a comment in `career.service.ts` that asserted conformance, rather than against `ReferenceService`, which is the only thing that actually establishes the convention. A comment claiming to follow a rule is not evidence that it does — verify against the implementation that set the precedent.
+
+### D-005 — career lists are single-page with a hard cap of 100
+**PRD ref:** `backend/CLAUDE.md` § API conventions / root §5 "Cursor pagination everywhere"
+**Decided:** 2026-08-26
+**Divergence:** §5 says keyset pagination on every list endpoint. `GET /users/me/certifications` and `GET /users/:id/affiliations` implement none. Neither route declares a `cursor` or `limit` parameter, both pass `take: CAREER_LIST_CAP` (100) to `findMany`, and both return `nextCursor: null` unconditionally. The key is structurally present and always null.
+**Reason:** Both sets are naturally bounded per user — a person holds a handful of certifications and a career's worth of club stints, not an unbounded stream — so there is no page to be second. `GET /users/:id` already embeds both lists whole, which a keyset here would contradict while adding a second cursor codec for no consumer. The cap is a blast-radius limit, not a page size: it bounds a pathological or malicious row count without pretending to paginate. Deliberately NOT the `?limit=` the convention describes, because a limit that cannot be continued past is worse than an honest ceiling.
+**Consequence, stated plainly:** a user with more than 100 certifications or affiliations silently cannot see the rest, and no `nextCursor` tells them so. That is accepted for V1 at these volumes and is the thing that must change first if it stops being true.
+**First real keyset implementation lands in the `follows` module**, where the sets genuinely are unbounded. That is where the shared cursor codec gets built; `common/pagination/cursor.ts` currently serves only `GET /reference/clubs`.
+**Reversal cost:** trivial — add the query DTO, thread the cursor through, and return a real `nextCursor`. The envelope already has the key, so no response shape changes and no consumer breaks.
+
+**Test coverage.** `career.e2e-spec.ts` carries a characterization test pinning this behaviour, named so that its failure reads as "pagination arrived" rather than "a test broke". The cap itself is NOT covered — no test creates 101 rows — so a regression that drops or changes `take` would go unnoticed.
