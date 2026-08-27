@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { Icon } from "@/components/ui/icon";
+import { Icon, type IconSize } from "@/components/ui/icon";
 import { cn } from "@/lib/cn";
 import { ROLE_CONFIG } from "@/lib/role-config";
 import type { UserRole } from "@/types/player-profile";
@@ -17,9 +17,16 @@ import type { UserRole } from "@/types/player-profile";
 export function RoleBadge({
   role,
   variant = "full",
+  glyphSize = 14,
 }: {
   role: UserRole;
   variant?: "full" | "compact";
+  /**
+   * Compact badges are sized by their slot, so the glyph is passed in. The
+   * design system specified the slot and never the glyph, which is how the
+   * corner badge ended up at 29% fill. See D-019.
+   */
+  glyphSize?: IconSize;
 }) {
   const t = useTranslations("roles");
   const label = t(role);
@@ -35,7 +42,7 @@ export function RoleBadge({
         compact ? "size-full" : "gap-1 px-2.5 py-1",
       )}
     >
-      <Icon icon={ROLE_CONFIG[role].icon} size={14} />
+      <Icon icon={ROLE_CONFIG[role].icon} size={glyphSize} />
       {compact ? null : label}
     </span>
   );

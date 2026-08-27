@@ -12,6 +12,7 @@ import { POST_CLAMP_CHARS, relativeTime } from "@/lib/format";
 import type { Post, PostAuthor, PostImage } from "@/types/player-profile";
 
 import { Avatar } from "@/components/ui/avatar";
+import { PostOptionsMenu } from "./post-options-menu";
 import { RoleBadge } from "./role-badge";
 
 /**
@@ -92,19 +93,28 @@ function ActionCount({ value }: { value: string }) {
  * not, and taking it as a prop now costs nothing and avoids rewriting this
  * component when the feed lands.
  *
- * Like and comment log rather than mutate in this pass. The design system's
- * save and post-options controls are not built: no field in the contract backs
- * either of them.
+ * Like and comment log rather than mutate in this pass. The options menu is
+ * built and author-only (D-018); the design system's save/bookmark control is
+ * still not, because no field in the contract backs it.
  */
 export function PostCard({
   post,
   author,
   now,
+  canManage = false,
 }: {
   post: Post;
   author: PostAuthor;
   /** ISO timestamp the relative time is measured against. */
   now: string;
+  /**
+   * Whether the viewer may edit or delete this post.
+   *
+   * An explicit prop rather than an id comparison inside the component: on a
+   * profile every post belongs to the profile owner, in the feed it does not,
+   * and the ownership rule belongs to whoever knows which of those they are.
+   */
+  canManage?: boolean;
 }) {
   const t = useTranslations("posts");
   const tTime = useTranslations("time");
@@ -139,6 +149,7 @@ export function PostCard({
               {post.editedAt ? <> · {t("edited")}</> : null}
             </p>
           </div>
+          {canManage ? <PostOptionsMenu postId={post.id} /> : null}
         </div>
 
         <p

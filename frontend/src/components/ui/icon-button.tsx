@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import type { ButtonHTMLAttributes } from "react";
+import type { ComponentPropsWithRef } from "react";
 
 import { cn } from "@/lib/cn";
 import { Icon, type IconSize } from "./icon";
@@ -11,7 +11,7 @@ const SIZE: Record<"sm" | "md" | "lg", { box: string; icon: IconSize }> = {
 };
 
 export type IconButtonProps = Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
+  ComponentPropsWithRef<"button">,
   "children" | "aria-label"
 > & {
   icon: LucideIcon;

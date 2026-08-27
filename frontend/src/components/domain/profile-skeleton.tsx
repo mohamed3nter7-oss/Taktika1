@@ -4,6 +4,9 @@ import { Skeleton, SkeletonPost } from "@/components/ui/skeleton";
 /**
  * The profile page in outline.
  *
+ * Its <main> mirrors the page's exactly - both now sit inside the shell's
+ * frame, so neither carries a container or gutters of its own.
+ *
  * Shaped to the real content rather than to a generic block: a 120px round
  * avatar, a 32px name, one headline line, a chip row, a club row, the action
  * row, then the tab strip and two post-shaped cards. A skeleton whose
@@ -12,7 +15,7 @@ import { Skeleton, SkeletonPost } from "@/components/ui/skeleton";
  */
 export function ProfileSkeleton() {
   return (
-    <main className="mx-auto flex w-full max-w-page flex-col items-stretch gap-6 px-6 py-6 pb-16 desktop:flex-row desktop:items-start desktop:justify-center">
+    <main className="flex flex-col items-stretch gap-6 desktop:flex-row desktop:items-start">
       <div className="grid min-w-0 gap-4 desktop:max-w-content desktop:flex-1">
         <Card>
           <div className="grid gap-5">

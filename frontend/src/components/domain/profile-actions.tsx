@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button";
  * search engines and first paint care about - stays a Server Component.
  *
  * No mutations in this pass: both handlers log. Message is the single filled
- * accent button on the page, and Edit profile takes exactly that slot when the
+ * accent button on the page - and it is "Message", not "Send message": the
+ * click opens a conversation, it does not send anything (D-020) - and Edit profile takes exactly that slot when the
  * owner is looking, so the one-primary-action rule holds in both states.
  */
 export function ProfileActions({
@@ -53,7 +54,7 @@ export function ProfileActions({
         iconStart={Send}
         onClick={() => console.log("send message", profileId)}
       >
-        {t("sendMessage")}
+        {t("message")}
       </Button>
     </>
   );

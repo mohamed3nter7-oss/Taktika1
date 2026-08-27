@@ -57,7 +57,9 @@ export function ProfileHeader({
             src={profile.avatarUrl}
             name={profile.fullName}
             size="xl"
-            badge={<RoleBadge role="PLAYER" variant="compact" />}
+            badge={(glyphSize) => (
+              <RoleBadge role="PLAYER" variant="compact" glyphSize={glyphSize} />
+            )}
           />
 
           <div className="grid min-w-0 flex-1 gap-3">

@@ -18,6 +18,10 @@ import { useGoToTab } from "./profile-tabs";
  * assembled from fields, so they are the fastest read on character and intent
  * and they are the default tab.
  *
+ * Ownership is decided here: on a profile page every post belongs to the
+ * profile owner, so `isOwnProfile` is the whole test. A feed list will compute
+ * it per post from viewer id against author id, and `PostCard` will not change.
+ *
  * The empty state differs by viewer on purpose: the owner gets Create post,
  * and a visitor - who has no action to take here - gets one line naming the
  * space and a quiet route to the tab that does have content. An empty state
@@ -77,7 +81,13 @@ export function PostList({
   return (
     <div className="grid gap-4">
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} author={author} now={now} />
+        <PostCard
+          key={post.id}
+          post={post}
+          author={author}
+          now={now}
+          canManage={isOwnProfile}
+        />
       ))}
     </div>
   );

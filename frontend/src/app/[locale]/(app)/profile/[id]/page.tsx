@@ -82,7 +82,7 @@ async function ProfileContent({ id }: { id: string }) {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-page flex-col items-stretch gap-6 px-6 py-6 pb-16 desktop:flex-row desktop:items-start desktop:justify-center">
+    <main className="flex flex-col items-stretch gap-6 desktop:flex-row desktop:items-start">
       <div className="grid min-w-0 gap-4 desktop:max-w-content desktop:flex-1">
         <ProfileHeader profile={profile} currentClub={currentClub} />
 

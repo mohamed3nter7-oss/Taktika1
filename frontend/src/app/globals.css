@@ -181,11 +181,25 @@
     }
   }
 
+
+  --animate-menu-in: menu-in 200ms var(--ease-out);
+
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
   /* -- layout ----------------------------------------------------------- */
   --container-page: 1240px;
   /* 1240 container - 48 padding - 240 left rail - 300 right rail - 48 gaps.
-     The left rail is not built (see D-011), but the content column keeps the
-     width the design gives it. */
+     The shell layout owns the padding and the left rail; the page owns the
+     content column and the right rail. See D-017. */
   --container-content: 604px;
   --container-rail: 300px;
   /* Bio measure - roughly where the eye stops losing its place between
@@ -195,6 +209,17 @@
   --breakpoint-tablet: 768px;
   --breakpoint-desktop: 1024px;
   --breakpoint-wide: 1280px;
+
+  /* -- z-index ---------------------------------------------------------- *
+     Six steps, and raw z-index values are never written. Tailwind reads the
+     `--z-index-*` namespace, so these become `z-nav`, `z-dropdown` and so
+     on - which is what makes that rule mechanical rather than a convention.  */
+  --z-index-base: 0;
+  --z-index-sticky: 10;
+  --z-index-nav: 20;
+  --z-index-dropdown: 30;
+  --z-index-modal: 40;
+  --z-index-toast: 50;
 }
 
 /* ---------------------------------------------------------------------------

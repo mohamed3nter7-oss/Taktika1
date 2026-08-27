@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { personInitials } from "@/lib/format";
 
+import type { IconSize } from "./icon";
+
 export type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 /**
@@ -13,13 +15,27 @@ export type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl";
  */
 const SIZE: Record<
   AvatarSize,
-  { box: string; px: number; text: string; badge: string | null }
+  {
+    box: string;
+    px: number;
+    text: string;
+    badge: string | null;
+    glyph: IconSize | null;
+  }
 > = {
-  xs: { box: "size-6", px: 24, text: "text-xs", badge: null },
-  sm: { box: "size-8", px: 32, text: "text-xs", badge: null },
-  md: { box: "size-10", px: 40, text: "text-sm", badge: null },
-  lg: { box: "size-14", px: 56, text: "text-h3", badge: "size-6" },
-  xl: { box: "size-30", px: 120, text: "text-display", badge: "size-12" },
+  xs: { box: "size-6", px: 24, text: "text-xs", badge: null, glyph: null },
+  sm: { box: "size-8", px: 32, text: "text-xs", badge: null, glyph: null },
+  md: { box: "size-10", px: 40, text: "text-sm", badge: null, glyph: null },
+  // Slot is 40% of the avatar, glyph 50% of the slot. lg's slot rounds up from
+  // the specified 22.4px because 22 is off the 4px unit. See D-019.
+  lg: { box: "size-14", px: 56, text: "text-h3", badge: "size-6", glyph: 12 },
+  xl: {
+    box: "size-30",
+    px: 120,
+    text: "text-display",
+    badge: "size-12",
+    glyph: 24,
+  },
 };
 
 export type AvatarProps = {
@@ -27,10 +43,14 @@ export type AvatarProps = {
   name: string;
   size?: AvatarSize;
   /**
-   * Corner slot, honoured at `lg` and `xl` only. `ui/` knows nothing about
-   * roles, so what goes in the corner is the caller's business.
+   * Corner slot, honoured at `lg` and `xl` only.
+   *
+   * A render function rather than a node: the slot size is derived here, so
+   * the glyph size has to be derived here too or the 50% rule ends up
+   * duplicated at every call site. `ui/` still knows nothing about roles -
+   * what goes in the corner remains the caller's business.
    */
-  badge?: ReactNode;
+  badge?: (glyphSize: IconSize) => ReactNode;
 };
 
 /**
@@ -39,7 +59,12 @@ export type AvatarProps = {
  */
 export function Avatar({ src, name, size = "md", badge }: AvatarProps) {
   const s = SIZE[size];
-  const slot = badge && s.badge ? s.badge : null;
+  // Resolved together so the glyph size is narrowed once rather than asserted
+  // at the point of use.
+  const corner =
+    badge && s.badge !== null && s.glyph !== null
+      ? { className: s.badge, node: badge(s.glyph) }
+      : null;
 
   return (
     <span className={cn("relative inline-block shrink-0", s.box)}>
@@ -62,14 +87,14 @@ export function Avatar({ src, name, size = "md", badge }: AvatarProps) {
           personInitials(name)
         )}
       </span>
-      {slot ? (
+      {corner ? (
         <span
           className={cn(
             "absolute bottom-0 end-0 flex items-center justify-center rounded-full ring-2 ring-raised",
-            slot,
+            corner.className,
           )}
         >
-          {badge}
+          {corner.node}
         </span>
       ) : null}
     </span>

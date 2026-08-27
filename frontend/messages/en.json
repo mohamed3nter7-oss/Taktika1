@@ -17,6 +17,19 @@
     "english": "English",
     "arabic": "Arabic"
   },
+  "nav": {
+    "home": "Taktika home",
+    "primary": "Main",
+    "secondary": "Sections",
+    "feed": "Feed",
+    "network": "Network",
+    "messages": "Messages",
+    "savedPosts": "Saved posts",
+    "notifications": "Notifications",
+    "search": "Search Taktika",
+    "searchPlaceholder": "Search players, coaches, clubs",
+    "signedInAs": "Signed in as {name}"
+  },
   "roles": {
     "PLAYER": "Player",
     "COACH": "Coach",
@@ -62,10 +75,10 @@
     "location": "{city}, {country}",
     "follow": "Follow",
     "following_action": "Following",
-    "sendMessage": "Send message",
     "editProfile": "Edit profile",
     "notFoundTitle": "Profile not found",
-    "notFoundDescription": "No player matches that link. Check it and try again."
+    "notFoundDescription": "No player matches that link. Check it and try again.",
+    "message": "Message"
   },
   "tabs": {
     "posts": "Posts",
@@ -115,7 +128,10 @@
     "like": "Like post",
     "unlike": "Unlike post",
     "comment": "Comment",
-    "edited": "Edited"
+    "edited": "Edited",
+    "options": "Post options",
+    "edit": "Edit post",
+    "delete": "Delete post"
   },
   "time": {
     "minutesAgo": "{value}m ago",

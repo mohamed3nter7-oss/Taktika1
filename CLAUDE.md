@@ -304,3 +304,50 @@ The first proves `schema.prisma` matches the live database; the second proves it
 **Reason:** nothing on this page destroys anything, and the design system's `danger` hover and pressed values are raw hexes — `#E33B3B` and `#B91C1C` — with no tokens behind them and no stated relationship to `--color-danger` `#DC2626`. Every other variant derives its states from its base token (`--color-accent` → `-hover` → `-pressed`). Shipping `danger` now would mean either inventing two tokens or hardcoding two colours, both to support a control that does not exist yet.
 **When it lands:** derive `--color-danger-hover` and `--color-danger-pressed` from `--color-danger` the way the accent triple is derived, and add them to `globals.css` as tokens before writing the variant.
 **Reversal cost:** trivial — one variant entry and two tokens.
+
+### D-017 — the application shell is reinstated, with a reduced nav set
+**PRD ref:** §17 D-011 / Claude Design `PlayerProfileScreen.dc.html`
+**Decided:** 2026-08-27
+**Divergence:** D-011 shipped the profile without `TopNav` or `LeftRail`. Both are now built, at `app/[locale]/(app)/layout.tsx`, but with fewer items than the design reference: nav is **Feed, Network, Messages** plus a notification bell in the top bar, and **Feed, Network, Saved posts, Messages** in the rail. Dropped from the reference: `Saved profiles`, `Shortlists`, the rail clubs list, and the notification **count**.
+**Reason:** the original objection to the shell was dead targets, and that objection is answered by trimming the target list rather than by omitting the shell. Every remaining link points at a module in the §7 build order, so it is a promise the roadmap already makes. `Saved profiles` and `Shortlists` are on no roadmap at all, and a nav link is a product promise. The notification count is a different kind of claim: a hardcoded `3` in every screenshot asserts a feature that does not exist, so the bell renders without a badge.
+**`Saved posts` is the one soft edge, and it is deliberate.** Bookmarks are anticipated in the API conventions as a PUT/DELETE toggle-write with the same shape as follow, but they are **not** a module in §7. If bookmarks never get a module, this link has to come out.
+**Search renders and does nothing.** No form, no submit, no results — the `search` module does not exist. It is presentational because the bar's proportions depend on it, not because typing into it does anything.
+**Boundary, stated because it is the point:** the layout owns the page frame — container, gutters, vertical rhythm, and the gap between rail and content — and a page owns only its own columns. `profile/[id]/page.tsx` moved unchanged except for deleting six frame classes from its `<main>`, which it only ever carried because no shell existed.
+**Consequence: `TopNav` and `LeftRail` are Client Components,** which is an exception to "default to Server Components" with a concrete cause rather than a stylistic one. The links must be route-aware (`usePathname`), and a Lucide icon is a function component, which React refuses to serialize across the server/client boundary — so the icons cannot be passed in as props from a server parent. **`next build` does not catch that**: the profile route is dynamic, so nothing rendered the shell at build time and only the running server surfaced it.
+**Viewer identity is `mocks/viewer.ts`, deliberately not a profile fixture** — a scout, so the shell cannot agree with `/profile/own` by accident and hide a broken owner state.
+**Not built:** the mobile bottom tab bar. Below `tablet` the rail is simply hidden and there is no nav, which is honest about being unfinished; a stub would be the dead target this entry exists to avoid.
+**Reversal cost:** trivial — delete the route group and two components; the page moves back untouched.
+
+### D-018 — the post options menu is built; C-6 partially reversed
+**PRD ref:** §17 C-6 (profile build) / Claude Design `components/content/PostCard.jsx`
+**Decided:** 2026-08-27
+**Divergence:** C-6 dropped both of `PostCard`'s trailing controls — the save/bookmark toggle and the options menu. The **options menu is now built**, author-only, with Edit post and Delete post. The **save control is still dropped**: no field in the contract backs it, which was the original reason and has not changed.
+**Reason:** the menu's actions are operations on a post the viewer owns, which the `posts` module will provide; the save control needs a `saved` field that no endpoint returns. Different objections, so different outcomes.
+**Both actions are no-ops** — they log and close. `posts` is not built.
+**Ownership is a caller decision.** `PostCard` takes an explicit `canManage` prop rather than comparing ids internally. `PostList` supplies it from `isOwnProfile`, because on a profile page every post belongs to the profile owner. A feed list will compute it per post from viewer id against author id, and `PostCard` will not change.
+**Delete does not confirm yet, on purpose.** A confirmation dialog needs a focus trap, `inert` on the background, scroll lock and focus restoration, and a focus trap that is subtly wrong looks completely fine to anyone testing with a mouse. The primitive is an open decision, so Delete carries a `TODO` rather than an improvised dialog.
+**Reversal cost:** trivial — one prop and one component.
+
+### D-019 — the corner badge glyph size is derived here, because the spec never set one
+**PRD ref:** Claude Design `components/identity/Avatar.jsx` + `RoleBadge.jsx`
+**Decided:** 2026-08-27
+**Divergence:** The design system sizes the avatar's corner slot at 40% of the avatar and never specifies the glyph inside it, so the glyph fell through to `RoleBadge`'s 14px default — 29% fill at `xl`, which reads as a rendering bug rather than a design. The derived rule is **glyph = 50% of the slot**:
+
+| Avatar | Slot | Glyph |
+| --- | --- | --- |
+| `xl` 120px | `size-12` 48px | `size-6` 24px |
+| `lg` 56px | `size-6` 24px | `size-3` 12px |
+
+`lg`'s slot was already rounded up from the spec's 22.4px, because 22 is off the 4px unit; 12px is the 50% that follows from 24. The spec's own table paired a 20px glyph with a 22px slot, which is 91% fill and would swallow the 2px ring.
+**Mechanism:** `Avatar`'s `badge` prop is a render function `(glyphSize) => ReactNode`. The slot owner derives the glyph size and hands it over, so the 50% rule lives in exactly one place, and `ui/` still knows nothing about roles.
+**Nothing on screen changes at `lg`** — it is currently unused.
+**Reversal cost:** trivial — two numbers in one map.
+
+### D-020 — "Message", not "Send message"
+**PRD ref:** Claude Design `_ds/.../readme.md` § Content fundamentals
+**Decided:** 2026-08-27
+**Divergence:** The design system's copy rule is "buttons: verb first, sentence case, 1–3 words", and it offers *"Send message"* as its worked example. The button reads **"Message"**.
+**Reason:** the rule stands; the example was wrong. "Message" is already a verb, and "Send message" describes an outcome the click does not produce — it opens a conversation, it does not send anything. A button that names an action it does not perform is the same defect as a dead link, just quieter.
+**The message key was renamed with its value** (`profile.sendMessage` → `profile.message`). A key called `sendMessage` holding `"Message"` is the drift that teaches the next reader to distrust the file.
+**The design system document should be corrected** — its example, not its rule.
+**Reversal cost:** trivial — one key, two locale files, one call site.

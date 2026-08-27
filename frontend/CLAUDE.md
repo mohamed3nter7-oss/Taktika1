@@ -116,19 +116,36 @@ Those nine are mandatory for margin, padding and gap **between** components. **W
 
 ## Component architecture
 
-Three layers, and the boundaries are the point:
+Four layers, and the boundaries are the point:
 
 ```
 components/ui/       design-system primitives — zero domain knowledge
 components/domain/   football-aware, composed from ui/
+components/shell/    application chrome — knows routes and the viewer
+app/…/(app)/layout   the page frame: container, gutters, rhythm, column gap
 app/…/page.tsx       composes domain/ and does nothing else
 ```
+
+**`shell/` is never rendered by a page.** It is the layout's business. The
+division that matters: the layout owns the frame — container, gutters,
+vertical rhythm, and the gap between the rail and the content — and a page
+owns only its own columns. A page that needs to know a rail exists beside it
+has been handed the wrong job.
 
 - **`ui/` knows nothing about football.** A `Badge` takes a `variant`, never a role. An `Avatar` takes a `badge` slot, never a `role`.
 - **`domain/` composes `ui/` and never restyles it.** If a domain component needs to override a primitive's classes, the primitive is missing a prop — add the prop. This is also why `cn()` is a plain join and not `tailwind-merge`: there should be no conflicting utilities to resolve, and needing to resolve one is the signal.
 - **`role-badge.tsx` is the only file permitted to use role colours.** They arrive through `data-role` and the cascade.
 
-Push `'use client'` as far down as it goes. On the profile page only three files carry it — the tablist, the tab container that owns the selected value, and `PostCard`. The About and Career panels are rendered on the server and handed to the client tab container as slots, so they never ship to the browser.
+Push `'use client'` as far down as it goes. On the profile page only the tablist, the tab container that owns the selected value, `PostCard` and the options menu carry it. The About and Career panels are rendered on the server and handed to the client tab container as slots, so they never ship to the browser.
+
+### The one place the directive does not go further down
+
+`TopNav` and `LeftRail` are Client Components as a whole. Two reasons, both concrete:
+
+- The links are route-aware (`usePathname`), which is a client API.
+- **A Lucide icon is a function component, and React refuses to serialize a function across the server/client boundary.** So icons cannot be handed to a client link from a server parent — the boundary has to sit above them.
+
+Worth knowing because of how it fails: `next build` does **not** catch it. The profile route is dynamic, so nothing renders the shell at build time. It surfaces only as a 500 from the running server. Anything that passes a component as a prop needs to be exercised against `npm run dev`, not just the build.
 
 ## Verification
 

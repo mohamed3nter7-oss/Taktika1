@@ -17,6 +17,19 @@
     "english": "الإنجليزية",
     "arabic": "العربية"
   },
+  "nav": {
+    "home": "الصفحة الرئيسية لتاكتيكا",
+    "primary": "التنقل الرئيسي",
+    "secondary": "الأقسام",
+    "feed": "الرئيسية",
+    "network": "الشبكة",
+    "messages": "الرسائل",
+    "savedPosts": "المنشورات المحفوظة",
+    "notifications": "الإشعارات",
+    "search": "البحث في تاكتيكا",
+    "searchPlaceholder": "ابحث عن لاعبين ومدربين وأندية",
+    "signedInAs": "مسجّل الدخول باسم {name}"
+  },
   "roles": {
     "PLAYER": "لاعب",
     "COACH": "مدرب",
@@ -62,10 +75,10 @@
     "location": "{city}، {country}",
     "follow": "متابعة",
     "following_action": "تتابعه",
-    "sendMessage": "إرسال رسالة",
     "editProfile": "تعديل الملف",
     "notFoundTitle": "الملف غير موجود",
-    "notFoundDescription": "لا يوجد لاعب بهذا الرابط. راجع الرابط وحاول مرة أخرى."
+    "notFoundDescription": "لا يوجد لاعب بهذا الرابط. راجع الرابط وحاول مرة أخرى.",
+    "message": "مراسلة"
   },
   "tabs": {
     "posts": "المنشورات",
@@ -115,7 +128,10 @@
     "like": "إعجاب بالمنشور",
     "unlike": "إلغاء الإعجاب",
     "comment": "تعليق",
-    "edited": "مُعدَّل"
+    "edited": "مُعدَّل",
+    "options": "خيارات المنشور",
+    "edit": "تعديل المنشور",
+    "delete": "حذف المنشور"
   },
   "time": {
     "minutesAgo": "منذ {value} د",
