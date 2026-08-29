@@ -351,3 +351,18 @@ The first proves `schema.prisma` matches the live database; the second proves it
 **The message key was renamed with its value** (`profile.sendMessage` → `profile.message`). A key called `sendMessage` holding `"Message"` is the drift that teaches the next reader to distrust the file.
 **The design system document should be corrected** — its example, not its rule.
 **Reversal cost:** trivial — one key, two locale files, one call site.
+
+### D-021 — uploads proxy through the server; no presign in v1
+**PRD ref:** `POST /posts/images/presign` (FR-POST image upload)
+**Decided:** 2026-08-29
+**Divergence:** The PRD specifies a presigned-URL endpoint: the server signs a PUT, the client uploads straight to the bucket, the server never sees the bytes. That endpoint is not built and `StorageService` has no method that could back it. The surface is four methods — `put`, `delete`, `exists`, `publicUrl` — and `@aws-sdk/s3-request-presigner` is deliberately not installed. V1 uploads proxy through the server.
+
+**Reason: EXIF, and it is not a performance trade.** Phone photos carry GPS coordinates, and the users posting training pictures include twelve-year-olds. Root §5 lists EXIF stripping as a hard guarantee, not a best-effort one, and a guarantee is only as strong as its weakest path. A presigned PUT is a path the server cannot inspect: the client holds a signed URL and writes whatever bytes it likes directly to the bucket. A well-behaved client would call `sharp` first; a modified one, a replayed URL, or simply a bug would not — and nothing on the server would know. Stripping afterwards does not close it either, because the un-stripped original is publicly readable from the moment the PUT completes until the worker gets to it. Proxying makes the strip structural: there is no way to put an object in the bucket except through code that has already run `sharp`.
+
+**Secondary benefit, worth stating because it compounds:** the server stores the processed ~200KB WebP rather than the ~5MB original. That is a permanent reduction in both stored bytes and read egress, against a sub-$30/month infrastructure budget (root §1). A presign design stores the original and pays for it on every read, forever.
+
+**The cost, stated plainly:** every image byte crosses the API container twice. That is real, and it is the thing that will eventually argue for presign — at which point the argument has to answer the EXIF objection, not out-run it.
+
+**Reversal cost: low** — add a presign method to `StorageService` (plus the `@aws-sdk/s3-request-presigner` package) and a post-upload sanitize worker. Note the worker is not optional in that design: without it, presign silently removes the guarantee this entry exists to keep.
+
+**Named by role, never by vendor.** Supabase Storage is the development provider and Cloudflare R2 is the launch provider. Both speak S3 with SigV4, so this is ONE implementation swapped by configuration — not an interface with two classes (§4). Every environment variable and every symbol is `STORAGE_*`; a `SUPABASE_*` name would make the R2 migration a change to every file that reads one. All seven values are validated at boot by `validateStorageEnv`, so a misconfiguration stops the process instead of surfacing as a failed upload three weeks later.

@@ -12,12 +12,23 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { CareerModule } from './modules/career/career.module';
 import { FollowsModule } from './modules/follows/follows.module';
+import { MediaModule } from './modules/media/media.module';
+import { validateStorageEnv } from './modules/media/storage.config';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { ReferenceModule } from './modules/reference/reference.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, cache: true }),
+    // `validate` runs before any provider is constructed, so a missing or
+    // malformed STORAGE_* value kills the process at boot rather than
+    // surfacing as a failed upload three weeks after the deploy that caused
+    // it. It checks only the storage subset and returns process.env untouched
+    // — storage.config.ts explains why it must not whitelist.
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      validate: validateStorageEnv,
+    }),
     // Two named windows so a route can cap bursts and sustained volume
     // independently. Auth routes override both (§9); everything else inherits.
     // In-memory storage is correct for a single instance — the day a second
@@ -32,6 +43,7 @@ import { ReferenceModule } from './modules/reference/reference.module';
     ProfilesModule,
     CareerModule,
     FollowsModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [
