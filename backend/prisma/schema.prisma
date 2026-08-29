@@ -61,10 +61,10 @@ enum UserRole {
 
 enum UserStatus {
   PENDING_VERIFICATION // registered, email not yet verified
-  PENDING_PROFILE      // verified, role extension row not yet created (FR-AUTH-2)
+  PENDING_PROFILE // verified, role extension row not yet created (FR-AUTH-2)
   ACTIVE
   SUSPENDED
-  DELETED              // anonymised; row retained for referential integrity
+  DELETED // anonymised; row retained for referential integrity
 
   @@map("user_status")
 }
@@ -326,12 +326,12 @@ model Club {
 // =============================================================================
 
 model User {
-  id           String  @id @default(uuid()) @db.Uuid
+  id           String @id @default(uuid()) @db.Uuid
   // Lowercased + trimmed at the DTO layer before storage; plain unique index.
   // (citext alternative documented in PRD 9.1 — app-layer normalisation chosen.)
-  email        String  @unique
-  passwordHash String  @map("password_hash") // bcrypt cost 12; NEVER serialised
-  fullName     String  @map("full_name")
+  email        String @unique
+  passwordHash String @map("password_hash") // bcrypt cost 12; NEVER serialised
+  fullName     String @map("full_name")
 
   role     UserRole
   headline String?
@@ -583,13 +583,25 @@ model ClubAffiliation {
 // =============================================================================
 
 model Post {
-  id       String   @id @default(uuid()) @db.Uuid
-  authorId String   @map("author_id") @db.Uuid
+  id         String   @id @default(uuid()) @db.Uuid
+  authorId   String   @map("author_id") @db.Uuid
+  // Denormalised from users.role -- the THIRD documented 3NF exception, after
+  // likes_count and comments_count (D-022). Safe only because role is
+  // IMMUTABLE (root CLAUDE.md 5): chosen at registration, no UI path and no API
+  // path, so this can never drift from users.role. The standard objection to
+  // denormalising does not apply. It exists so FR-FEED-2's ?role= filter is an
+  // index predicate rather than a join filter sitting above the scan.
+  //
+  // NOT NULL with no default: the create path must read the AUTHOR'S role and
+  // set it explicitly. A default would turn a forgotten write into a silent
+  // WRONG value, and a wrong value here voids the justification above -- the
+  // column is only defensible while it provably equals users.role.
+  authorRole UserRole @map("author_role")
   // Set when a CLUB_ADMIN publishes AS the club: attribution is stored on the
   // post itself so it survives the admin later leaving the club (AC-06).
-  clubId   Int?     @map("club_id")
-  postType PostType @default(STANDARD) @map("post_type")
-  content  String // 1–3000 chars, DTO-enforced
+  clubId     Int?     @map("club_id")
+  postType   PostType @default(STANDARD) @map("post_type")
+  content    String // 1–3000 chars, DTO-enforced
 
   // Trigger-maintained counters — documented 3NF exception (PRD A.4).
   likesCount    Int @default(0) @map("likes_count")
@@ -608,9 +620,49 @@ model Post {
   saves    SavedPost[]
   comments Comment[]
 
-  // Feed index is PARTIAL — (created_at DESC, id DESC) WHERE deleted_at IS NULL
-  // — created in SQL migration, deliberately not duplicated here.
-  @@index([authorId, createdAt(sort: Desc)])
+  // ===========================================================================
+  // THREE INDEXES ON THIS TABLE LIVE IN RAW SQL AND ARE NOT DECLARED HERE.
+  //
+  // All three are PARTIAL, and Prisma has no `where` argument on @@index. That
+  // is the COMPLEMENT to D-009, not a contradiction of it, and stating either
+  // half alone misleads:
+  //
+  //   Prisma CAN express it (GIN + ops)  -> declare it here, or every
+  //                                         `migrate dev` proposes DROPPING it
+  //   Prisma CANNOT express it (partial) -> leave it in SQL; Prisma never sees
+  //                                         it, so it is never proposed for drop
+  //
+  // Verified, not assumed: idx_posts_feed, idx_affiliations_current and
+  // idx_notifications_unread have all been live and absent from this file since
+  // 20260806153549, and `migrate diff` returns empty in both directions.
+  //
+  // The consequence for review: `migrate diff` CANNOT confirm these exist. Only
+  // `SELECT indexdef FROM pg_indexes WHERE tablename = 'posts'` can.
+  //
+  // Definitions, copied character for character from their migrations:
+  //
+  //   CREATE INDEX idx_posts_feed ON posts (created_at DESC, id DESC)
+  //     WHERE deleted_at IS NULL;                      -- 20260806153549
+  //
+  //   CREATE INDEX idx_posts_role_feed ON posts (author_role, created_at DESC, id DESC)
+  //     WHERE deleted_at IS NULL;                      -- 20260829223800
+  //
+  //   CREATE INDEX idx_posts_author ON posts (author_id, created_at DESC, id DESC)
+  //     WHERE deleted_at IS NULL;                      -- 20260829223800
+  //
+  // idx_posts_author REPLACED the generated (author_id, created_at DESC) index,
+  // which carried no id tiebreak and therefore planned a Filter plus a Sort
+  // instead of an Index Cond (D-007).
+  //
+  // HEAP FETCHES ARE EXPECTED HERE AND ARE NOT THIS INDEX FAILING.
+  // trg_post_likes_count runs `UPDATE posts SET likes_count = ...` on every
+  // like. That dirties the page and clears its visibility-map bit until the next
+  // autovacuum, so EXPLAIN ANALYZE against a post with engagement reports
+  // `Heap Fetches: N` and shows an Index Scan rather than an Index Only Scan.
+  // The index is still doing its job: the partial predicate satisfies
+  // `deleted_at IS NULL` from the index itself and keeps soft-deleted rows out
+  // of it entirely. Do not remove it on the strength of a Heap Fetches line.
+  // ===========================================================================
   @@index([clubId])
   @@map("posts")
 }

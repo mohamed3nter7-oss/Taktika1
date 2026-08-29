@@ -41,6 +41,7 @@ export type PostSumAggregateOutputType = {
 export type PostMinAggregateOutputType = {
   id: string | null
   authorId: string | null
+  authorRole: $Enums.UserRole | null
   clubId: number | null
   postType: $Enums.PostType | null
   content: string | null
@@ -55,6 +56,7 @@ export type PostMinAggregateOutputType = {
 export type PostMaxAggregateOutputType = {
   id: string | null
   authorId: string | null
+  authorRole: $Enums.UserRole | null
   clubId: number | null
   postType: $Enums.PostType | null
   content: string | null
@@ -69,6 +71,7 @@ export type PostMaxAggregateOutputType = {
 export type PostCountAggregateOutputType = {
   id: number
   authorId: number
+  authorRole: number
   clubId: number
   postType: number
   content: number
@@ -97,6 +100,7 @@ export type PostSumAggregateInputType = {
 export type PostMinAggregateInputType = {
   id?: true
   authorId?: true
+  authorRole?: true
   clubId?: true
   postType?: true
   content?: true
@@ -111,6 +115,7 @@ export type PostMinAggregateInputType = {
 export type PostMaxAggregateInputType = {
   id?: true
   authorId?: true
+  authorRole?: true
   clubId?: true
   postType?: true
   content?: true
@@ -125,6 +130,7 @@ export type PostMaxAggregateInputType = {
 export type PostCountAggregateInputType = {
   id?: true
   authorId?: true
+  authorRole?: true
   clubId?: true
   postType?: true
   content?: true
@@ -226,6 +232,7 @@ export type PostGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type PostGroupByOutputType = {
   id: string
   authorId: string
+  authorRole: $Enums.UserRole
   clubId: number | null
   postType: $Enums.PostType
   content: string
@@ -263,6 +270,7 @@ export type PostWhereInput = {
   NOT?: Prisma.PostWhereInput | Prisma.PostWhereInput[]
   id?: Prisma.UuidFilter<"Post"> | string
   authorId?: Prisma.UuidFilter<"Post"> | string
+  authorRole?: Prisma.EnumUserRoleFilter<"Post"> | $Enums.UserRole
   clubId?: Prisma.IntNullableFilter<"Post"> | number | null
   postType?: Prisma.EnumPostTypeFilter<"Post"> | $Enums.PostType
   content?: Prisma.StringFilter<"Post"> | string
@@ -283,6 +291,7 @@ export type PostWhereInput = {
 export type PostOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
+  authorRole?: Prisma.SortOrder
   clubId?: Prisma.SortOrderInput | Prisma.SortOrder
   postType?: Prisma.SortOrder
   content?: Prisma.SortOrder
@@ -306,6 +315,7 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PostWhereInput[]
   NOT?: Prisma.PostWhereInput | Prisma.PostWhereInput[]
   authorId?: Prisma.UuidFilter<"Post"> | string
+  authorRole?: Prisma.EnumUserRoleFilter<"Post"> | $Enums.UserRole
   clubId?: Prisma.IntNullableFilter<"Post"> | number | null
   postType?: Prisma.EnumPostTypeFilter<"Post"> | $Enums.PostType
   content?: Prisma.StringFilter<"Post"> | string
@@ -326,6 +336,7 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
 export type PostOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
+  authorRole?: Prisma.SortOrder
   clubId?: Prisma.SortOrderInput | Prisma.SortOrder
   postType?: Prisma.SortOrder
   content?: Prisma.SortOrder
@@ -348,6 +359,7 @@ export type PostScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PostScalarWhereWithAggregatesInput | Prisma.PostScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"Post"> | string
   authorId?: Prisma.UuidWithAggregatesFilter<"Post"> | string
+  authorRole?: Prisma.EnumUserRoleWithAggregatesFilter<"Post"> | $Enums.UserRole
   clubId?: Prisma.IntNullableWithAggregatesFilter<"Post"> | number | null
   postType?: Prisma.EnumPostTypeWithAggregatesFilter<"Post"> | $Enums.PostType
   content?: Prisma.StringWithAggregatesFilter<"Post"> | string
@@ -361,6 +373,7 @@ export type PostScalarWhereWithAggregatesInput = {
 
 export type PostCreateInput = {
   id?: string
+  authorRole: $Enums.UserRole
   postType?: $Enums.PostType
   content: string
   likesCount?: number
@@ -380,6 +393,7 @@ export type PostCreateInput = {
 export type PostUncheckedCreateInput = {
   id?: string
   authorId: string
+  authorRole: $Enums.UserRole
   clubId?: number | null
   postType?: $Enums.PostType
   content: string
@@ -397,6 +411,7 @@ export type PostUncheckedCreateInput = {
 
 export type PostUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
   likesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -416,6 +431,7 @@ export type PostUpdateInput = {
 export type PostUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   clubId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
@@ -434,6 +450,7 @@ export type PostUncheckedUpdateInput = {
 export type PostCreateManyInput = {
   id?: string
   authorId: string
+  authorRole: $Enums.UserRole
   clubId?: number | null
   postType?: $Enums.PostType
   content: string
@@ -447,6 +464,7 @@ export type PostCreateManyInput = {
 
 export type PostUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
   likesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -460,6 +478,7 @@ export type PostUpdateManyMutationInput = {
 export type PostUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   clubId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
@@ -484,6 +503,7 @@ export type PostOrderByRelationAggregateInput = {
 export type PostCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
+  authorRole?: Prisma.SortOrder
   clubId?: Prisma.SortOrder
   postType?: Prisma.SortOrder
   content?: Prisma.SortOrder
@@ -504,6 +524,7 @@ export type PostAvgOrderByAggregateInput = {
 export type PostMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
+  authorRole?: Prisma.SortOrder
   clubId?: Prisma.SortOrder
   postType?: Prisma.SortOrder
   content?: Prisma.SortOrder
@@ -518,6 +539,7 @@ export type PostMaxOrderByAggregateInput = {
 export type PostMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
+  authorRole?: Prisma.SortOrder
   clubId?: Prisma.SortOrder
   postType?: Prisma.SortOrder
   content?: Prisma.SortOrder
@@ -686,6 +708,7 @@ export type PostUpdateOneRequiredWithoutCommentsNestedInput = {
 
 export type PostCreateWithoutClubInput = {
   id?: string
+  authorRole: $Enums.UserRole
   postType?: $Enums.PostType
   content: string
   likesCount?: number
@@ -704,6 +727,7 @@ export type PostCreateWithoutClubInput = {
 export type PostUncheckedCreateWithoutClubInput = {
   id?: string
   authorId: string
+  authorRole: $Enums.UserRole
   postType?: $Enums.PostType
   content: string
   likesCount?: number
@@ -750,6 +774,7 @@ export type PostScalarWhereInput = {
   NOT?: Prisma.PostScalarWhereInput | Prisma.PostScalarWhereInput[]
   id?: Prisma.UuidFilter<"Post"> | string
   authorId?: Prisma.UuidFilter<"Post"> | string
+  authorRole?: Prisma.EnumUserRoleFilter<"Post"> | $Enums.UserRole
   clubId?: Prisma.IntNullableFilter<"Post"> | number | null
   postType?: Prisma.EnumPostTypeFilter<"Post"> | $Enums.PostType
   content?: Prisma.StringFilter<"Post"> | string
@@ -763,6 +788,7 @@ export type PostScalarWhereInput = {
 
 export type PostCreateWithoutAuthorInput = {
   id?: string
+  authorRole: $Enums.UserRole
   postType?: $Enums.PostType
   content: string
   likesCount?: number
@@ -780,6 +806,7 @@ export type PostCreateWithoutAuthorInput = {
 
 export type PostUncheckedCreateWithoutAuthorInput = {
   id?: string
+  authorRole: $Enums.UserRole
   clubId?: number | null
   postType?: $Enums.PostType
   content: string
@@ -823,6 +850,7 @@ export type PostUpdateManyWithWhereWithoutAuthorInput = {
 
 export type PostCreateWithoutImagesInput = {
   id?: string
+  authorRole: $Enums.UserRole
   postType?: $Enums.PostType
   content: string
   likesCount?: number
@@ -841,6 +869,7 @@ export type PostCreateWithoutImagesInput = {
 export type PostUncheckedCreateWithoutImagesInput = {
   id?: string
   authorId: string
+  authorRole: $Enums.UserRole
   clubId?: number | null
   postType?: $Enums.PostType
   content: string
@@ -873,6 +902,7 @@ export type PostUpdateToOneWithWhereWithoutImagesInput = {
 
 export type PostUpdateWithoutImagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
   likesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -891,6 +921,7 @@ export type PostUpdateWithoutImagesInput = {
 export type PostUncheckedUpdateWithoutImagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   clubId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
@@ -907,6 +938,7 @@ export type PostUncheckedUpdateWithoutImagesInput = {
 
 export type PostCreateWithoutLikesInput = {
   id?: string
+  authorRole: $Enums.UserRole
   postType?: $Enums.PostType
   content: string
   likesCount?: number
@@ -925,6 +957,7 @@ export type PostCreateWithoutLikesInput = {
 export type PostUncheckedCreateWithoutLikesInput = {
   id?: string
   authorId: string
+  authorRole: $Enums.UserRole
   clubId?: number | null
   postType?: $Enums.PostType
   content: string
@@ -957,6 +990,7 @@ export type PostUpdateToOneWithWhereWithoutLikesInput = {
 
 export type PostUpdateWithoutLikesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
   likesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -975,6 +1009,7 @@ export type PostUpdateWithoutLikesInput = {
 export type PostUncheckedUpdateWithoutLikesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   clubId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
@@ -991,6 +1026,7 @@ export type PostUncheckedUpdateWithoutLikesInput = {
 
 export type PostCreateWithoutSavesInput = {
   id?: string
+  authorRole: $Enums.UserRole
   postType?: $Enums.PostType
   content: string
   likesCount?: number
@@ -1009,6 +1045,7 @@ export type PostCreateWithoutSavesInput = {
 export type PostUncheckedCreateWithoutSavesInput = {
   id?: string
   authorId: string
+  authorRole: $Enums.UserRole
   clubId?: number | null
   postType?: $Enums.PostType
   content: string
@@ -1041,6 +1078,7 @@ export type PostUpdateToOneWithWhereWithoutSavesInput = {
 
 export type PostUpdateWithoutSavesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
   likesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1059,6 +1097,7 @@ export type PostUpdateWithoutSavesInput = {
 export type PostUncheckedUpdateWithoutSavesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   clubId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1075,6 +1114,7 @@ export type PostUncheckedUpdateWithoutSavesInput = {
 
 export type PostCreateWithoutCommentsInput = {
   id?: string
+  authorRole: $Enums.UserRole
   postType?: $Enums.PostType
   content: string
   likesCount?: number
@@ -1093,6 +1133,7 @@ export type PostCreateWithoutCommentsInput = {
 export type PostUncheckedCreateWithoutCommentsInput = {
   id?: string
   authorId: string
+  authorRole: $Enums.UserRole
   clubId?: number | null
   postType?: $Enums.PostType
   content: string
@@ -1125,6 +1166,7 @@ export type PostUpdateToOneWithWhereWithoutCommentsInput = {
 
 export type PostUpdateWithoutCommentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
   likesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1143,6 +1185,7 @@ export type PostUpdateWithoutCommentsInput = {
 export type PostUncheckedUpdateWithoutCommentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   clubId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1160,6 +1203,7 @@ export type PostUncheckedUpdateWithoutCommentsInput = {
 export type PostCreateManyClubInput = {
   id?: string
   authorId: string
+  authorRole: $Enums.UserRole
   postType?: $Enums.PostType
   content: string
   likesCount?: number
@@ -1172,6 +1216,7 @@ export type PostCreateManyClubInput = {
 
 export type PostUpdateWithoutClubInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
   likesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1190,6 +1235,7 @@ export type PostUpdateWithoutClubInput = {
 export type PostUncheckedUpdateWithoutClubInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
   likesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1207,6 +1253,7 @@ export type PostUncheckedUpdateWithoutClubInput = {
 export type PostUncheckedUpdateManyWithoutClubInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
   likesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1219,6 +1266,7 @@ export type PostUncheckedUpdateManyWithoutClubInput = {
 
 export type PostCreateManyAuthorInput = {
   id?: string
+  authorRole: $Enums.UserRole
   clubId?: number | null
   postType?: $Enums.PostType
   content: string
@@ -1232,6 +1280,7 @@ export type PostCreateManyAuthorInput = {
 
 export type PostUpdateWithoutAuthorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
   likesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1249,6 +1298,7 @@ export type PostUpdateWithoutAuthorInput = {
 
 export type PostUncheckedUpdateWithoutAuthorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   clubId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1266,6 +1316,7 @@ export type PostUncheckedUpdateWithoutAuthorInput = {
 
 export type PostUncheckedUpdateManyWithoutAuthorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  authorRole?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   clubId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   postType?: Prisma.EnumPostTypeFieldUpdateOperationsInput | $Enums.PostType
   content?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1338,6 +1389,7 @@ export type PostCountOutputTypeCountCommentsArgs<ExtArgs extends runtime.Types.E
 export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   authorId?: boolean
+  authorRole?: boolean
   clubId?: boolean
   postType?: boolean
   content?: boolean
@@ -1359,6 +1411,7 @@ export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type PostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   authorId?: boolean
+  authorRole?: boolean
   clubId?: boolean
   postType?: boolean
   content?: boolean
@@ -1375,6 +1428,7 @@ export type PostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type PostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   authorId?: boolean
+  authorRole?: boolean
   clubId?: boolean
   postType?: boolean
   content?: boolean
@@ -1391,6 +1445,7 @@ export type PostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type PostSelectScalar = {
   id?: boolean
   authorId?: boolean
+  authorRole?: boolean
   clubId?: boolean
   postType?: boolean
   content?: boolean
@@ -1402,7 +1457,7 @@ export type PostSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "authorId" | "clubId" | "postType" | "content" | "likesCount" | "commentsCount" | "editedAt" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
+export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "authorId" | "authorRole" | "clubId" | "postType" | "content" | "likesCount" | "commentsCount" | "editedAt" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
 export type PostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   club?: boolean | Prisma.Post$clubArgs<ExtArgs>
@@ -1434,6 +1489,7 @@ export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     authorId: string
+    authorRole: $Enums.UserRole
     clubId: number | null
     postType: $Enums.PostType
     content: string
@@ -1874,6 +1930,7 @@ export interface Prisma__PostClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface PostFieldRefs {
   readonly id: Prisma.FieldRef<"Post", 'String'>
   readonly authorId: Prisma.FieldRef<"Post", 'String'>
+  readonly authorRole: Prisma.FieldRef<"Post", 'UserRole'>
   readonly clubId: Prisma.FieldRef<"Post", 'Int'>
   readonly postType: Prisma.FieldRef<"Post", 'PostType'>
   readonly content: Prisma.FieldRef<"Post", 'String'>

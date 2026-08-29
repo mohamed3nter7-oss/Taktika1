@@ -328,6 +328,38 @@ export class ProfilesService {
     }
   }
 
+  /**
+   * The club this user administers, or null.
+   *
+   * Exported seam for `posts` (§4): club attribution on POST /posts must read
+   * club_admin_profiles, which is this module's table, so posts injects this
+   * rather than querying it. Same shape as `assertUserVisible` above.
+   *
+   * THE ROW IS THE AUTHORISATION. The caller must NOT gate on the JWT role and
+   * then look the club up — that is two sources of truth for one decision, and
+   * the token is the weaker of them. One lookup answers both failure modes with
+   * the same null: not a club admin at all, and a club admin whose profile row
+   * is missing. The second is the one that would otherwise be a 500 on a null
+   * dereference instead of a 403.
+   *
+   * Returns null rather than throwing. Which status code a missing club means
+   * is the CALLER'S policy — a 403 thrown from here would be this module
+   * deciding how posts answers, and a different caller may reasonably want a
+   * 404 or an empty result.
+   *
+   * Deliberately NOT generalised to "get a user's club": the name answers
+   * exactly one question, about the CALLER'S OWN club. A general accessor
+   * invites a caller asking about someone else's club, which is a different
+   * question with a different answer and a different authorisation story.
+   */
+  async clubIdForAdmin(userId: string): Promise<number | null> {
+    const profile = await this.prisma.clubAdminProfile.findUnique({
+      where: { userId },
+      select: { clubId: true },
+    });
+    return profile?.clubId ?? null;
+  }
+
   /** Hydration helper for later modules (search, feed): row → its role block. */
   pickRoleProfile(row: PublicUserRow): RoleProfileView | null {
     switch (row.role) {

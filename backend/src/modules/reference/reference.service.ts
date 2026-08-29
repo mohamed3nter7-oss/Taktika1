@@ -14,17 +14,17 @@ import {
   ScoutType,
 } from '../../generated/prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { CLUB_SUMMARY_SELECT } from './club-summary.map';
 import { ListClubsQueryDto } from './dto/reference-queries.dto';
 
 const DEFAULT_CLUB_PAGE = 20;
 
+// Composed from CLUB_SUMMARY_SELECT so the six shared fields have ONE
+// definition -- the posts module embeds the same block, and a second
+// hand-written whitelist is how the two shapes drift apart. The spread comes
+// FIRST, so the key order -- and therefore the JSON key order -- is unchanged.
 const CLUB_SELECT = {
-  id: true,
-  nameEn: true,
-  nameAr: true,
-  shortNameEn: true,
-  shortNameAr: true,
-  logoUrl: true,
+  ...CLUB_SUMMARY_SELECT,
   foundedYear: true,
   country: { select: { id: true, code: true, nameEn: true, nameAr: true } },
   city: { select: { id: true, nameEn: true, nameAr: true } },

@@ -84,6 +84,45 @@ it. Every hunk that is not the change you intended is a bug report.
 - Unit tests only for genuinely complex pure logic: age computation, affiliation overlap, cursor encode/decode. Unit-testing a service that just calls Prisma tests Prisma.
 - Rate limits will fire during rapid test registration. Restart the backend to clear in-memory throttler state.
 
+### Verifying a route by hand: confirm the restart, or the check is void
+
+`pkill -f "nest start"` **does not stop the server.** It kills the npm/nest
+wrapper and leaves the node child holding port 3000. The replacement process
+then fails to bind, exits quietly, and the OLD BUILD keeps answering.
+
+The symptom is misleading in the worst way: routes that the code plainly maps
+return **404 with `NOT_FOUND`** — the app's own error envelope, not a connection
+error — so it reads as a routing or module-registration bug and sends you into
+`app.module.ts`. This cost a full debugging detour on the `posts` module, where
+all nine routes were correctly registered the whole time.
+
+**The second-order damage is worse than the 404s, and it is the reason this note
+exists.** Any before/after comparison taken across a restart is VOID unless the
+restart is confirmed. In the same session, a `GET /reference/clubs` capture
+"before" a change and "after" it were both served by the same stale process. The
+diff came back EMPTY and would have been filed as proof that the change was
+behaviour-preserving. It proved nothing — a passing check that cannot fail is
+exactly what §8 exists to prevent, arriving through the verification METHOD
+rather than through a test.
+
+What actually works, on Windows:
+
+```powershell
+Get-NetTCPConnection -LocalPort 3000 -State Listen |
+  ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+```
+
+Then **prove the new process is the one answering** before trusting anything it
+says. Wait for `Nest application successfully started` in the NEW log file, and
+grep that log for a route only the new build has:
+
+```bash
+grep -E "RoutesResolver|Mapped" /tmp/server.log | grep posts
+```
+
+A before/after diff is only evidence if both halves came from the build you
+think they did.
+
 ---
 
 ## Validation and security

@@ -366,3 +366,90 @@ The first proves `schema.prisma` matches the live database; the second proves it
 **Reversal cost: low** — add a presign method to `StorageService` (plus the `@aws-sdk/s3-request-presigner` package) and a post-upload sanitize worker. Note the worker is not optional in that design: without it, presign silently removes the guarantee this entry exists to keep.
 
 **Named by role, never by vendor.** Supabase Storage is the development provider and Cloudflare R2 is the launch provider. Both speak S3 with SigV4, so this is ONE implementation swapped by configuration — not an interface with two classes (§4). Every environment variable and every symbol is `STORAGE_*`; a `SUPABASE_*` name would make the R2 migration a change to every file that reads one. All seven values are validated at boot by `validateStorageEnv`, so a misconfiguration stops the process instead of surfacing as a failed upload three weeks later.
+
+### D-022 — `posts.author_role` is denormalised from `users.role`
+**PRD ref:** FR-FEED-2 / PRD A.4 (3NF exceptions)
+**Decided:** 2026-08-29
+**Divergence:** `posts` carries `author_role user_role NOT NULL`, duplicating `users.role`. This is the **third** documented 3NF exception, after `likes_count` and `comments_count`.
+
+**Reason:** FR-FEED-2's `?role=` filter. Without the column the filter is a join predicate sitting ABOVE the index scan — the planner reads every post newest-first and discards non-matching authors until it has twenty, so the cost of the filter scales with how rare the role is. With it, `idx_posts_role_feed (author_role, created_at DESC, id DESC) WHERE deleted_at IS NULL` makes the filter the index's own leading column.
+
+**Why the standard objection does not apply.** Denormalisation is normally rejected because the copy drifts. Role is IMMUTABLE by root §5 — chosen at registration, no UI path and no API path — so there is no operation that can make these two values disagree. **That immutability is the entire justification, and it is a precondition, not a nicety: the day role becomes editable, this column becomes a bug and must be dropped or backfilled in the same commit.**
+
+**Where the value comes from: the verified JWT `role` claim, not a `users` read.** The same invariant licenses both. A 15-minute access token's `role` cannot be stale for a field nothing can change, and `AuthenticatedUser` is already the only identity source in the application (§9) — reading `users.role` on every create would add a round trip to buy a guarantee immutability already provides. The claim is signed and verified before the handler runs, so it is not client-controlled.
+
+**NOT NULL with no DEFAULT, deliberately.** `NOT NULL` catches a create path that FORGETS the column: the insert fails loudly. It does **not** catch a WRONG value — a hardcoded `PLAYER`, or the club's role instead of the author's, satisfies the constraint and is silently wrong forever. A `DEFAULT` would convert the loud failure into exactly that silent one. The only real guard is the test: `posts.author_role` is asserted EQUAL to `users.role`, read as a column, for at least two different roles.
+
+**Applied to an empty table** — `SELECT count(*) FROM posts` returned 0 immediately before the migration was written, so there is no backfill and no `USING` clause.
+
+**Reversal cost:** migration — drop the column and the index, and move the `?role=` filter back to a join.
+
+### D-023 — partial indexes stay in raw SQL; the complement to D-009
+**PRD ref:** `backend/CLAUDE.md` § Prisma / §17 D-009
+**Decided:** 2026-08-29
+**Divergence:** `idx_posts_role_feed` and `idx_posts_author` are created in `20260829223800_posts_author_role_and_keyset_indexes/migration.sql` and are **not** declared in `schema.prisma`. Read alone, D-009 says the opposite — that an index absent from `schema.prisma` is one Prisma proposes to DROP on every `migrate dev`. Both are true, and **stating either half without the other misleads**:
+
+| | |
+| --- | --- |
+| Prisma **can** express it (GIN + `ops`) | declare it in `schema.prisma`, or `migrate dev` proposes DROPPING it — D-009 |
+| Prisma **cannot** express it (partial) | leave it in SQL; Prisma never sees it, so it is never proposed for drop |
+
+**Reason:** Prisma has no `where` argument on `@@index`, so a partial index is not expressible at all. The brief for this module asked for both `WHERE deleted_at IS NULL` and an `@@index` declaration; those two requirements are mutually exclusive, and the partial predicate is the half worth keeping. Without it, `deleted_at` is not in the index and becomes a heap Filter — which costs the Index Only Scan.
+
+**Verified, not reasoned.** `idx_posts_feed`, `idx_affiliations_current` and `idx_notifications_unread` have been live and absent from `schema.prisma` since `20260806153549`, and both `migrate diff` directions return empty (exit 0). Prisma does not see them.
+
+**The consequence that matters for review: `migrate diff` cannot confirm these indexes exist.** An empty diff proves only that the expressible parts — the `author_role` column, and the drop of the old `posts_author_id_created_at_idx` — are in sync. It is silent about the two partial indexes, in both directions. The only check that covers them is `SELECT indexname, indexdef FROM pg_indexes WHERE tablename = 'posts'`, and that is now part of this migration's acceptance rather than optional.
+
+**Mitigation for the blind spot D-009 closed.** The `Post` model carries a comment block naming all three raw-SQL indexes with their definitions copied character for character from their migrations. A schema file silent about three indexes is the same blind spot in a different shape; the comment is what keeps it discoverable.
+
+**Reversal cost:** trivial — but reversing means dropping the `WHERE` clause, which trades the Index Only Scan for a heap Filter.
+
+### D-024 — content is always required; image-only posts are not permitted
+**PRD ref:** FR-POST-1 / PRD 9.4
+**Decided:** 2026-08-29
+**Divergence:** `content` is required on `POST /posts` and on `PATCH /posts/:id`, 1–3000 characters after trimming. A post carrying only images is not expressible, now or after the image commit lands.
+
+**Reason:** the platform's unit of value is a professional statement, not a photograph. A scout reading a feed is evaluating what someone says about a match, a session or a signing; an image supports that claim and does not replace it. Permitting image-only posts would also make the feed's text-search path (FR-SRCH) structurally unable to see part of the corpus, and would leave screen-reader users with a post that has no readable content at all — there is no alt-text field in the v1 schema, so an image-only post is an empty post to anyone not looking at it.
+
+**The trimming is load-bearing, not cosmetic.** `chk_post_content_not_blank` (`length(btrim(content)) > 0`) is the real line and cannot be bypassed by a second write path. The DTO's `@Transform` trims BEFORE `@Length` runs, so `"   "` is a 400 VALIDATION_ERROR from the pipe rather than a raw 23514 surfacing as a 500 — the same reasoning as `assertNotSelf` in `FollowsService`. Verified by source mutation: removing the transform turns two tests red.
+
+**Consequence when images land:** the image commit adds `imageKeys` as an OPTIONAL field beside a still-required `content`. It does not relax this.
+
+**Reversal cost:** trivial — make `content` optional and add a cross-field validator requiring at least one of content/images. The CHECK constraint would have to be dropped in a migration, which is where it stops being trivial.
+
+### D-025 — no edit window; a post is editable at any age
+**PRD ref:** PRD POST-6
+**Decided:** 2026-08-29
+**Divergence:** POST-6 specifies that editing is permitted for 30 minutes after publication. `PATCH /posts/:id` enforces no window at all — a post is editable by its author indefinitely. `edited_at` is set on every edit.
+
+**Reason:** the window solves a problem this product does not have. A 30-minute limit exists on platforms where a post's engagement is the thing being protected — where editing after the fact could bait-and-switch an audience that already reacted. Here the corpus is professional history: a career claim, a match observation, a coaching note. Those are exactly the things that need correcting *later*, when the author notices an error, and a typo in a scout's public statement is not something to lock in after half an hour.
+
+**What replaces it is disclosure, not prevention.** `edited_at` is on the wire and is non-null forever once set, so a reader can always see that a post was changed. That is the honest control: the platform does not pretend an edit did not happen, and it does not pretend the original is recoverable either — **there is no revision history in v1, so the previous text is gone.** That is the accepted cost and the thing to revisit if editing is ever abused.
+
+**Reversal cost:** trivial — one comparison against `created_at` in `PostsService.update`, plus an error code.
+
+### D-026 — the create idempotency key is dropped
+**PRD ref:** FR-POST-1 (client-generated idempotency key, 60-second dedupe)
+**Decided:** 2026-08-29
+**Divergence:** The PRD specifies a client-generated key on `POST /posts`, deduplicated for 60 seconds. It is not built. `CreatePostDto` declares no such field, and with `forbidNonWhitelisted` a client sending one gets a 400.
+
+**Reason:** there is nowhere to put it. A 60-second window is a TTL, and the two things that express a TTL are a cache and a sweep job. There is no Redis (root §1 caps infrastructure under $30/month, and the throttler is deliberately in-memory for the same reason), and a unique index cannot express "unique for 60 seconds" — it would either reject the key forever, which is a different and worse contract, or require a scheduled delete that is itself a piece of infrastructure to run, monitor and get wrong.
+
+**What replaces it:** a disabled submit button on the client, which is where accidental double-submits actually come from.
+
+**The consequence, stated plainly:** a determined double-submit creates two posts, and **nothing on the server prevents it.** A user who double-clicks fast enough, or a client that retries a timed-out request, gets two identical posts and must delete one. The rate limit (5/min) bounds the damage to a handful, not to one.
+
+**Reversal cost:** low, and it rises with scale — the key needs a store with a TTL. If Redis arrives for the throttler or the feed, this comes with it and costs a middleware; if it never arrives, this needs a table plus a sweep job and stops being low.
+
+### D-027 — the `images` KEY ships now; it is empty only until the image commit
+**PRD ref:** FR-POST image upload / §17 D-021
+**Decided:** 2026-08-29
+**Divergence:** `PostView.images` is on the wire from the first commit and is `[]` in this commit, because `posts` ships text-only here. No endpoint writes `post_images`, `sharp` is not installed, and `modules/media` is untouched by this commit.
+
+**Read this the right way round.** What is permanent is the KEY, not the emptiness. Images ARE being built — the `post_images` table, the 4-slot CHECK constraint and the storage seam (D-021) all already exist, and the image commit fills the array. This entry records the ORDER of two commits, not a decision to omit images from the product.
+
+**Reason:** the key exists now so that adding images later is ADDITIVE rather than a breaking change. A client that ships against this contract renders an empty gallery today and a populated one after the image commit, with no version negotiation and no field appearing from nowhere. Omitting the key and adding it later would force every consumer to handle its absence.
+
+**This is the same argument D-021 makes about the upload path** and depends on it: images proxy through the server so `sharp` can strip EXIF, which is why the image commit is a separate piece of work with its own worker-shaped decisions rather than a field added to this DTO.
+
+**Reversal cost:** trivial — the key is already there; the image commit fills it.

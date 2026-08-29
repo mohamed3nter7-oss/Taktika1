@@ -2681,6 +2681,7 @@ export type ClubAffiliationScalarFieldEnum = (typeof ClubAffiliationScalarFieldE
 export const PostScalarFieldEnum = {
   id: 'id',
   authorId: 'authorId',
+  authorRole: 'authorRole',
   clubId: 'clubId',
   postType: 'postType',
   content: 'content',

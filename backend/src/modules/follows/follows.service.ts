@@ -186,6 +186,17 @@ export class FollowsService {
    * Every value is a bound parameter via the tagged template — the only
    * interpolated SQL is the column identifiers, which are chosen from this
    * function's own two-branch literal and never come from a request.
+   *
+   * EVERY COLUMN IS QUALIFIED WITH `f.`. This was NOT a bug before — the alias
+   * is `"createdAt"` while the ORDER BY said `created_at`, so the sort bound to
+   * the table column correctly. But it bound correctly because the two names
+   * happened to differ, not because anything made them differ. An unqualified
+   * identifier in ORDER BY resolves against OUTPUT column names first, so the
+   * day someone writes `AS created_at` in a new keyset — or copies this one and
+   * renames the alias — the sort silently moves onto a text cast and the Index
+   * Only Scan becomes a Sort over the whole set. `f.created_at` cannot mean
+   * anything but the column. Qualification makes that class of slip unwritable
+   * rather than merely absent; see PostsService.fetchWindow for the measurement.
    */
   private fetchWindow(
     targetId: string,
@@ -197,19 +208,19 @@ export class FollowsService {
     // indexes are (anchor, created_at DESC, tiebreak DESC).
     const [anchor, tiebreak] =
       direction === 'followers'
-        ? [Prisma.sql`following_id`, Prisma.sql`follower_id`]
-        : [Prisma.sql`follower_id`, Prisma.sql`following_id`];
+        ? [Prisma.sql`f.following_id`, Prisma.sql`f.follower_id`]
+        : [Prisma.sql`f.follower_id`, Prisma.sql`f.following_id`];
 
     const keyset = cursor
-      ? Prisma.sql`AND (created_at, ${tiebreak}) < (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)`
+      ? Prisma.sql`AND (f.created_at, ${tiebreak}) < (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)`
       : Prisma.empty;
 
     return this.prisma.$queryRaw<WindowRow[]>`
-      SELECT ${tiebreak} AS "userId", created_at::text AS "createdAt"
-      FROM follows
+      SELECT ${tiebreak} AS "userId", f.created_at::text AS "createdAt"
+      FROM follows f
       WHERE ${anchor} = ${targetId}::uuid
       ${keyset}
-      ORDER BY created_at DESC, ${tiebreak} DESC
+      ORDER BY f.created_at DESC, ${tiebreak} DESC
       LIMIT ${limit + 1}
     `;
   }

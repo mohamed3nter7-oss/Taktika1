@@ -14,6 +14,7 @@ import { CareerModule } from './modules/career/career.module';
 import { FollowsModule } from './modules/follows/follows.module';
 import { MediaModule } from './modules/media/media.module';
 import { validateStorageEnv } from './modules/media/storage.config';
+import { PostsModule } from './modules/posts/posts.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { ReferenceModule } from './modules/reference/reference.module';
 
@@ -43,6 +44,7 @@ import { ReferenceModule } from './modules/reference/reference.module';
     ProfilesModule,
     CareerModule,
     FollowsModule,
+    PostsModule,
     MediaModule,
   ],
   controllers: [AppController],
