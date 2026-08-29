@@ -501,3 +501,30 @@ That does not change the decision — 20 lookups on a hot `users_pkey` is nothin
 **Pinned by a test, not by this entry.** `feed.e2e-spec.ts` asserts the page is FULL when a suspended author holds the newest posts. Reverting to the template's shape turns it red.
 
 **Reversal cost:** trivial in code, but it reintroduces short pages — which would then have to be documented on the route and handled by every client.
+
+### D-030 — health is split into liveness and readiness, with different status-code rules per dependency
+**PRD ref:** §17 D-021 (storage seam) / the media commit's health probe
+**Decided:** 2026-08-29, logged 2026-08-30
+**Divergence:** The brief for the media module specified one health route carrying a storage probe. What is built is two:
+
+| route | checks | polled by the platform |
+| --- | --- | --- |
+| `GET /api/v1/health` | nothing — returns `{ status: 'ok' }` with no network call of any kind | **yes** |
+| `GET /api/v1/health/ready` | database (`SELECT 1`) **and** storage (`HeadBucket`), concurrently | no |
+
+**Reason: a liveness probe that calls the object store makes "is this container alive" depend on "is Supabase alive".** A provider blip is then scored as a dead container, the platform restarts a perfectly healthy process, and a dependency outage becomes an availability outage — a sustained one becomes a restart loop. Nothing that can fail for an external reason may ever be added to the liveness handler.
+
+**The evidence is the latency, and it is not small.** `HeadBucket` against Supabase `eu-west-1` measured **~275–285ms** from this dev machine, repeatably, and has been seen as high as ~500ms and ~1100ms on worse connections. Whatever the true figure, it is a live cross-internet round trip on every poll, which is exactly what a liveness check must not be. **The number that matters is from the DEPLOYED server, not from a laptop in Egypt — it has not been measured there yet** (see the post-deploy item below).
+
+**The per-dependency status-code rule, which is the part that is easy to get wrong:**
+
+- **Database down → 503.** The application cannot serve a single authenticated request without Postgres. There is nothing to stay in rotation for.
+- **Storage down → 200 with `status: 'degraded'`.** Reads, feeds, profiles, search and messaging all work with the object store unreachable; only image upload does not. Taking the instance out of rotation over image upload repeats, one layer down, the exact mistake the liveness/readiness split exists to prevent.
+
+`/health/ready` currently returns **200 in both cases**, with the two booleans in the body, because nothing polls it — it is a diagnostic a human or a dashboard reads, and a 503 would invite someone to wire it back into an automated restart. **The 503-on-database rule above is the contract for the day something does consume it, and it is not implemented yet.**
+
+**The body carries booleans and latencies and nothing else** — no version, no bucket name, no endpoint, no SDK error text. A health endpoint is unauthenticated by necessity, which makes it the cheapest reconnaissance surface in the application. Both routes are `@Public()`, both are wrapped in try/catch, and neither can throw.
+
+**Not covered by any test.** Neither route has an e2e, so the `@Public()` decorators, the no-network guarantee on liveness, and the never-throws guarantee on readiness are all unpinned. That is the gap this entry most wants closed.
+
+**Reversal cost:** trivial — merge the two handlers. The cost of doing so is the restart loop described above.
