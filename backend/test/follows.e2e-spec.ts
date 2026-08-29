@@ -124,7 +124,10 @@ describe('Follows (e2e, real Postgres)', () => {
     path: string,
     token: string,
     limit: number,
-  ): Promise<{ seen: string[]; pages: { size: number; cursor: string | null }[] }> {
+  ): Promise<{
+    seen: string[];
+    pages: { size: number; cursor: string | null }[];
+  }> {
     const seen: string[] = [];
     const pages: { size: number; cursor: string | null }[] = [];
     let cursor: string | null = null;
@@ -353,7 +356,10 @@ describe('Follows (e2e, real Postgres)', () => {
      * the DELETE trigger the second, and only checking both proves the pair.
      */
     it('cascades a deleted user and decrements the survivor counter', async () => {
-      const [leaver, survivor] = await Promise.all([activeUser(), activeUser()]);
+      const [leaver, survivor] = await Promise.all([
+        activeUser(),
+        activeUser(),
+      ]);
 
       await put(`/users/${survivor.id}/follow`, leaver.token).expect(204);
       await put(`/users/${leaver.id}/follow`, survivor.token).expect(204);
@@ -540,15 +546,19 @@ describe('Follows (e2e, real Postgres)', () => {
     ])('rejects a %s limit', async (_label, limit) => {
       const [target, viewer] = await Promise.all([activeUser(), activeUser()]);
 
-      await get(`/users/${target.id}/followers?limit=${limit}`, viewer.token)
-        .expect(400);
+      await get(
+        `/users/${target.id}/followers?limit=${limit}`,
+        viewer.token,
+      ).expect(400);
     });
 
     it('returns an empty page and a null cursor for a user nobody follows', async () => {
       const [target, viewer] = await Promise.all([activeUser(), activeUser()]);
 
-      const res = await get(`/users/${target.id}/followers`, viewer.token)
-        .expect(200);
+      const res = await get(
+        `/users/${target.id}/followers`,
+        viewer.token,
+      ).expect(200);
       const body = asJson<ListBody<FollowRowBody>>(res);
 
       expect(body.data).toEqual([]);
@@ -689,8 +699,9 @@ describe('Follows (e2e, real Postgres)', () => {
       }
 
       const firstPage = asJson<ListBody<FollowRowBody>>(
-        await get(`/users/${target.id}/followers?limit=5`, viewer.token)
-          .expect(200),
+        await get(`/users/${target.id}/followers?limit=5`, viewer.token).expect(
+          200,
+        ),
       );
 
       // 5 rows in the window, 3 of them suspended => 2 rendered, cursor live.
@@ -726,8 +737,10 @@ describe('Follows (e2e, real Postgres)', () => {
       ]);
       await put(`/users/${target.id}/follow`, follower.token).expect(204);
 
-      const res = await get(`/users/${target.id}/followers`, target.token)
-        .expect(200);
+      const res = await get(
+        `/users/${target.id}/followers`,
+        target.token,
+      ).expect(200);
       const body = asJson<ListBody<FollowRowBody>>(res);
 
       expect(body.data[0]).toEqual({
@@ -755,7 +768,9 @@ describe('Follows (e2e, real Postgres)', () => {
     ])('401s an unauthenticated %s request', async (_label, path) => {
       const target = await activeUser();
 
-      const res = await client().get(`${path(target.id)}`).expect(401);
+      const res = await client()
+        .get(`${path(target.id)}`)
+        .expect(401);
 
       expect(asError(res).error.code).toBe('UNAUTHORIZED');
     });

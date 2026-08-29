@@ -197,7 +197,9 @@ describe('Career (e2e, real Postgres)', () => {
     it('returns nextCursor null when the list is complete', async () => {
       const user = await activeUser();
       for (const name of ['One', 'Two', 'Three']) {
-        await post('/users/me/certifications', user.token, { name }).expect(201);
+        await post('/users/me/certifications', user.token, { name }).expect(
+          201,
+        );
       }
 
       const res = await get('/users/me/certifications', user.token).expect(200);
@@ -327,9 +329,13 @@ describe('Career (e2e, real Postgres)', () => {
       }).expect(201);
       const id = asJson<CertificationBody>(created).id;
 
-      const res = await patch(`/users/me/certifications/${id}`, stranger.token, {
-        name: 'Hijacked',
-      });
+      const res = await patch(
+        `/users/me/certifications/${id}`,
+        stranger.token,
+        {
+          name: 'Hijacked',
+        },
+      );
 
       expect(res.status).toBe(404);
       expect(res.status).not.toBe(403);

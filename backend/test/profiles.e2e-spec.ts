@@ -283,9 +283,9 @@ describe('Profiles (e2e, real Postgres)', () => {
         clubAdmin: { clubId, positionTitle: 'Sporting Director' },
       }).expect(201);
 
-      const res = await complete(second.token, { clubAdmin: { clubId } }).expect(
-        409,
-      );
+      const res = await complete(second.token, {
+        clubAdmin: { clubId },
+      }).expect(409);
 
       expect(asError(res).error.code).toBe('CLUB_ALREADY_MANAGED');
 
@@ -309,7 +309,11 @@ describe('Profiles (e2e, real Postgres)', () => {
       const user = await userWith(UserRole.COACH, UserStatus.SUSPENDED);
       // Token minted PENDING_PROFILE so ProfileCompleteGuard lets it reach the
       // service; the database is the thing that says SUSPENDED.
-      const token = tokenFor(user.id, UserRole.COACH, UserStatus.PENDING_PROFILE);
+      const token = tokenFor(
+        user.id,
+        UserRole.COACH,
+        UserStatus.PENDING_PROFILE,
+      );
 
       const res = await complete(token, {
         coach: { coachType: CoachType.YOUTH },
@@ -359,7 +363,9 @@ describe('Profiles (e2e, real Postgres)', () => {
     });
 
     it('returns a computed integer age', async () => {
-      const res = await authed(`/users/${subject.id}`, viewer.token).expect(200);
+      const res = await authed(`/users/${subject.id}`, viewer.token).expect(
+        200,
+      );
       const body = asJson<{ age: unknown }>(res);
 
       expect(body.age).toBe(DOB_AGE);
@@ -367,7 +373,9 @@ describe('Profiles (e2e, real Postgres)', () => {
     });
 
     it('does not carry dateOfBirth anywhere in the body', async () => {
-      const res = await authed(`/users/${subject.id}`, viewer.token).expect(200);
+      const res = await authed(`/users/${subject.id}`, viewer.token).expect(
+        200,
+      );
 
       // Absent, not merely different: a nested null would still disclose the
       // field, and a wrong value would still be a birth date on the wire.
@@ -376,7 +384,9 @@ describe('Profiles (e2e, real Postgres)', () => {
     });
 
     it('does not carry email, phone, passwordHash or status', async () => {
-      const res = await authed(`/users/${subject.id}`, viewer.token).expect(200);
+      const res = await authed(`/users/${subject.id}`, viewer.token).expect(
+        200,
+      );
       const keys = [...allKeys(res.body)];
 
       for (const forbidden of ['email', 'phone', 'passwordHash', 'status']) {
@@ -385,7 +395,9 @@ describe('Profiles (e2e, real Postgres)', () => {
     });
 
     it('returns the PLAYER role block and no other role block', async () => {
-      const res = await authed(`/users/${subject.id}`, viewer.token).expect(200);
+      const res = await authed(`/users/${subject.id}`, viewer.token).expect(
+        200,
+      );
       const body = asJson<{ role: string; profile: Record<string, unknown> }>(
         res,
       );
@@ -419,7 +431,9 @@ describe('Profiles (e2e, real Postgres)', () => {
         analyst: { analystType: AnalystType.TACTICAL },
       });
 
-      const res = await authed(`/users/${analyst.id}`, viewer.token).expect(200);
+      const res = await authed(`/users/${analyst.id}`, viewer.token).expect(
+        200,
+      );
       const body = asJson<{ role: string; profile: Record<string, unknown> }>(
         res,
       );
@@ -434,7 +448,9 @@ describe('Profiles (e2e, real Postgres)', () => {
     // of asserting the viewer block exactly is that a new key cannot appear
     // here unnoticed, and that is worth one deliberate edit per addition.
     it('marks the caller own profile with viewer.isSelf', async () => {
-      const own = await authed(`/users/${subject.id}`, subject.token).expect(200);
+      const own = await authed(`/users/${subject.id}`, subject.token).expect(
+        200,
+      );
       expect(asJson<{ viewer: unknown }>(own).viewer).toEqual({
         isSelf: true,
         isFollowing: false,
@@ -618,7 +634,9 @@ describe('Profiles (e2e, real Postgres)', () => {
     it('blocks a PENDING_PROFILE caller on GET /users/:id too', async () => {
       const pending = await userWith(UserRole.COACH);
 
-      const res = await authed(`/users/${pending.id}`, pending.token).expect(403);
+      const res = await authed(`/users/${pending.id}`, pending.token).expect(
+        403,
+      );
 
       expect(asError(res).error.code).toBe('PROFILE_INCOMPLETE');
     });

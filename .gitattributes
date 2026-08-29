@@ -1,0 +1,50 @@
+# Line endings are normalised to LF in the repository, whatever the working
+# platform. Development happens on Windows and deployment is Linux (Railway);
+# without this, files land in the index with mixed endings and every Prettier
+# run produces a diff nobody asked for. Before this file existed the repo
+# carried 217 CRLF-related lint errors.
+#
+# `text=auto` lets Git decide what is text; `eol=lf` fixes what it writes.
+# Working copies are unaffected on Windows for editors that handle LF, which
+# every editor in use here does.
+* text=auto eol=lf
+
+# ---------------------------------------------------------------------------
+# Binary. Never diffed, never normalised — a CRLF conversion inside any of
+# these corrupts the file.
+# ---------------------------------------------------------------------------
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.ico   binary
+*.pdf   binary
+
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.eot   binary
+
+# ---------------------------------------------------------------------------
+# Text, but generated. Normalised like any other text file so they cannot
+# reintroduce CRLF, and marked so they do not drown a review.
+#
+# NOT `binary` — that would stop normalisation, which is the opposite of what
+# is wanted. `-diff` only suppresses the patch body; the file is still tracked,
+# still merged, and still diffable with --text when someone actually needs it.
+# ---------------------------------------------------------------------------
+package-lock.json  -diff linguist-generated=true
+
+# The Prisma client is generated into the repo (schema.prisma output setting)
+# and is tracked. Its diffs are large, mechanical, and never reviewed.
+backend/src/generated/**  -diff linguist-generated=true
+
+# ---------------------------------------------------------------------------
+# Shell scripts must stay LF even on Windows checkouts — CRLF in a shebang
+# script fails on Linux with the famously unhelpful "bad interpreter: no such
+# file or directory".
+# ---------------------------------------------------------------------------
+*.sh  text eol=lf
