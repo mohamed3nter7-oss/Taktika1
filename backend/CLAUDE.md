@@ -84,6 +84,34 @@ it. Every hunk that is not the change you intended is a bug report.
 - Unit tests only for genuinely complex pure logic: age computation, affiliation overlap, cursor encode/decode. Unit-testing a service that just calls Prisma tests Prisma.
 - Rate limits will fire during rapid test registration. Restart the backend to clear in-memory throttler state.
 
+### Assert identity, not arithmetic
+
+Two of the most important tests in this codebase passed for the wrong reason,
+in two different modules, and **mutation testing was the only thing that found
+either**. They failed the same way:
+
+- **`posts`** — "PATCH your own soft-deleted post returns 404" passed against an
+  implementation that dropped `deletedAt: null` from the update's WHERE. The row
+  WAS edited; the follow-up read then filtered it out and produced the 404 the
+  test wanted. Correct status code, wrong mechanism, silent write.
+- **`feed`** — "does not drop rows separated by microseconds" asserted
+  `seen.length >= 3` and passed against a cursor that truncated to milliseconds
+  and skipped two of the three rows. The walk had picked up the suite's OTHER
+  posts, so the tally was satisfied by rows the test was not about.
+
+**The generalisation: counts and status codes are the WEAK class of assertion.**
+Both can be produced by the wrong mechanism. **Identity and content are the
+STRONG class.** When a test's subject is ordering, filtering, or exclusion,
+assert WHICH rows came back and IN WHAT ORDER — never how many. When its subject
+is a rejected write, assert the row is UNCHANGED, not merely that the response
+was 4xx.
+
+**And isolate your own rows.** A test sharing a suite — or in the feed's case, a
+global table — with other fixtures is asserting over data it does not control.
+That is what actually broke the feed case: the assertion was weak *and* the
+population was not the test's own. Give the fixture a distinguishing marker and
+filter to it, or place it so the query can only return it.
+
 ### Verifying a route by hand: confirm the restart, or the check is void
 
 `pkill -f "nest start"` **does not stop the server.** It kills the npm/nest
