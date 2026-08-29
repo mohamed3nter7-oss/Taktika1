@@ -258,6 +258,12 @@ The first proves `schema.prisma` matches the live database; the second proves it
 
 **Reversal cost:** trivial today, and the tests pinning both paths are what keep it trivial.
 
+**RESOLVED 2026-08-30 — the third consumer arrived and the consolidation was done.** `author.isFollowing` on `PostView` made it three call sites, so the field now has ONE implementation: `followedSubset(prisma, viewerId, ids)` in `follows.map.ts`. All three read paths use it, and `viewerFollowSelect` is deleted along with the `if (!viewerId) throw` guard that defended the hazard it created.
+
+**It is a function in `follows.map.ts`, NOT a method on `FollowsService`, and the reason is structural.** `FollowsModule` imports `ProfilesModule` for `assertUserVisible`, so `profiles` — one of the three callers — cannot inject `FollowsService` without closing a module cycle. That is the same cycle `follows.map.ts` and `career.map.ts` were both created to avoid. A function taking the caller's own `PrismaService` reaches every caller with no DI edge, the way `posts` already uses `PROFILE_SUMMARY_SELECT`. One exported query beside the table that owns it is not the repository layer §4 forbids.
+
+**The mutation this entry exists for now has one place to live, and it goes red.** Replacing `followerId: viewerId` with `followerId: undefined` in `followedSubset` fails three tests — including the profile-embed case that originally survived 185 green tests.
+
 ### D-011 — the player profile ships without the application shell
 **PRD ref:** `frontend/.docs/03-ARCHITECTURE.md` / Claude Design `PlayerProfileScreen.dc.html`
 **Decided:** 2026-08-27
@@ -453,3 +459,45 @@ The first proves `schema.prisma` matches the live database; the second proves it
 **This is the same argument D-021 makes about the upload path** and depends on it: images proxy through the server so `sharp` can strip EXIF, which is why the image commit is a separate piece of work with its own worker-shaped decisions rather than a field added to this DTO.
 
 **Reversal cost:** trivial — the key is already there; the image commit fills it.
+
+### D-028 — the feed lives inside `modules/posts`; there is no feed module
+**PRD ref:** §7 build order / FR-FEED-1, FR-FEED-2
+**Decided:** 2026-08-30
+**Divergence:** §7 lists `feed` as a module in its own right, after `posts`. It is not one. `feed.controller.ts` is a THIRD controller inside `modules/posts`, beside `posts.controller.ts` and `user-posts.controller.ts`, and `GET /feed` is served by `PostsService.listFeed`.
+
+**Reason:** the feed is a listing of posts. Same table, same index family, same cursor codec, same hydration, same viewer-state subset as `GET /users/:id/posts` — it differs only in having no author anchor and an optional role anchor. A separate module could be built exactly two ways and both are worse:
+
+- it queries `posts`, `post_likes` and `saved_posts` itself, which §4 forbids outright; or
+- `PostsService` exports the window AND the hydration, and `FeedService` calls them and adds nothing — a file per operation for no behaviour, which is precisely the argument §4 makes against repositories.
+
+Several base paths from several controller files in one module is the `profiles` precedent (`ProfilesController` on `users`, `ProfileCompletionController` on `auth/register`), not a new convention.
+
+**The extraction trigger, stated so it is not a matter of taste:** the feed earns a module when it acquires logic that is not a posts query. Ranking (FR-FEED-5) is that. So is the following-only tab (FR-FEED-4), which joins the follow graph. Until one of those lands, naming a module after a route is how a codebase acquires directories that forward calls.
+
+**Reversal cost:** trivial — move three files and one service method into a new directory. Nothing depends on the current placement.
+
+### D-029 — the feed window filters author status in a JOIN, not during hydration
+**PRD ref:** §17 D-007 / FR-FEED-1
+**Decided:** 2026-08-30
+**Divergence:** `follows` is the keyset template (D-007) and its window reads ONE table, dropping rows whose user is not ACTIVE afterwards, during hydration. `PostsService.fetchFeedWindow` does not: it joins `users` inside the window and filters `u.status = 'ACTIVE'` there. Every other D-007 rule is unchanged — row-value comparison in `$queryRaw`, `created_at::text` out and `::timestamptz` back, the shared cursor codec, the `limit + 1` probe, and every ORDER BY column qualified.
+
+**Reason: page fill, and it was settled by measurement.** The template's shape returns pages SHORTER than `limit` while `nextCursor` is non-null, because rows are discarded after the window is taken. On a follower list that is cosmetic. On a global feed it is the default screen. Measured on 5,060 live posts with one suspended prolific author holding the 60 most recent:
+
+| shape | page 1 at limit=20 |
+| --- | --- |
+| window over `posts` alone (the template) | window 20 rows, **shown to user 0** — and THREE consecutive empty pages, each with a non-null cursor |
+| window with the `users` join | **20 rows. Full.** |
+
+A client that stops when `data` is empty renders a blank feed on the product's most-viewed route.
+
+**The join costs less than the shape suggests.** The planner chose a Nested Loop with **Memoize** keyed on `author_id` in all four plans measured (with and without `?role=`, first page and deep page). The hash join that would have made this a table scan — the one real risk, since it would materialise the join before the LIMIT — did not appear in any plan.
+
+**READ THE MEMOIZE NUMBER WITH ITS FIXTURE'S BIAS, WHICH FLATTERS IT.** The measured page showed 81 candidate rows collapsing to 7 `users_pkey` probes and 74 cache hits. That ratio is an artefact: Memoize caches per DISTINCT key, and the fixture put 5,060 posts behind seven authors, so nearly every probe was a repeat. **A real global chronological feed page of 20 posts carries close to 20 DISTINCT authors, so the hit rate approaches zero and the true cost is ~20 PK lookups, not 7.**
+
+That does not change the decision — 20 lookups on a hot `users_pkey` is nothing against a 200ms NFR, and the page-fill argument was never about cost. But the number is recorded here with its caveat because a measurement in this log without its fixture's bias becomes a performance expectation someone builds on later. **A representative fixture would give distinct authors ≈ page size; it was NOT measured.** The Phase A note on Plan 3 does the same job inverted — that one records a contrast that UNDERSTATES a harm, this one records a benefit that OVERSTATES itself.
+
+**What is given up was mostly already gone.** The template's Index Only Scan is eroded on this table by `trg_post_likes_count`, which updates `posts` on every like and clears the page's visibility-map bit: Phase A measured `Heap Fetches: 0 → 41` on a 21-row page after liking those rows. And MSG-6 blocks will force a second table into this window regardless, at which point the single-table shape has nothing left to protect.
+
+**Pinned by a test, not by this entry.** `feed.e2e-spec.ts` asserts the page is FULL when a suspended author holds the newest posts. Reverting to the template's shape turns it red.
+
+**Reversal cost:** trivial in code, but it reintroduces short pages — which would then have to be documented on the route and handled by every client.

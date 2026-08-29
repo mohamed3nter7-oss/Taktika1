@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ProfilesModule } from '../profiles/profiles.module';
+import { FeedController } from './feed.controller';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
 import { UserPostsController } from './user-posts.controller';
@@ -9,8 +10,11 @@ import { UserPostsController } from './user-posts.controller';
  * module's tables). Likes and saves are not separate modules; neither table has
  * an id, a standalone route, or a lifecycle apart from its post.
  *
- * TWO controllers because the module serves two base paths — `/posts` and
- * `/users/:id/posts`. That is the `profiles` shape, not a new convention.
+ * THREE controllers because the module serves three base paths — `/posts`,
+ * `/users/:id/posts` and `/feed`. That is the `profiles` shape, not a new
+ * convention. The feed is a listing of THIS module's table with no author
+ * anchor; it is not a module of its own until it grows logic that is not a
+ * posts query (ranking, or the following-only tab).
  *
  * One inbound seam, the CareerModule -> ProfilesModule pattern: author
  * visibility through `ProfilesService.assertUserVisible`, and the club admin's
@@ -26,7 +30,7 @@ import { UserPostsController } from './user-posts.controller';
  */
 @Module({
   imports: [ProfilesModule],
-  controllers: [PostsController, UserPostsController],
+  controllers: [PostsController, UserPostsController, FeedController],
   providers: [PostsService],
   exports: [PostsService],
 })

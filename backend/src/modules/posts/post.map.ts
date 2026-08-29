@@ -6,8 +6,8 @@ import {
 import {
   PROFILE_SUMMARY_SELECT,
   mapProfileSummary,
-  type ProfileSummaryView,
 } from '../profiles/profile-summary.map';
+import type { FollowAwareSummary } from '../follows/follows.map';
 
 /**
  * The wire shape of a post, in one place.
@@ -47,7 +47,13 @@ export interface PostView {
   id: string;
   content: string;
   postType: PostRow['postType'];
-  author: ProfileSummaryView;
+  /**
+   * The author, plus whether the VIEWER follows them. Identical on all three
+   * read paths — GET /posts/:id, GET /users/:id/posts and GET /feed — because a
+   * field present on one listing of posts and absent from another is precisely
+   * the drift PROFILE_SUMMARY_SELECT exists to prevent.
+   */
+  author: FollowAwareSummary;
   club: ClubSummaryView | null;
   /**
    * ALWAYS EMPTY in this commit — posts are text-only until the image commit.
@@ -64,10 +70,12 @@ export interface PostView {
   createdAt: Date;
 }
 
-/** The viewer's own like/save state for a page of posts, resolved once. */
+/** The viewer's own state for a page of posts, resolved once per page. */
 export interface ViewerPostState {
   liked: Set<string>;
   saved: Set<string>;
+  /** Author ids the viewer follows — from followedSubset, never recomputed. */
+  followedAuthors: Set<string>;
 }
 
 /**
@@ -90,7 +98,10 @@ export function mapPost(
     id: row.id,
     content: row.content,
     postType: row.postType,
-    author: mapProfileSummary(row.author, now),
+    author: {
+      ...mapProfileSummary(row.author, now),
+      isFollowing: viewer.followedAuthors.has(row.authorId),
+    },
     club: row.club,
     images: [],
     likesCount: row.likesCount,
