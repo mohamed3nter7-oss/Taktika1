@@ -654,6 +654,14 @@ model Post {
   // which carried no id tiebreak and therefore planned a Filter plus a Sort
   // instead of an Index Cond (D-007).
   //
+  // THE TABLE ALSO CARRIES fillfactor = 80, set in 20260830020000 and equally
+  // invisible to Prisma (there is no storage-parameter syntax). Confirm it with
+  // `SELECT reloptions FROM pg_class WHERE relname = 'posts'`. It exists because
+  // the counter triggers below UPDATE this table on every like and comment, and
+  // at fillfactor 100 those updates are NOT HOT -- measured 0.2% HOT on a
+  // realistic content mix -- so each one inserts a new entry into EVERY index
+  // here, not just the heap. At 80 that is 95.2% HOT.
+  //
   // HEAP FETCHES ARE EXPECTED HERE AND ARE NOT THIS INDEX FAILING.
   // trg_post_likes_count runs `UPDATE posts SET likes_count = ...` on every
   // like. That dirties the page and clears its visibility-map bit until the next

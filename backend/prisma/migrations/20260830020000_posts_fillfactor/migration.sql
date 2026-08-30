@@ -1,0 +1,47 @@
+-- ============================================================
+-- posts: fillfactor 80.
+--
+-- WHY: trg_post_likes_count runs `UPDATE posts SET likes_count = ...` on every
+-- like, and trg_post_comments_count does the same on every comment. At the
+-- default fillfactor of 100 the rows are packed, so the update has nowhere to
+-- go on its own page and is NOT a HOT update -- which inserts a new entry into
+-- EVERY index on the table (idx_posts_feed, idx_posts_role_feed,
+-- idx_posts_author, posts_club_id_idx, posts_pkey), not just the heap. On the
+-- highest-write table in the product, caused by counter columns that were
+-- justified on READ performance.
+--
+-- MEASURED, not assumed. Scratch database, 3,000 posts with a REALISTIC content
+-- distribution (10% at the 3000-char ceiling, 20% at 1200, 33% at 400, the rest
+-- short), then 500 likes against one author's posts:
+--
+--   fillfactor   HOT %    heap bytes   index growth
+--   ----------   ------   ----------   ------------
+--   100 (was)      0.2%    1,056,768        +16,384
+--    90           50.4%    1,228,800        +32,768
+--    85           85.4%    1,269,760              0
+--    80 (this)    95.2%    1,327,104              0
+--    70          100.0%    1,515,520              0
+--
+-- 80 is the floor set for this decision: 70 reaches 100% but costs +43% heap,
+-- and page slack is real here because content runs to 3000 characters. Index
+-- growth is already unmeasurable from 85 downward, so the bloat this migration
+-- exists to stop is solved before 80; the extra 10 points of HOT are the reason
+-- to take 80 rather than 85.
+--
+-- NOTE the earlier measurement in this project reported 0% / 66.9% / 100% for
+-- 100 / 90 / 80. That run used trivial content ('seeded N'), which fits far
+-- more rows per page and flatters HOT. The table above supersedes it.
+--
+-- APPLIED TO AN EMPTY TABLE. fillfactor governs how new pages are filled; it
+-- does NOT reorganise pages that already exist, so on a populated table this
+-- would need a VACUUM FULL or a rewrite to take effect on existing rows.
+-- `SELECT count(*) FROM posts` returned 0 immediately before this was written,
+-- which is why it is free now and would not be later.
+--
+-- NOT EXPRESSIBLE IN schema.prisma -- there is no storage-parameter syntax, so
+-- this is raw SQL for the same reason the three partial indexes are (D-023).
+-- Prisma cannot see it and therefore never proposes dropping it; `migrate diff`
+-- is silent about it in both directions. The only check is
+-- `SELECT reloptions FROM pg_class WHERE relname = 'posts'`.
+-- ============================================================
+ALTER TABLE posts SET (fillfactor = 80);
