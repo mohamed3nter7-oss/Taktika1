@@ -1,5 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
-import { Prisma, UserRole, UserStatus } from '../src/generated/prisma/client';
+import type request from 'supertest';
+import { UserRole, UserStatus } from '../src/generated/prisma/client';
 import {
   ApiClient,
   asError,
@@ -136,7 +137,11 @@ describe('Follows (e2e, real Postgres)', () => {
       const query =
         `?limit=${limit}` +
         (cursor === null ? '' : `&cursor=${encodeURIComponent(cursor)}`);
-      const res = await get(`${path}${query}`, token).expect(200);
+      // Annotated because the supertest chain infers as `any` here, which
+      // would make every field access on the body unchecked.
+      const res: request.Response = await get(`${path}${query}`, token).expect(
+        200,
+      );
       const body = asJson<ListBody<FollowRowBody>>(res);
 
       seen.push(...body.data.map((row) => row.id));
@@ -749,7 +754,9 @@ describe('Follows (e2e, real Postgres)', () => {
         role: 'COACH',
         headline: null,
         avatarUrl: null,
-        age: expect.any(Number),
+        // `expect.any` is typed `any`; narrowed so the object literal does not
+        // poison the whole assertion's type.
+        age: expect.any(Number) as unknown,
         isFollowing: false,
       });
       expect(Number.isInteger(body.data[0].age)).toBe(true);
