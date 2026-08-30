@@ -528,3 +528,63 @@ That does not change the decision — 20 lookups on a hot `users_pkey` is nothin
 **Not covered by any test.** Neither route has an e2e, so the `@Public()` decorators, the no-network guarantee on liveness, and the never-throws guarantee on readiness are all unpinned. That is the gap this entry most wants closed.
 
 **Reversal cost:** trivial — merge the two handlers. The cost of doing so is the restart loop described above.
+
+### D-031 — a soft-deleted comment with visible replies is a TOMBSTONE, not a promotion
+**PRD ref:** FR-CMNT / PRD 9.5 (single-level replies)
+**Decided:** 2026-08-30, ahead of the comments module
+**Divergence:** none from the PRD — this settles a question the schema poses and the PRD does not answer, before the module is designed. Recorded here because it is not derivable from the code.
+
+**What the database actually does, measured** (the reply-depth trigger had never executed in this project's lifetime — `comments` had 0 rows and 0 lifetime inserts — so this was exercised in a scratch database rather than reasoned about):
+
+- **Hard-deleting a parent** fires `onDelete: SetNull` on the self-relation: the reply survives with `parent_comment_id = NULL` and is silently **promoted to top-level**.
+- **Soft-deleting a parent** leaves the reply's `parent_comment_id` intact, pointing at a row the reader cannot see.
+
+**The decision: the read path renders a tombstone, and never promotes.** Promotion corrupts meaning — a reply saying "agreed" becomes a free-floating top-level comment with no referent, and the reader cannot tell it was ever a reply. Since the service soft-deletes, promotion is not what happens by default; this entry exists so nobody "fixes" the orphan by making it happen.
+
+**The read rule, and the second clause is the half that matters:**
+
+| state | rendered |
+| --- | --- |
+| soft-deleted comment WITH at least one visible reply | **returned**, `content` nulled, `deleted: true` — a structural placeholder |
+| soft-deleted comment with NO visible reply | **omitted entirely** |
+
+Without the second clause every deleted comment leaves a headstone and a thread becomes a graveyard.
+
+**The consequence that looks like a bug and is not.** `sync_post_comments_count` DECREMENTS on soft delete (verified: 2 rows → counter 2; soft-delete the parent → counter 1, reply still present). So **a tombstone is displayed but not counted**: two comments plus one tombstone renders three items against a `commentsCount` of 2. That is correct — a tombstone is structure, not content — and it is written down here so it is a decision rather than a discovery.
+
+**Reversal cost:** trivial — it is a read-path rule, no schema involved.
+
+### D-032 — `posts.comments_count` counts REPLIES, and stays that way
+**PRD ref:** PRD A.4 (trigger-maintained counters)
+**Decided:** 2026-08-30
+**Divergence:** none. This records a behaviour that is easy to mistake for a bug and "fix".
+
+**Measured, not read:** `sync_post_comments_count` increments on every comment INSERT with no `parent_comment_id` check. One top-level comment plus one reply gives `comments_count = 2`. `reconcile_post_counters` counts the same way — all non-deleted comments on the post, no parent filter — so the trigger and the reconciliation agree and there is no drift to manage.
+
+**The decision: leave it.** With replies rendered nested, the number matches the count of VISIBLE ITEMS, which is what a reader interprets it as — a post with 2 comments and 10 replies does show twelve things. It is also what every comparable product does.
+
+**So "12 comments" on a post card INCLUDES replies.** Anyone who later changes the trigger to count top-level comments only will silently change every card in the product and put the counter out of step with `reconcile_post_counters` at the same time. Both would have to move together, in one migration.
+
+**Reversal cost:** migration — the trigger function and `reconcile_post_counters`, together.
+
+### D-033 — a CHECK violation reaching `AllExceptionsFilter` stays a 500, deliberately
+**PRD ref:** `backend/CLAUDE.md` § API conventions / §17 D-024
+**Decided:** 2026-08-30
+**Divergence:** `AllExceptionsFilter` maps `P2002`, `P2025` and `P2003` and nothing else. SQLSTATE **23514** (`check_violation`) is deliberately NOT mapped, so a trigger or CHECK that fires reaches the client as a 500 INTERNAL_ERROR.
+
+**Why this comes up now.** The comments reply-depth trigger raises 23514 for two different conditions, verified in a scratch database:
+
+```
+reply to a reply          -> SQLSTATE 23514  "Comment replies are limited to one level"
+parent on a different post -> SQLSTATE 23514  "Reply must belong to the same post as its parent"
+```
+
+Same SQLSTATE, different meanings. A generic `23514 -> 400` mapping could not tell them apart and would have to match on message text to produce a useful `code`.
+
+**The decision: do not map it. Pre-validate in the service instead**, with the constraint as the backstop it was designed to be — the pattern `assertNotSelf` uses for `chk_no_self_follow` and the content `@Transform` uses for `chk_post_content_not_blank` (D-024).
+
+**The reasoning is about what a 500 is for.** A CHECK violation arriving at the filter means the application failed to validate something it was supposed to validate. That is a DEFECT, not user error. A 500 is an alarm — it is logged with a stack and a correlation id, and someone looks at it. A 400 would quietly convert a broken validation path into a normal-looking rejection that no one ever investigates, and the missing validation would live forever.
+
+**This must be stated in a comment beside each pre-validation**, so the next person who sees a 500 from a constraint understands the 500 is the design and the missing 400 is the bug.
+
+**Reversal cost:** trivial to add a mapping, and that is exactly the risk — it is a one-line change that would disable an alarm.
