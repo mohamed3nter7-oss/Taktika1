@@ -34,6 +34,27 @@ function httpStatusOf(error: unknown): number | undefined {
 }
 
 /**
+ * The system-level failure code — `ENOTFOUND`, `ECONNREFUSED`, `ETIMEDOUT`.
+ *
+ * It lives on the error ITSELF, not on `error.cause`. Verified against this SDK
+ * and Node 24: a DNS failure arrives as a plain `Error` with own properties
+ * `errno, code, syscall, hostname, $metadata` and `cause === undefined` — the
+ * SDK attaches `$metadata` to the underlying Node error rather than wrapping
+ * it. Reading `cause.code` would therefore have been permanently undefined.
+ *
+ * This is the field that makes a network failure diagnosable. Without it the
+ * log line for an unreachable endpoint reads `[name=Error] [status=n/a]`, which
+ * says only that something went wrong. Service errors (AccessDenied,
+ * NoSuchBucket) carry their identity on `name` instead and leave this
+ * undefined, so both are logged.
+ */
+function systemCodeOf(error: unknown): string | undefined {
+  if (typeof error !== 'object' || error === null) return undefined;
+  const code = (error as { code?: unknown }).code;
+  return typeof code === 'string' ? code : undefined;
+}
+
+/**
  * A missing object, and ONLY a missing object.
  *
  * Deliberately does not treat 403 as absence. A bad access key, an expired
@@ -175,10 +196,12 @@ export class StorageService {
   ): never {
     const name = error instanceof Error ? error.name : 'UnknownError';
     const status = httpStatusOf(error) ?? 'n/a';
+    const code = systemCodeOf(error) ?? 'n/a';
     const target = key === undefined ? '' : ` [key=${key}]`;
 
     this.logger.error(
-      `storage ${operation} failed [name=${name}] [status=${status}]${target}`,
+      `storage ${operation} failed [name=${name}] [code=${code}] ` +
+        `[status=${status}]${target}`,
     );
 
     throw new InternalServerErrorException({
