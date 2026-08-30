@@ -14,8 +14,8 @@ import { PrismaService } from '../../common/prisma/prisma.service';
 import {
   PROFILE_SUMMARY_SELECT,
   mapProfileSummary,
-  type ProfileSummaryView,
 } from '../profiles/profile-summary.map';
+import { followedSubset, type FollowAwareSummary } from './follows.map';
 import { ProfilesService } from '../profiles/profiles.service';
 import { ListFollowsQueryDto } from './dto/list-follows.dto';
 
@@ -28,10 +28,11 @@ interface WindowRow {
   createdAt: string;
 }
 
-export interface FollowRow extends ProfileSummaryView {
-  /** Does the VIEWER follow this row's user? Follow-back state, not the target's. */
-  isFollowing: boolean;
-}
+/**
+ * Re-exported under this module's own name: the shape is defined once in
+ * follows.map.ts so `posts` renders a post author identically (D-010).
+ */
+export type FollowRow = FollowAwareSummary;
 
 type Direction = 'followers' | 'following';
 
@@ -242,20 +243,18 @@ export class FollowsService {
     if (page.length === 0) return [];
     const ids = page.map((row) => row.userId);
 
-    const [users, edges] = await Promise.all([
+    const [users, followedByViewer] = await Promise.all([
       this.prisma.user.findMany({
         where: { id: { in: ids }, status: UserStatus.ACTIVE },
         select: PROFILE_SUMMARY_SELECT,
       }),
       // THE anti-N+1 query: the viewer's own edges into this page, once.
-      this.prisma.follow.findMany({
-        where: { followerId: viewerId, followingId: { in: ids } },
-        select: { followingId: true },
-      }),
+      // Shared with the profile embed and with post authors — D-010's
+      // consolidation, so this field has one implementation and not three.
+      followedSubset(this.prisma, viewerId, ids),
     ]);
 
     const byId = new Map(users.map((user) => [user.id, user]));
-    const followedByViewer = new Set(edges.map((edge) => edge.followingId));
     const now = new Date();
 
     // Re-ordered from the window, not from `users`: an `IN` list comes back in

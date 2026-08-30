@@ -43,8 +43,9 @@ describe('time/uuid keyset cursor', () => {
   const TS = '2026-08-26 12:34:56.123456+00';
 
   it('round-trips a tuple', () => {
-    expect(decodeTimeUuidCursor(encodeTimeUuidCursor({ createdAt: TS, id: ID })))
-      .toEqual({ createdAt: TS, id: ID });
+    expect(
+      decodeTimeUuidCursor(encodeTimeUuidCursor({ createdAt: TS, id: ID })),
+    ).toEqual({ createdAt: TS, id: ID });
   });
 
   /**
@@ -65,8 +66,9 @@ describe('time/uuid keyset cursor', () => {
 
   it('accepts the ISO T separator and a Z zone', () => {
     const iso = '2026-08-26T12:34:56.123Z';
-    expect(decodeTimeUuidCursor(encodeTimeUuidCursor({ createdAt: iso, id: ID })))
-      .toEqual({ createdAt: iso, id: ID });
+    expect(
+      decodeTimeUuidCursor(encodeTimeUuidCursor({ createdAt: iso, id: ID })),
+    ).toEqual({ createdAt: iso, id: ID });
   });
 
   it('produces URL-safe output', () => {
@@ -77,7 +79,10 @@ describe('time/uuid keyset cursor', () => {
   it.each([
     ['not base64 json', 'garbage!!!'],
     ['valid json, not an array', Buffer.from('{"a":1}').toString('base64url')],
-    ['wrong arity', Buffer.from('["2026-08-26 12:34:56+00"]').toString('base64url')],
+    [
+      'wrong arity',
+      Buffer.from('["2026-08-26 12:34:56+00"]').toString('base64url'),
+    ],
     ['swapped types', Buffer.from(`[1,"${ID}"]`).toString('base64url')],
     [
       'timestamp that is not a timestamp',

@@ -14,7 +14,7 @@ import {
   CERTIFICATION_SELECT,
   mapAffiliation,
 } from '../career/career.map';
-import { viewerFollowSelect } from '../follows/follows.map';
+import { followedSubset } from '../follows/follows.map';
 import { ErrorCode } from '../../common/errors/error-codes';
 import type { AuthenticatedUser } from '../../common/types/authenticated-user';
 import {
@@ -81,37 +81,6 @@ const PUBLIC_USER_SELECT = {
   },
   affiliations: { select: AFFILIATION_SELECT, orderBy: AFFILIATION_ORDER_BY },
 } satisfies Prisma.UserSelect;
-
-/**
- * `PUBLIC_USER_SELECT` plus the one relation that depends on WHO IS ASKING:
- * does the viewer follow this user? A function rather than a constant because
- * the filter value arrives per request.
- *
- * `follows` is the follows module's table (§4), so the shape comes from
- * `follows.map.ts` rather than being written here. It is selected as a relation
- * of this module's own `users` root — the same resolution `career.map.ts` uses
- * for certifications and affiliations, and for the same reason: FollowsModule
- * imports ProfilesModule for `assertUserVisible`, so importing FollowsService
- * here would close a module cycle.
- *
- * Costs no extra round trip and no COUNT(*): the counters themselves are
- * trigger-maintained columns on `users`, already in PUBLIC_USER_SELECT.
- */
-const publicUserSelect = (viewerId: string) => {
-  // Not defensive noise. Prisma DROPS an `undefined` value from a `where`
-  // clause rather than matching nothing, so `{ followerId: undefined }` with
-  // `take: 1` would match the target's first follower and report
-  // `isFollowing: true` for every user who has one. Failing loudly is the only
-  // way that bug is ever noticed — it is silent, plausible, and wrong in the
-  // direction that leaks a relationship.
-  if (!viewerId) {
-    throw new Error('publicUserSelect requires a viewer id');
-  }
-  return {
-    ...PUBLIC_USER_SELECT,
-    followers: viewerFollowSelect(viewerId),
-  } satisfies Prisma.UserSelect;
-};
 
 type PublicUserRow = Prisma.UserGetPayload<{
   select: typeof PUBLIC_USER_SELECT;
@@ -267,7 +236,7 @@ export class ProfilesService {
     // 403 that confirms existence (§8).
     const row = await this.prisma.user.findFirst({
       where: { id, status: UserStatus.ACTIVE },
-      select: publicUserSelect(viewer.sub),
+      select: PUBLIC_USER_SELECT,
     });
     if (!row) {
       throw new NotFoundException({
@@ -275,6 +244,14 @@ export class ProfilesService {
         message: 'User not found.',
       });
     }
+
+    // The viewer's follow state, through the ONE implementation of this field
+    // (D-010). Single-element array: this read pays one extra query so that
+    // `isFollowing` is not computed a second way here — the profile embed used
+    // to select `followers` as a filtered relation, and that second
+    // implementation is exactly what drifted. D-010 priced this trade before it
+    // was made.
+    const followed = await followedSubset(this.prisma, viewer.sub, [row.id]);
 
     // Mapped field-by-field: what goes on the wire is exactly this list.
     // Additive by design — postsCount and viewer.isFollowing join this shape
@@ -300,9 +277,7 @@ export class ProfilesService {
       affiliations: row.affiliations.map(mapAffiliation),
       viewer: {
         isSelf: viewer.sub === row.id,
-        // At most one row can exist — the composite PK guarantees it — so this
-        // is an existence probe, not a count.
-        isFollowing: row.followers.length > 0,
+        isFollowing: followed.has(row.id),
       },
     };
   }

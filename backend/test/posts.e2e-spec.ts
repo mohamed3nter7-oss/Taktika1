@@ -59,7 +59,13 @@ interface PostBody {
   id: string;
   content: string;
   postType: string;
-  author: { id: string; fullName: string; role: string; age: number };
+  author: {
+    id: string;
+    fullName: string;
+    role: string;
+    age: number;
+    isFollowing: boolean;
+  };
   club: ClubBody | null;
   images: unknown[];
   likesCount: number;
@@ -665,6 +671,46 @@ describe('Posts (e2e, real Postgres)', () => {
       );
       expect(asOther.isLiked).toBe(true);
       expect(asOther.isSaved).toBe(true);
+    });
+
+    it('reports the viewer’s follow state for the AUTHOR, not anyone else’s', async () => {
+      const author = await activeUser();
+      const viewer = await activeUser();
+      const other = await activeUser();
+      const id = await createPost(author);
+
+      // The D-010 arrangement, applied to isFollowing: the author's ONLY
+      // follower is someone OTHER than the viewer. A test where the viewer is
+      // the only follower cannot tell a correct filter from a missing one.
+      await put(`/users/${author.id}/follow`, other.token).expect(204);
+
+      const seen = asJson<PostBody>(
+        await get(`/posts/${id}`, viewer.token).expect(200),
+      );
+      expect(seen.author.isFollowing).toBe(false);
+
+      await put(`/users/${author.id}/follow`, viewer.token).expect(204);
+      const after = asJson<PostBody>(
+        await get(`/posts/${id}`, viewer.token).expect(200),
+      );
+      expect(after.author.isFollowing).toBe(true);
+
+      // And on the list path, which must agree — one shape, not two.
+      const list = asJson<ListBody<PostBody>>(
+        await get(`/users/${author.id}/posts`, viewer.token).expect(200),
+      );
+      expect(list.data.find((row) => row.id === id)?.author.isFollowing).toBe(
+        true,
+      );
+    });
+
+    it('reports isFollowing false on your OWN post (no self-follow exists)', async () => {
+      const author = await activeUser();
+      const id = await createPost(author);
+      const own = asJson<PostBody>(
+        await get(`/posts/${id}`, author.token).expect(200),
+      );
+      expect(own.author.isFollowing).toBe(false);
     });
 
     it('reports the viewer’s state on the LIST route too', async () => {

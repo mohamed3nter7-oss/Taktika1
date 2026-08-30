@@ -258,6 +258,12 @@ The first proves `schema.prisma` matches the live database; the second proves it
 
 **Reversal cost:** trivial today, and the tests pinning both paths are what keep it trivial.
 
+**RESOLVED 2026-08-30 — the third consumer arrived and the consolidation was done.** `author.isFollowing` on `PostView` made it three call sites, so the field now has ONE implementation: `followedSubset(prisma, viewerId, ids)` in `follows.map.ts`. All three read paths use it, and `viewerFollowSelect` is deleted along with the `if (!viewerId) throw` guard that defended the hazard it created.
+
+**It is a function in `follows.map.ts`, NOT a method on `FollowsService`, and the reason is structural.** `FollowsModule` imports `ProfilesModule` for `assertUserVisible`, so `profiles` — one of the three callers — cannot inject `FollowsService` without closing a module cycle. That is the same cycle `follows.map.ts` and `career.map.ts` were both created to avoid. A function taking the caller's own `PrismaService` reaches every caller with no DI edge, the way `posts` already uses `PROFILE_SUMMARY_SELECT`. One exported query beside the table that owns it is not the repository layer §4 forbids.
+
+**The mutation this entry exists for now has one place to live, and it goes red.** Replacing `followerId: viewerId` with `followerId: undefined` in `followedSubset` fails three tests — including the profile-embed case that originally survived 185 green tests.
+
 ### D-011 — the player profile ships without the application shell
 **PRD ref:** `frontend/.docs/03-ARCHITECTURE.md` / Claude Design `PlayerProfileScreen.dc.html`
 **Decided:** 2026-08-27
@@ -453,3 +459,132 @@ The first proves `schema.prisma` matches the live database; the second proves it
 **This is the same argument D-021 makes about the upload path** and depends on it: images proxy through the server so `sharp` can strip EXIF, which is why the image commit is a separate piece of work with its own worker-shaped decisions rather than a field added to this DTO.
 
 **Reversal cost:** trivial — the key is already there; the image commit fills it.
+
+### D-028 — the feed lives inside `modules/posts`; there is no feed module
+**PRD ref:** §7 build order / FR-FEED-1, FR-FEED-2
+**Decided:** 2026-08-30
+**Divergence:** §7 lists `feed` as a module in its own right, after `posts`. It is not one. `feed.controller.ts` is a THIRD controller inside `modules/posts`, beside `posts.controller.ts` and `user-posts.controller.ts`, and `GET /feed` is served by `PostsService.listFeed`.
+
+**Reason:** the feed is a listing of posts. Same table, same index family, same cursor codec, same hydration, same viewer-state subset as `GET /users/:id/posts` — it differs only in having no author anchor and an optional role anchor. A separate module could be built exactly two ways and both are worse:
+
+- it queries `posts`, `post_likes` and `saved_posts` itself, which §4 forbids outright; or
+- `PostsService` exports the window AND the hydration, and `FeedService` calls them and adds nothing — a file per operation for no behaviour, which is precisely the argument §4 makes against repositories.
+
+Several base paths from several controller files in one module is the `profiles` precedent (`ProfilesController` on `users`, `ProfileCompletionController` on `auth/register`), not a new convention.
+
+**The extraction trigger, stated so it is not a matter of taste:** the feed earns a module when it acquires logic that is not a posts query. Ranking (FR-FEED-5) is that. So is the following-only tab (FR-FEED-4), which joins the follow graph. Until one of those lands, naming a module after a route is how a codebase acquires directories that forward calls.
+
+**Reversal cost:** trivial — move three files and one service method into a new directory. Nothing depends on the current placement.
+
+### D-029 — the feed window filters author status in a JOIN, not during hydration
+**PRD ref:** §17 D-007 / FR-FEED-1
+**Decided:** 2026-08-30
+**Divergence:** `follows` is the keyset template (D-007) and its window reads ONE table, dropping rows whose user is not ACTIVE afterwards, during hydration. `PostsService.fetchFeedWindow` does not: it joins `users` inside the window and filters `u.status = 'ACTIVE'` there. Every other D-007 rule is unchanged — row-value comparison in `$queryRaw`, `created_at::text` out and `::timestamptz` back, the shared cursor codec, the `limit + 1` probe, and every ORDER BY column qualified.
+
+**Reason: page fill, and it was settled by measurement.** The template's shape returns pages SHORTER than `limit` while `nextCursor` is non-null, because rows are discarded after the window is taken. On a follower list that is cosmetic. On a global feed it is the default screen. Measured on 5,060 live posts with one suspended prolific author holding the 60 most recent:
+
+| shape | page 1 at limit=20 |
+| --- | --- |
+| window over `posts` alone (the template) | window 20 rows, **shown to user 0** — and THREE consecutive empty pages, each with a non-null cursor |
+| window with the `users` join | **20 rows. Full.** |
+
+A client that stops when `data` is empty renders a blank feed on the product's most-viewed route.
+
+**The join costs less than the shape suggests.** The planner chose a Nested Loop with **Memoize** keyed on `author_id` in all four plans measured (with and without `?role=`, first page and deep page). The hash join that would have made this a table scan — the one real risk, since it would materialise the join before the LIMIT — did not appear in any plan.
+
+**READ THE MEMOIZE NUMBER WITH ITS FIXTURE'S BIAS, WHICH FLATTERS IT.** The measured page showed 81 candidate rows collapsing to 7 `users_pkey` probes and 74 cache hits. That ratio is an artefact: Memoize caches per DISTINCT key, and the fixture put 5,060 posts behind seven authors, so nearly every probe was a repeat. **A real global chronological feed page of 20 posts carries close to 20 DISTINCT authors, so the hit rate approaches zero and the true cost is ~20 PK lookups, not 7.**
+
+That does not change the decision — 20 lookups on a hot `users_pkey` is nothing against a 200ms NFR, and the page-fill argument was never about cost. But the number is recorded here with its caveat because a measurement in this log without its fixture's bias becomes a performance expectation someone builds on later. **A representative fixture would give distinct authors ≈ page size; it was NOT measured.** The Phase A note on Plan 3 does the same job inverted — that one records a contrast that UNDERSTATES a harm, this one records a benefit that OVERSTATES itself.
+
+**What is given up was mostly already gone.** The template's Index Only Scan is eroded on this table by `trg_post_likes_count`, which updates `posts` on every like and clears the page's visibility-map bit: Phase A measured `Heap Fetches: 0 → 41` on a 21-row page after liking those rows. And MSG-6 blocks will force a second table into this window regardless, at which point the single-table shape has nothing left to protect.
+
+**Pinned by a test, not by this entry.** `feed.e2e-spec.ts` asserts the page is FULL when a suspended author holds the newest posts. Reverting to the template's shape turns it red.
+
+**Reversal cost:** trivial in code, but it reintroduces short pages — which would then have to be documented on the route and handled by every client.
+
+### D-030 — health is split into liveness and readiness, with different status-code rules per dependency
+**PRD ref:** §17 D-021 (storage seam) / the media commit's health probe
+**Decided:** 2026-08-29, logged 2026-08-30
+**Divergence:** The brief for the media module specified one health route carrying a storage probe. What is built is two:
+
+| route | checks | polled by the platform |
+| --- | --- | --- |
+| `GET /api/v1/health` | nothing — returns `{ status: 'ok' }` with no network call of any kind | **yes** |
+| `GET /api/v1/health/ready` | database (`SELECT 1`) **and** storage (`HeadBucket`), concurrently | no |
+
+**Reason: a liveness probe that calls the object store makes "is this container alive" depend on "is Supabase alive".** A provider blip is then scored as a dead container, the platform restarts a perfectly healthy process, and a dependency outage becomes an availability outage — a sustained one becomes a restart loop. Nothing that can fail for an external reason may ever be added to the liveness handler.
+
+**The evidence is the latency, and it is not small.** `HeadBucket` against Supabase `eu-west-1` measured **~275–285ms** from this dev machine, repeatably, and has been seen as high as ~500ms and ~1100ms on worse connections. Whatever the true figure, it is a live cross-internet round trip on every poll, which is exactly what a liveness check must not be. **The number that matters is from the DEPLOYED server, not from a laptop in Egypt — it has not been measured there yet** (see the post-deploy item below).
+
+**The per-dependency status-code rule, which is the part that is easy to get wrong:**
+
+- **Database down → 503.** The application cannot serve a single authenticated request without Postgres. There is nothing to stay in rotation for.
+- **Storage down → 200 with `status: 'degraded'`.** Reads, feeds, profiles, search and messaging all work with the object store unreachable; only image upload does not. Taking the instance out of rotation over image upload repeats, one layer down, the exact mistake the liveness/readiness split exists to prevent.
+
+`/health/ready` currently returns **200 in both cases**, with the two booleans in the body, because nothing polls it — it is a diagnostic a human or a dashboard reads, and a 503 would invite someone to wire it back into an automated restart. **The 503-on-database rule above is the contract for the day something does consume it, and it is not implemented yet.**
+
+**The body carries booleans and latencies and nothing else** — no version, no bucket name, no endpoint, no SDK error text. A health endpoint is unauthenticated by necessity, which makes it the cheapest reconnaissance surface in the application. Both routes are `@Public()`, both are wrapped in try/catch, and neither can throw.
+
+**Not covered by any test.** Neither route has an e2e, so the `@Public()` decorators, the no-network guarantee on liveness, and the never-throws guarantee on readiness are all unpinned. That is the gap this entry most wants closed.
+
+**Reversal cost:** trivial — merge the two handlers. The cost of doing so is the restart loop described above.
+
+### D-031 — a soft-deleted comment with visible replies is a TOMBSTONE, not a promotion
+**PRD ref:** FR-CMNT / PRD 9.5 (single-level replies)
+**Decided:** 2026-08-30, ahead of the comments module
+**Divergence:** none from the PRD — this settles a question the schema poses and the PRD does not answer, before the module is designed. Recorded here because it is not derivable from the code.
+
+**What the database actually does, measured** (the reply-depth trigger had never executed in this project's lifetime — `comments` had 0 rows and 0 lifetime inserts — so this was exercised in a scratch database rather than reasoned about):
+
+- **Hard-deleting a parent** fires `onDelete: SetNull` on the self-relation: the reply survives with `parent_comment_id = NULL` and is silently **promoted to top-level**.
+- **Soft-deleting a parent** leaves the reply's `parent_comment_id` intact, pointing at a row the reader cannot see.
+
+**The decision: the read path renders a tombstone, and never promotes.** Promotion corrupts meaning — a reply saying "agreed" becomes a free-floating top-level comment with no referent, and the reader cannot tell it was ever a reply. Since the service soft-deletes, promotion is not what happens by default; this entry exists so nobody "fixes" the orphan by making it happen.
+
+**The read rule, and the second clause is the half that matters:**
+
+| state | rendered |
+| --- | --- |
+| soft-deleted comment WITH at least one visible reply | **returned**, `content` nulled, `deleted: true` — a structural placeholder |
+| soft-deleted comment with NO visible reply | **omitted entirely** |
+
+Without the second clause every deleted comment leaves a headstone and a thread becomes a graveyard.
+
+**The consequence that looks like a bug and is not.** `sync_post_comments_count` DECREMENTS on soft delete (verified: 2 rows → counter 2; soft-delete the parent → counter 1, reply still present). So **a tombstone is displayed but not counted**: two comments plus one tombstone renders three items against a `commentsCount` of 2. That is correct — a tombstone is structure, not content — and it is written down here so it is a decision rather than a discovery.
+
+**Reversal cost:** trivial — it is a read-path rule, no schema involved.
+
+### D-032 — `posts.comments_count` counts REPLIES, and stays that way
+**PRD ref:** PRD A.4 (trigger-maintained counters)
+**Decided:** 2026-08-30
+**Divergence:** none. This records a behaviour that is easy to mistake for a bug and "fix".
+
+**Measured, not read:** `sync_post_comments_count` increments on every comment INSERT with no `parent_comment_id` check. One top-level comment plus one reply gives `comments_count = 2`. `reconcile_post_counters` counts the same way — all non-deleted comments on the post, no parent filter — so the trigger and the reconciliation agree and there is no drift to manage.
+
+**The decision: leave it.** With replies rendered nested, the number matches the count of VISIBLE ITEMS, which is what a reader interprets it as — a post with 2 comments and 10 replies does show twelve things. It is also what every comparable product does.
+
+**So "12 comments" on a post card INCLUDES replies.** Anyone who later changes the trigger to count top-level comments only will silently change every card in the product and put the counter out of step with `reconcile_post_counters` at the same time. Both would have to move together, in one migration.
+
+**Reversal cost:** migration — the trigger function and `reconcile_post_counters`, together.
+
+### D-033 — a CHECK violation reaching `AllExceptionsFilter` stays a 500, deliberately
+**PRD ref:** `backend/CLAUDE.md` § API conventions / §17 D-024
+**Decided:** 2026-08-30
+**Divergence:** `AllExceptionsFilter` maps `P2002`, `P2025` and `P2003` and nothing else. SQLSTATE **23514** (`check_violation`) is deliberately NOT mapped, so a trigger or CHECK that fires reaches the client as a 500 INTERNAL_ERROR.
+
+**Why this comes up now.** The comments reply-depth trigger raises 23514 for two different conditions, verified in a scratch database:
+
+```
+reply to a reply          -> SQLSTATE 23514  "Comment replies are limited to one level"
+parent on a different post -> SQLSTATE 23514  "Reply must belong to the same post as its parent"
+```
+
+Same SQLSTATE, different meanings. A generic `23514 -> 400` mapping could not tell them apart and would have to match on message text to produce a useful `code`.
+
+**The decision: do not map it. Pre-validate in the service instead**, with the constraint as the backstop it was designed to be — the pattern `assertNotSelf` uses for `chk_no_self_follow` and the content `@Transform` uses for `chk_post_content_not_blank` (D-024).
+
+**The reasoning is about what a 500 is for.** A CHECK violation arriving at the filter means the application failed to validate something it was supposed to validate. That is a DEFECT, not user error. A 500 is an alarm — it is logged with a stack and a correlation id, and someone looks at it. A 400 would quietly convert a broken validation path into a normal-looking rejection that no one ever investigates, and the missing validation would live forever.
+
+**This must be stated in a comment beside each pre-validation**, so the next person who sees a 500 from a constraint understands the 500 is the design and the missing 400 is the bug.
+
+**Reversal cost:** trivial to add a mapping, and that is exactly the risk — it is a one-line change that would disable an alarm.

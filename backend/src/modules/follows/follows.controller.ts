@@ -57,7 +57,10 @@ export class FollowsController {
 
   @Delete(':id/follow')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiParam({ name: 'id', description: 'users.id (UUID) — the user to unfollow' })
+  @ApiParam({
+    name: 'id',
+    description: 'users.id (UUID) — the user to unfollow',
+  })
   @ApiOperation({
     summary: 'Unfollow a user. Idempotent, and never 404s.',
     description:

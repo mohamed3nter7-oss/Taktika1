@@ -144,9 +144,9 @@ export class AuthService {
    *
    * Delete this method the day the mailer lands.
    */
-  private async autoVerifyInDevelopment<T extends { id: string; email: string }>(
-    user: T,
-  ): Promise<T> {
+  private async autoVerifyInDevelopment<
+    T extends { id: string; email: string },
+  >(user: T): Promise<T> {
     if (process.env.NODE_ENV !== 'development') return user;
 
     // Returns the updated row rather than the pre-update one: the response

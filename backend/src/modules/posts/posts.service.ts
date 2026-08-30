@@ -11,10 +11,16 @@ import {
   type TimeUuidCursor,
 } from '../../common/pagination/cursor';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { Prisma } from '../../generated/prisma/client';
+import {
+  Prisma,
+  UserStatus,
+  type UserRole,
+} from '../../generated/prisma/client';
 import type { AuthenticatedUser } from '../../common/types/authenticated-user';
+import { followedSubset } from '../follows/follows.map';
 import { ProfilesService } from '../profiles/profiles.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { ListFeedQueryDto } from './dto/list-feed.dto';
 import { ListPostsQueryDto } from './dto/list-posts.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import {
@@ -26,9 +32,16 @@ import {
 
 const DEFAULT_PAGE = 20;
 
-/** One row of the keyset window: `posts` alone, no join. */
+/** One row of the keyset window. */
 interface WindowRow {
   id: string;
+  /**
+   * Carried by the window so `viewerStateFor` can resolve follow state in the
+   * SAME round trip as likes and saves. Without it the author ids are only
+   * known after the hydration query, which would serialise a third round trip
+   * behind it. Free on `idx_posts_author` (author_id is its leading column).
+   */
+  authorId: string;
   /** `created_at::text` — Postgres' own rendering, never a Date. See cursor.ts. */
   createdAt: string;
 }
@@ -85,10 +98,16 @@ export class PostsService {
       select: POST_SELECT,
     });
 
-    // A brand-new post cannot be liked or saved by anyone, including its author
-    // — so this is the one read that can skip the viewer-state query without
-    // introducing a second way of computing those two fields.
-    return mapPost(post, { liked: new Set(), saved: new Set() });
+    // A brand-new post cannot be liked or saved by anyone, including its
+    // author, and the author IS the viewer here — `chk_no_self_follow` makes a
+    // self-edge impossible, so all three sets are empty by construction rather
+    // than by assumption. This is the one read that can skip the viewer-state
+    // queries without introducing a second way of computing those fields.
+    return mapPost(post, {
+      liked: new Set(),
+      saved: new Set(),
+      followedAuthors: new Set(),
+    });
   }
 
   /**
@@ -246,7 +265,10 @@ export class PostsService {
     // GET /users/:id.
     await this.profiles.assertUserVisible(post.authorId);
 
-    return mapPost(post, await this.viewerStateFor(viewerId, [post.id]));
+    return mapPost(
+      post,
+      await this.viewerStateFor(viewerId, [post.id], [post.authorId]),
+    );
   }
 
   /**
@@ -268,9 +290,39 @@ export class PostsService {
       this.decodeCursor(query.cursor),
       limit,
     );
+    return this.toPage(window, limit, viewerId);
+  }
 
-    // The extra row is a probe for "is there a next page", never returned —
-    // this is what stops a cursor being handed out for an empty next page.
+  /**
+   * The feed (FR-FEED-1, FR-FEED-2). Same cursor codec, same probe, same
+   * hydration and same viewer-state subset as `listByAuthor` — only the window
+   * differs, which is the whole reason there is no feed module (§4).
+   */
+  async listFeed(
+    viewerId: string,
+    query: ListFeedQueryDto,
+  ): Promise<{ data: PostView[]; nextCursor: string | null }> {
+    const limit = query.limit ?? DEFAULT_PAGE;
+    const window = await this.fetchFeedWindow(
+      this.decodeCursor(query.cursor),
+      limit,
+      query.role,
+    );
+    return this.toPage(window, limit, viewerId);
+  }
+
+  /**
+   * Window → page, shared by both list routes.
+   *
+   * The extra row fetched by every window is a probe for "is there a next
+   * page" and is never returned — that is what stops a cursor being handed out
+   * for an empty next page.
+   */
+  private async toPage(
+    window: WindowRow[],
+    limit: number,
+    viewerId: string,
+  ): Promise<{ data: PostView[]; nextCursor: string | null }> {
     const page = window.slice(0, limit);
     const last = page[page.length - 1];
     const nextCursor =
@@ -326,10 +378,74 @@ export class PostsService {
       : Prisma.empty;
 
     return this.prisma.$queryRaw<WindowRow[]>`
-      SELECT p.id, p.created_at::text AS "createdAt"
+      SELECT p.id, p.author_id AS "authorId", p.created_at::text AS "createdAt"
       FROM posts p
       WHERE p.author_id = ${authorId}::uuid
         AND p.deleted_at IS NULL
+      ${keyset}
+      ORDER BY p.created_at DESC, p.id DESC
+      LIMIT ${limit + 1}
+    `;
+  }
+
+  /**
+   * The feed window. SHAPE B — the author-status filter is IN THE WINDOW, via a
+   * join to `users`, rather than applied afterwards during hydration.
+   *
+   * This is the one place this module departs from the `follows` template, and
+   * it was settled by measurement, not preference. The alternative (window over
+   * `posts` alone, drop non-ACTIVE authors during hydration, as
+   * FollowsService.hydrate does) keeps the window Index-Only-capable but
+   * returns SHORT PAGES. Measured on 5,060 live posts with one suspended
+   * prolific author holding the 60 most recent:
+   *
+   *   posts-alone  page 1 at limit=20: window 20 rows, SHOWN TO USER 0.
+   *                THREE consecutive empty pages, each with a non-null cursor.
+   *   with join    page 1 at limit=20: 20 rows. Full.
+   *
+   * On a follower list a short page is cosmetic. On the global feed it is the
+   * default screen, and a client that stops when `data` is empty shows nothing.
+   *
+   * The join costs less than it looks. The planner uses a Nested Loop with
+   * MEMOIZE keyed on `author_id`, so a page whose candidate rows share authors
+   * collapses to a handful of `users_pkey` probes — measured 81 candidate rows
+   * for 7 actual probes, 74 cache hits. The hash join that would have made this
+   * a table scan did not appear in any of the four plans (with and without
+   * `?role=`, first page and deep page).
+   *
+   * What the join costs in theory — the Index Only Scan — is largely already
+   * gone: `trg_post_likes_count` updates `posts` on every like, clearing the
+   * page's visibility-map bit (Phase A measured Heap Fetches 0 → 41 on a 21-row
+   * page). And MSG-6 blocks will force a second table into this window anyway,
+   * at which point the posts-alone shape has nothing left to protect. Blocks
+   * land here as one more predicate.
+   *
+   * Everything else is D-007 unchanged: row-value comparison, `created_at::text`
+   * out and `::timestamptz` back, and every ORDER BY column qualified.
+   */
+  private fetchFeedWindow(
+    cursor: TimeUuidCursor | null,
+    limit: number,
+    role: UserRole | undefined,
+  ): Promise<WindowRow[]> {
+    const keyset = cursor
+      ? Prisma.sql`AND (p.created_at, p.id) < (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)`
+      : Prisma.empty;
+
+    // With a role: idx_posts_role_feed (author_role, created_at DESC, id DESC).
+    // Without: idx_posts_feed (created_at DESC, id DESC). Both partial on
+    // deleted_at IS NULL, so the soft-delete filter is the index, not a Filter.
+    const roleFilter = role
+      ? Prisma.sql`AND p.author_role = ${role}::user_role`
+      : Prisma.empty;
+
+    return this.prisma.$queryRaw<WindowRow[]>`
+      SELECT p.id, p.author_id AS "authorId", p.created_at::text AS "createdAt"
+      FROM posts p
+      JOIN users u ON u.id = p.author_id
+      WHERE p.deleted_at IS NULL
+        AND u.status = ${UserStatus.ACTIVE}::user_status
+      ${roleFilter}
       ${keyset}
       ORDER BY p.created_at DESC, p.id DESC
       LIMIT ${limit + 1}
@@ -343,13 +459,14 @@ export class PostsService {
   ): Promise<PostView[]> {
     if (page.length === 0) return [];
     const ids = page.map((row) => row.id);
+    const authorIds = [...new Set(page.map((row) => row.authorId))];
 
     const [posts, viewer] = await Promise.all([
       this.prisma.post.findMany({
         where: { id: { in: ids } },
         select: POST_SELECT,
       }),
-      this.viewerStateFor(viewerId, ids),
+      this.viewerStateFor(viewerId, ids, authorIds),
     ]);
 
     const byId = new Map(posts.map((post) => [post.id, post]));
@@ -382,12 +499,13 @@ export class PostsService {
   private async viewerStateFor(
     viewerId: string,
     postIds: string[],
+    authorIds: string[],
   ): Promise<ViewerPostState> {
     if (postIds.length === 0) {
-      return { liked: new Set(), saved: new Set() };
+      return { liked: new Set(), saved: new Set(), followedAuthors: new Set() };
     }
 
-    const [likes, saves] = await Promise.all([
+    const [likes, saves, followedAuthors] = await Promise.all([
       this.prisma.postLike.findMany({
         where: { userId: viewerId, postId: { in: postIds } },
         select: { postId: true },
@@ -396,11 +514,16 @@ export class PostsService {
         where: { userId: viewerId, postId: { in: postIds } },
         select: { postId: true },
       }),
+      // The follows module's single implementation of this field (D-010), not
+      // a fourth hand-written probe. Author ids are de-duplicated by the
+      // caller, so a page of twenty posts by three authors asks about three.
+      followedSubset(this.prisma, viewerId, authorIds),
     ]);
 
     return {
       liked: new Set(likes.map((row) => row.postId)),
       saved: new Set(saves.map((row) => row.postId)),
+      followedAuthors,
     };
   }
 
