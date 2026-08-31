@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/roles.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+</helmet>
+<div style="display: grid; gap: var(--space-8); width: 100%">
+
+  <div style="display: grid; gap: var(--space-1)">
+    <h1 style="margin: 0; font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: 600; letter-spacing: -0.01em; color: var(--text-primary)">{{ heading }}</h1>
+    <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">{{ sub }}</p>
+  </div>
+
+  <div style="display: grid; gap: var(--space-3)">
+    <span style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">{{ roleLabel }}</span>
+
+    <div role="radiogroup" aria-label="{{ roleLabel }}" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3)">
+      <sc-for list="{{ roles }}" as="role" hint-placeholder-count="4">
+        <div role="radio" aria-checked="{{ role.selected }}" aria-disabled="{{ role.off }}" tabindex="-1" style="position: relative; display: grid; align-content: start; gap: var(--space-2); min-height: 96px; padding: var(--space-4); border-radius: var(--radius-lg); background: {{ role.bg }}; border: 1px solid {{ role.bd }}; cursor: {{ role.cursor }}">
+          <div style="display: flex; align-items: center; gap: var(--space-3)">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.RoleBadge" role="{{ role.key }}" variant="compact" hint-size="24px,24px"></x-import>
+            <span style="font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: 500; color: {{ role.fg }}">{{ role.label }}</span>
+          </div>
+          <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: {{ role.blurbFg }}; text-wrap: pretty">{{ role.blurb }}</span>
+          <sc-if value="{{ role.selected }}" hint-placeholder-val="{{ false }}">
+            <span aria-hidden="true" style="position: absolute; inset-block-start: var(--space-3); inset-inline-end: var(--space-3); width: 18px; height: 18px; border-radius: var(--radius-full); background: var(--color-accent); display: grid; place-items: center">
+              <span style="width: 7px; height: 4px; border-inline-start: 1.5px solid var(--text-on-accent); border-block-end: 1.5px solid var(--text-on-accent); transform: rotate(-45deg) translate(0px, -1px)"></span>
+            </span>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ showRoleNotice }}" hint-placeholder-val="{{ false }}">
+      <div role="status" style="display: grid; gap: var(--space-3); padding: var(--space-4); background: var(--surface-sunken); border: 1px solid var(--border-strong); border-radius: var(--radius-md)">
+        <div style="display: grid; gap: var(--space-1)">
+          <span style="font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: 500; color: var(--text-primary); text-wrap: pretty">{{ roleNoticeTitle }}</span>
+          <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">{{ roleNoticeBody }}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap">
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="secondary" size="sm" hint-size="auto,32px">{{ roleNoticeAction }}</x-import>
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="link" size="sm" hint-size="auto,20px">{{ roleNoticeAlt }}</x-import>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="display: grid; gap: var(--space-5)">
+    <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Input" label="{{ nameLabel }}" placeholder="{{ namePlaceholder }}" default-value="{{ nameValue }}" helper="{{ nameHelper }}" disabled="{{ fieldsOff }}" hint-size="100%,92px"></x-import>
+
+    <div style="display: grid; gap: var(--space-3)">
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Input" label="{{ dobLabel }}" placeholder="{{ dobPlaceholder }}" numeric="{{ true }}" default-value="{{ dobValue }}" helper="{{ dobHelper }}" error="{{ dobError }}" disabled="{{ fieldsOff }}" hint-size="100%,92px"></x-import>
+      <sc-if value="{{ showAgeAlt }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; padding-inline-start: var(--space-1)">
+          <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">{{ ageAltText }}</span>
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="link" size="sm" hint-size="auto,20px">{{ ageAltAction }}</x-import>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display: grid; gap: var(--space-4); align-items: start; grid-template-columns: {{ pairCols }}">
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Select" label="{{ countryLabel }}" options="{{ countryOptions }}" value="{{ countryValue }}" placeholder="{{ countryPlaceholder }}" helper="{{ countryHelper }}" disabled="{{ countryOff }}" hint-size="100%,92px"></x-import>
+
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Select" label="{{ cityLabel }}" options="{{ cityOptions }}" value="{{ cityValue }}" placeholder="{{ cityPlaceholder }}" helper="{{ cityHelper }}" disabled="{{ cityOff }}" hint-size="100%,92px"></x-import>
+    </div>
+  </div>
+
+  <div style="display: grid; gap: var(--space-5)">
+    <div style="display: grid; grid-template-columns: 3px 1fr; gap: var(--space-4); padding: var(--space-4); background: var(--surface-sunken); border: 1px solid var(--border-strong); border-radius: var(--radius-md)">
+      <span aria-hidden="true" style="border-radius: var(--radius-full); background: var(--border-strong)"></span>
+      <div style="display: grid; gap: var(--space-1)">
+        <span style="font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: 500; color: var(--text-primary); text-wrap: pretty">{{ lockTitle }}</span>
+        <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">{{ lockBody }}</span>
+      </div>
+    </div>
+
+    <sc-if value="{{ showReject }}" hint-placeholder-val="{{ false }}">
+      <div role="alert" style="display: grid; gap: var(--space-2); padding: var(--space-4); background: var(--surface-sunken); border: 1px solid var(--border-strong); border-radius: var(--radius-md)">
+        <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap">
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Badge" variant="danger" hint-size="auto,20px">{{ rejectBadge }}</x-import>
+          <span style="font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: 500; color: var(--text-primary)">{{ rejectTitle }}</span>
+        </div>
+        <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">{{ rejectBody }}</span>
+      </div>
+    </sc-if>
+
+    <div style="display: grid; gap: var(--space-3)">
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="primary" size="lg" full-width="{{ true }}" loading="{{ submitting }}" disabled="{{ submitOff }}" hint-size="100%,48px">{{ primary }}</x-import>
+      <span role="status" style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); color: var(--text-secondary); text-wrap: pretty">{{ primaryNote }}</span>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:440,&quot;height&quot;:1040},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;idle&quot;,&quot;role-selected&quot;,&quot;city-loading&quot;,&quot;city-cleared&quot;,&quot;age-invalid&quot;,&quot;under-12&quot;,&quot;age-invalidated&quot;,&quot;submitting&quot;,&quot;server-reject&quot;],&quot;default&quot;:&quot;role-selected&quot;,&quot;tsType&quot;:&quot;'idle' | 'role-selected' | 'city-loading' | 'city-cleared' | 'age-invalid' | 'under-12' | 'age-invalidated' | 'submitting' | 'server-reject'&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;ar&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;'en' | 'ar'&quot;},&quot;grid&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;four&quot;,&quot;six&quot;],&quot;default&quot;:&quot;four&quot;,&quot;tsType&quot;:&quot;'four' | 'six'&quot;},&quot;narrow&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const ROLES = [
+  { key: 'PLAYER', en: 'Player', ar: 'لاعب', enB: 'Positions, clubs, minutes', arB: 'المراكز والأندية والدقائق', open: true },
+  { key: 'COACH', en: 'Coach', ar: 'مدرب', enB: 'Licence, squads, philosophy', arB: 'الرخصة والفرق والفلسفة', open: true },
+  { key: 'SCOUT', en: 'Scout', ar: 'كشاف', enB: 'Reports, shortlists, regions', arB: 'التقارير والقوائم والمناطق', open: true },
+  { key: 'ANALYST', en: 'Analyst', ar: 'محلل أداء', enB: 'Match data, models, video', arB: 'بيانات المباريات والفيديو', open: true },
+  { key: 'PHYSIO', en: 'Physio', ar: 'أخصائي علاج طبيعي', enB: 'Rehab, screening, load', arB: 'التأهيل والفحص والأحمال', open: false },
+  { key: 'CLUB', en: 'Club', ar: 'نادي', enB: 'Squad, staff, academy', arB: 'الفريق والجهاز والأكاديمية', open: false },
+];
+
+const EN = {
+  heading: 'About you',
+  sub: 'Your name and role appear on your profile. Your date of birth does not — the profile shows your age.',
+  roleLabel: 'Choose your role',
+  nameLabel: 'Full name',
+  namePlaceholder: 'Tarek Fouad Mahmoud Hassan',
+  nameHelper: 'One field. Enter your name as it appears on your ID.',
+  dobLabel: 'Date of birth',
+  dobPlaceholder: 'DD / MM / YYYY',
+  dobHelper: 'Placeholder field — substitute the repository date input.',
+  countryLabel: 'Country',
+  cityLabel: 'City',
+  countryPlaceholder: 'Select a country',
+  countryLoading: 'Loading countries…',
+  cityPlaceholder: 'Select a city',
+  cityLoading: 'Loading cities…',
+  cityWaiting: 'Choose a country first',
+  countryHelper: 'Placeholder list — countries come from the API.',
+  cityHelperWait: 'Available once a country is chosen.',
+  cityHelperLoading: 'Loading cities in Egypt.',
+  cityHelperCleared: 'Cairo was cleared because the country changed.',
+  lockTitle: 'Your role is permanent',
+  lockTitleRole: 'Player is permanent',
+  lockBody: 'It cannot be changed after this screen, by you or by support. Your role decides which profile fields you get and how scouts find you.',
+  primary: 'Create account',
+  primaryNote: 'This creates your account. The next step adds your football profile.',
+  primarySubmitting: 'Creating your account.',
+  ageCoachError: 'Coach accounts start at 18. This date gives an age of 15.',
+  ageAltText: 'Player accounts are open from 12.',
+  ageAltAction: 'Select player instead',
+  under12Error: 'Taktika accounts start at 12. This date gives an age of 10.',
+  under12Note: 'There is no younger account tier and no way to register this date of birth.',
+  roleNoticeTitle: 'Coach requires an age of 18 or over',
+  roleNoticeBody: 'The date of birth already entered gives an age of 15, which is under the coach minimum. Your role is still set to coach — nothing was changed for you. Player is open from 12.',
+  roleNoticeAction: 'Return to player',
+  roleNoticeAlt: 'Change date of birth',
+  dobHelperFlagged: 'This date gives an age of 15.',
+  rejectBadge: 'Not saved',
+  rejectTitle: 'Account not created',
+  rejectBody: 'The server rejected the age for this role. Nothing was saved and your entries are still here. Placeholder copy — substitute the API error set.',
+};
+
+const AR = {
+  heading: 'بياناتك',
+  sub: 'يظهر اسمك ودورك في ملفك. تاريخ ميلادك لا يظهر — الملف يعرض عمرك فقط.',
+  roleLabel: 'اختر دورك',
+  nameLabel: 'الاسم الكامل',
+  namePlaceholder: 'طارق فؤاد محمود حسن',
+  nameHelper: 'حقل واحد. أدخل اسمك كما هو في إثبات الهوية.',
+  dobLabel: 'تاريخ الميلاد',
+  dobPlaceholder: 'يوم / شهر / سنة',
+  dobHelper: 'حقل مؤقت — يُستبدل بحقل التاريخ من المستودع.',
+  countryLabel: 'الدولة',
+  cityLabel: 'المدينة',
+  countryPlaceholder: 'اختر الدولة',
+  countryLoading: 'يتم تحميل الدول…',
+  cityPlaceholder: 'اختر المدينة',
+  cityLoading: 'يتم تحميل المدن…',
+  cityWaiting: 'اختر الدولة أولًا',
+  countryHelper: 'قائمة مؤقتة — الدول تأتي من الخادم.',
+  cityHelperWait: 'يُفتح الحقل بعد اختيار الدولة.',
+  cityHelperLoading: 'يتم تحميل مدن مصر.',
+  cityHelperCleared: 'تم مسح القاهرة لأن الدولة تغيّرت.',
+  lockTitle: 'الدور دائم',
+  lockTitleRole: 'دور اللاعب دائم',
+  lockBody: 'لا يمكن تغييره بعد هذه الشاشة، لا بواسطتك ولا بواسطة الدعم. الدور يحدد حقول ملفك وطريقة وصول الكشافين إليك.',
+  primary: 'إنشاء الحساب',
+  primaryNote: 'بهذه الخطوة يُنشأ حسابك. الخطوة التالية تضيف ملفك الكروي.',
+  primarySubmitting: 'يتم إنشاء حسابك.',
+  ageCoachError: 'حساب المدرب يبدأ من 18 عامًا. هذا التاريخ يعطي عمرًا 15 عامًا.',
+  ageAltText: 'حساب اللاعب متاح من 12 عامًا.',
+  ageAltAction: 'اختيار دور اللاعب',
+  under12Error: 'التسجيل في تكتيكا يبدأ من 12 عامًا. هذا التاريخ يعطي عمرًا 10 أعوام.',
+  under12Note: 'لا توجد فئة أصغر، ولا توجد طريقة للتسجيل بهذا التاريخ.',
+  roleNoticeTitle: 'دور المدرب يتطلب 18 عامًا أو أكثر',
+  roleNoticeBody: 'تاريخ الميلاد المُدخل يعطي عمرًا 15 عامًا، وهو أقل من الحد الأدنى للمدرب. دورك ما زال مدربًا — لم يُغيَّر شيء تلقائيًا. دور اللاعب متاح من 12 عامًا.',
+  roleNoticeAction: 'الرجوع إلى لاعب',
+  roleNoticeAlt: 'تعديل تاريخ الميلاد',
+  dobHelperFlagged: 'هذا التاريخ يعطي عمرًا 15 عامًا.',
+  rejectBadge: 'لم يُحفظ',
+  rejectTitle: 'لم يتم إنشاء الحساب',
+  rejectBody: 'رفض الخادم العمر لهذا الدور. لم يُحفظ شيء وبياناتك ما زالت موجودة. نص مؤقت — يُستبدل بأخطاء الخادم الفعلية.',
+};
+
+const COUNTRIES_EN = [
+  { value: 'EG', label: 'Egypt' },
+  { value: 'SA', label: 'Saudi Arabia' },
+  { value: 'AE', label: 'United Arab Emirates' },
+  { value: 'MA', label: 'Morocco' },
+  { value: 'TN', label: 'Tunisia' },
+];
+const COUNTRIES_AR = [
+  { value: 'EG', label: 'مصر' },
+  { value: 'SA', label: 'السعودية' },
+  { value: 'AE', label: 'الإمارات' },
+  { value: 'MA', label: 'المغرب' },
+  { value: 'TN', label: 'تونس' },
+];
+const CITIES_EN = [
+  { value: 'CAI', label: 'Cairo' },
+  { value: 'GIZ', label: 'Giza' },
+  { value: 'ALX', label: 'Alexandria' },
+  { value: 'MNS', label: 'Mansoura' },
+  { value: 'PSD', label: 'Port Said' },
+];
+const CITIES_AR = [
+  { value: 'CAI', label: 'القاهرة' },
+  { value: 'GIZ', label: 'الجيزة' },
+  { value: 'ALX', label: 'الإسكندرية' },
+  { value: 'MNS', label: 'المنصورة' },
+  { value: 'PSD', label: 'بورسعيد' },
+];
+
+const SELECTED = {
+  idle: null,
+  'role-selected': 'PLAYER',
+  'city-loading': 'PLAYER',
+  'city-cleared': 'PLAYER',
+  'age-invalid': 'COACH',
+  'age-invalidated': 'COACH',
+  'under-12': 'PLAYER',
+  submitting: 'PLAYER',
+  'server-reject': 'COACH',
+};
+
+class Component extends DCLogic {
+  renderVals() {
+    const lang = this.props.lang === 'ar' ? 'ar' : 'en';
+    const t = lang === 'ar' ? AR : EN;
+    const ar = lang === 'ar';
+    const state = this.props.state || 'idle';
+    const six = this.props.grid === 'six';
+    const picked = SELECTED[state] || null;
+    const submitting = state === 'submitting';
+    const idle = state === 'idle';
+    const caseA = state === 'age-invalidated';
+    const caseB = state === 'age-invalid';
+    const u12 = state === 'under-12';
+    const reject = state === 'server-reject';
+    const cityLoading = state === 'city-loading';
+    const cityCleared = state === 'city-cleared';
+
+    const roleName = picked ? (ar ? ROLES.find(r => r.key === picked).ar : ROLES.find(r => r.key === picked).en) : null;
+
+    const roles = ROLES.filter(r => six || r.open).map(r => {
+      const on = r.key === picked;
+      return {
+        key: r.key,
+        label: ar ? r.ar : r.en,
+        blurb: r.open ? (ar ? r.arB : r.enB) : (ar ? 'غير متاح بعد' : 'Not yet available'),
+        selected: on,
+        off: !r.open,
+        bg: on ? 'var(--color-accent-subtle)' : r.open ? 'var(--surface-sunken)' : 'var(--surface-base)',
+        bd: on ? 'var(--border-accent)' : r.open ? 'var(--border-default)' : 'var(--border-subtle)',
+        fg: r.open ? 'var(--text-primary)' : 'var(--text-muted)',
+        blurbFg: r.open ? 'var(--text-secondary)' : 'var(--text-muted)',
+        cursor: r.open ? 'pointer' : 'not-allowed',
+      };
+    });
+
+    let dobValue = '';
+    if (state === 'role-selected' || cityLoading || cityCleared || submitting) dobValue = '14 / 03 / 2001';
+    if (caseA || caseB || reject) dobValue = '02 / 09 / 2010';
+    if (u12) dobValue = '17 / 06 / 2016';
+
+    let dobError = '';
+    if (caseB) dobError = t.ageCoachError;
+    if (u12) dobError = t.under12Error;
+
+    let dobHelper = t.dobHelper;
+    if (caseA) dobHelper = t.dobHelperFlagged;
+    if (u12) dobHelper = t.under12Note;
+    if (caseB) dobHelper = '';
+
+    const countryValue = idle ? undefined : cityCleared ? 'SA' : 'EG';
+    const cityValue = cityLoading || cityCleared || idle ? undefined : 'CAI';
+    const countryOptions = ar ? COUNTRIES_AR : COUNTRIES_EN;
+    const cities = ar ? CITIES_AR : CITIES_EN;
+
+    let cityHelper = t.cityHelperWait;
+    if (cityLoading) cityHelper = t.cityHelperLoading;
+    else if (cityCleared) cityHelper = t.cityHelperCleared;
+    else if (!idle) cityHelper = '';
+
+    return {
+      ...t,
+      roles,
+      fieldsOff: idle || submitting,
+      submitting,
+      submitOff: idle || u12,
+      dobValue,
+      dobError,
+      dobHelper,
+      nameValue: idle ? '' : ar ? 'طارق فؤاد محمود حسن' : 'Tarek Fouad Mahmoud Hassan',
+      showAgeAlt: caseB,
+      pairCols: this.props.narrow ? '1fr' : '1fr 1fr',
+      countryOptions,
+      countryValue,
+      countryPlaceholder: idle ? t.countryLoading : t.countryPlaceholder,
+      countryHelper: idle ? '' : t.countryHelper,
+      countryOff: idle || submitting,
+      cityOptions: cityLoading ? [] : cities,
+      cityValue,
+      cityPlaceholder: cityLoading ? t.cityLoading : idle ? t.cityWaiting : cityCleared ? t.cityPlaceholder : t.cityPlaceholder,
+      cityHelper,
+      cityOff: idle || cityLoading || submitting,
+      lockTitle: picked ? (ar ? 'دور ' + roleName + ' دائم' : roleName + ' is permanent') : t.lockTitle,
+      showRoleNotice: caseA,
+      showReject: reject,
+      primaryNote: submitting ? t.primarySubmitting : t.primaryNote,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

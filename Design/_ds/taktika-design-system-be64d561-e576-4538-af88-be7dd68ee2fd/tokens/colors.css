@@ -1,0 +1,19 @@
+:root{
+/* Surfaces — elevation is lightness, never shadow. Max two levels above base. */
+--surface-base:#0A0F0C;--surface-raised:#111814;--surface-overlay:#161E19;--surface-sunken:#070A08;--surface-image-plate:#E8EDE9;
+/* Text — ratios measured against --surface-raised */
+--text-primary:#E7EBE5;--text-secondary:#93A08F;--text-muted:#66705F;--text-on-accent:#FFFFFF;--text-inverse:#0A0F0C;
+/* Accent — deep emerald. --color-accent-text is the ONLY accent value legal for text. */
+--color-accent:#16A34A;--color-accent-hover:#1BB854;--color-accent-pressed:#128840;--color-accent-subtle:#0F2A1A;--color-accent-text:#4ADE80;
+/* Semantic. Success shares the accent hex deliberately. */
+--color-success:#16A34A;--color-success-tint:#0F2A1A;--color-success-text:#4ADE80;
+--color-danger:#DC2626;--color-danger-tint:#2A1010;--color-danger-text:#F87171;
+--color-warning:#D97706;--color-warning-tint:#2A1D08;--color-warning-text:#FBBF24;
+--color-info:#2563EB;--color-info-tint:#101B33;--color-info-text:#60A5FA;
+/* Borders — alpha over foreground so one token reads on every surface */
+--border-subtle:rgba(231,235,229,0.06);--border-default:rgba(231,235,229,0.11);--border-strong:rgba(231,235,229,0.18);--border-accent:#16A34A;
+/* Pitch line — the single signature element. Once per page, max. */
+--pitch-line:rgba(22,163,74,0.24);
+/* Scrims */
+--scrim-modal:rgba(0,0,0,0.7);
+}

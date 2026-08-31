@@ -1,0 +1,8 @@
+/* Role colours. Muted by design. Legal in RoleBadge and nowhere else. */
+:root{--role-bg:var(--surface-sunken);--role-text:var(--text-secondary);--role-border:var(--border-default)}
+[data-role="PLAYER"]{--role-bg:#12241C;--role-text:#5EEAD4;--role-border:#1F4A3C}
+[data-role="COACH"]{--role-bg:#1C1F2E;--role-text:#A5B4FC;--role-border:#333A5C}
+[data-role="SCOUT"]{--role-bg:#241C2E;--role-text:#D8B4FE;--role-border:#4A335C}
+[data-role="ANALYST"]{--role-bg:#12202E;--role-text:#93C5FD;--role-border:#1F3A5C}
+[data-role="PHYSIO"]{--role-bg:#2E1C22;--role-text:#FDA4AF;--role-border:#5C333D}
+[data-role="CLUB"]{--role-bg:#2A2412;--role-text:#FCD34D;--role-border:#5C4A1F}

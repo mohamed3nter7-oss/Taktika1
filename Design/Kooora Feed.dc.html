@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/roles.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+  <style>
+    @keyframes kf-dots { from { opacity: 0.25 } to { opacity: 1 } }
+  </style>
+</helmet>
+
+<section style="display: grid; gap: var(--space-8); width: max-content; padding: var(--space-16); background: #050806; font-family: var(--font-latin); color: var(--text-primary)">
+  <div style="display: grid; gap: var(--space-2); max-width: 720px">
+    <div style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Turn 1 · Feed</div>
+    <h1 style="margin: 0; font-size: var(--text-h1-size); line-height: var(--text-h1-lh); font-weight: 600; letter-spacing: -0.01em">Feed — the default screen after login</h1>
+    <p style="margin: 0; font-size: var(--text-body-lg-size); line-height: var(--text-body-lg-lh); color: var(--text-secondary); text-wrap: pretty">Four artboards on the existing three-column frame: 240 rail · 604 content · 300 rail, 24px gaps inside a 1240px container. Every value comes from the bound design system; deviations are listed in the notes panel at the end.</p>
+  </div>
+
+  <div style="display: flex; align-items: flex-start; gap: var(--space-16)">
+
+    <div id="1a" style="display: grid; gap: var(--space-5)">
+      <sc-if value="{{ annotate }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; gap: var(--space-2); max-width: 604px">
+          <div style="display: flex; align-items: center; gap: var(--space-3)">
+            <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 24px; padding-inline: var(--space-2); border-radius: var(--radius-full); background: var(--color-accent-subtle); color: var(--color-accent-text); font-size: var(--text-xs-size); font-weight: 600">1a</span>
+            <span style="font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 500">Feed — default</span>
+          </div>
+          <div style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Scrolled to top, full shell. Both post menus are drawn open so the spec covers them — only one opens at a time in the build. Suggested professionals sits after the fifth post.</div>
+        </div>
+      </sc-if>
+
+      <div style="width: 1240px; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden">
+        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.TopNav" items="{{ nav }}" active="feed" user="{{ viewer }}" notifications="{{ zero }}" hint-size="100%,64px"></x-import>
+        <div style="padding-inline: var(--space-6); padding-block: var(--space-6) var(--space-16)">
+          <div style="display: grid; grid-template-columns: 240px 604px 300px; gap: var(--space-6); align-items: start">
+
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.LeftRail" links="{{ railLinks }}" active="feed" hint-size="240px,180px"></x-import>
+
+            <div style="display: grid; gap: var(--space-4); min-width: 0">
+              <dc-import name="FeedComposer" mode="collapsed" avatar="{{ viewerAvatar }}" viewer-name="{{ viewerName }}" hint-size="100%,72px"></dc-import>
+              <dc-import name="FeedFilterBar" active="ALL" hint-size="100%,56px"></dc-import>
+
+              <div style="position: relative; height: 0; display: flex; justify-content: center; z-index: var(--z-sticky)">
+                <button type="button" style="position: absolute; inset-block-start: calc(var(--space-5) * -1); display: inline-flex; align-items: center; gap: var(--space-2); height: 36px; padding-inline: var(--space-4); background: var(--surface-overlay); border: 1px solid var(--border-default); border-radius: var(--radius-full); font-family: inherit; font-size: var(--text-sm-size); font-weight: 500; color: var(--color-accent-text); font-variant-numeric: tabular-nums; cursor: pointer" style-hover="border-color: var(--border-strong)">
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="chevron-up" size="{{ n16 }}" hint-size="16px,16px"></x-import>{{ newPostsText }}
+                </button>
+              </div>
+
+              <sc-for list="{{ postsA }}" as="p" hint-placeholder-count="3">
+                <dc-import name="FeedPostCard" author="{{ p.author }}" body="{{ p.body }}" images="{{ p.images }}" timestamp="{{ p.timestamp }}" edited="{{ p.edited }}" clamp="{{ p.clamp }}" tall="{{ p.tall }}" likes="{{ p.likes }}" comments="{{ p.comments }}" liked="{{ p.liked }}" saved="{{ p.saved }}" menu="{{ p.menu }}" hint-size="100%,520px"></dc-import>
+              </sc-for>
+
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" hint-size="100%,320px">
+                <div style="display: grid; gap: var(--space-4)">
+                  <div style="display: flex; align-items: center; gap: var(--space-3)">
+                    <span style="flex: 1; font-size: var(--text-body-size); font-weight: 600">People you may know</span>
+                    <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.IconButton" icon="x" label="Dismiss suggestions" size="sm" hint-size="32px,32px"></x-import>
+                  </div>
+                  <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3">
+                    <div style="display: flex; align-items: center; gap: var(--space-3)">
+                      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Avatar" src="{{ s.avatar }}" name="{{ s.name }}" size="md" hint-size="40px,40px"></x-import>
+                      <div style="flex: 1; min-width: 0; display: grid; gap: 2px">
+                        <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap">
+                          <span style="font-size: var(--text-body-size); font-weight: 500">{{ s.name }}</span>
+                          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.RoleBadge" role="{{ s.dsRole }}" hint-size="82px,24px"></x-import>
+                        </div>
+                        <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary)">{{ s.city }}</span>
+                      </div>
+                      <sc-if value="{{ s.following }}" hint-placeholder-val="{{ false }}">
+                        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" icon-start="check" on-click="{{ s.toggle }}" hint-size="112px,32px">Following</x-import>
+                      </sc-if>
+                      <sc-if value="{{ s.notFollowing }}" hint-placeholder-val="{{ true }}">
+                        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="secondary" size="sm" on-click="{{ s.toggle }}" hint-size="84px,32px">Follow</x-import>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                  <div style="height: 1px; background: var(--border-subtle); margin: 0 calc(var(--space-5) * -1)"></div>
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="link" icon-end="arrow-right" hint-size="70px,20px">See all</x-import>
+                </div>
+              </x-import>
+
+              <sc-for list="{{ postsB }}" as="p" hint-placeholder-count="1">
+                <dc-import name="FeedPostCard" author="{{ p.author }}" body="{{ p.body }}" images="{{ p.images }}" timestamp="{{ p.timestamp }}" edited="{{ p.edited }}" clamp="{{ p.clamp }}" tall="{{ p.tall }}" likes="{{ p.likes }}" comments="{{ p.comments }}" liked="{{ p.liked }}" saved="{{ p.saved }}" menu="{{ p.menu }}" hint-size="100%,520px"></dc-import>
+              </sc-for>
+
+              <div style="display: flex; align-items: center; justify-content: center; gap: var(--space-2); padding-block: var(--space-5)" role="status" aria-label="Loading more posts">
+                <span style="width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--text-muted); animation: kf-dots 600ms var(--ease-in-out) infinite alternate"></span>
+                <span style="width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--text-muted); animation: kf-dots 600ms var(--ease-in-out) 120ms infinite alternate"></span>
+                <span style="width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--text-muted); animation: kf-dots 600ms var(--ease-in-out) 240ms infinite alternate"></span>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: var(--space-4)">
+                <span style="flex: 1; height: 1px; background: var(--border-default)"></span>
+                <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">You're all caught up</span>
+                <span style="flex: 1; height: 1px; background: var(--border-default)"></span>
+              </div>
+            </div>
+
+            <div style="display: grid; gap: var(--space-4); position: sticky; inset-block-start: 88px; align-self: start">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" padding="var(--space-4)" hint-size="100%,150px">
+                <div style="display: grid; gap: var(--space-3)">
+                  <div style="display: grid; gap: var(--space-1)">
+                    <span style="font-size: var(--text-body-size); font-weight: 600">Complete your profile</span>
+                    <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Your career history is empty. Clubs and dates are what scouts search on.</span>
+                  </div>
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="secondary" size="sm" hint-size="100%,32px">Add career history</x-import>
+                </div>
+              </x-import>
+
+              <div style="display: grid; gap: var(--space-3); padding-inline: var(--space-1)">
+                <div style="display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4)">
+                  <a href="#1a" style="font-size: var(--text-sm-size); color: var(--text-secondary)">About</a>
+                  <a href="#1a" style="font-size: var(--text-sm-size); color: var(--text-secondary)">Help</a>
+                  <a href="#1a" style="font-size: var(--text-sm-size); color: var(--text-secondary)">Privacy</a>
+                  <a href="#1a" style="font-size: var(--text-sm-size); color: var(--text-secondary)">Terms</a>
+                  <a href="#1a" style="font-size: var(--text-sm-size); color: var(--text-secondary)">العربية</a>
+                </div>
+                <span style="font-size: var(--text-xs-size); color: var(--text-secondary)">Taktika · 2026</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="1b" style="display: grid; gap: var(--space-5)">
+      <sc-if value="{{ annotate }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; gap: var(--space-2); max-width: 604px">
+          <div style="display: flex; align-items: center; gap: var(--space-3)">
+            <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 24px; padding-inline: var(--space-2); border-radius: var(--radius-full); background: var(--color-accent-subtle); color: var(--color-accent-text); font-size: var(--text-xs-size); font-weight: 600">1b</span>
+            <span style="font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 500">Composer — expanded</span>
+          </div>
+          <div style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Content column only. Upload is one image per request through the server, so progress and failure are per thumbnail and partial failure is the normal case.</div>
+        </div>
+      </sc-if>
+
+      <div style="width: 604px; display: grid; gap: var(--space-8); padding: var(--space-6); background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg)">
+        <div style="display: grid; gap: var(--space-3)">
+          <div style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Three attached · one uploading · one failed</div>
+          <dc-import name="FeedComposer" mode="expanded" text="{{ composerText }}" images="{{ imagesMixed }}" avatar="{{ viewerAvatar }}" viewer-name="{{ viewerName }}" hint-size="100%,420px"></dc-import>
+        </div>
+        <div style="display: grid; gap: var(--space-3)">
+          <div style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Ninth image attached · add tile disabled · counter in the last 200</div>
+          <dc-import name="FeedComposer" mode="expanded" text="{{ composerTextLong }}" char-count="{{ nearLimit }}" images="{{ imagesNine }}" avatar="{{ viewerAvatar }}" viewer-name="{{ viewerName }}" hint-size="100%,480px"></dc-import>
+        </div>
+        <div style="display: grid; gap: var(--space-3)">
+          <div style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Empty · Post disabled, because text is always required</div>
+          <dc-import name="FeedComposer" mode="expanded" text="" avatar="{{ viewerAvatar }}" viewer-name="{{ viewerName }}" hint-size="100%,220px"></dc-import>
+        </div>
+      </div>
+    </div>
+
+    <div id="1c" style="display: grid; gap: var(--space-5)">
+      <sc-if value="{{ annotate }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; gap: var(--space-2); max-width: 604px">
+          <div style="display: flex; align-items: center; gap: var(--space-3)">
+            <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 24px; padding-inline: var(--space-2); border-radius: var(--radius-full); background: var(--color-accent-subtle); color: var(--color-accent-text); font-size: var(--text-xs-size); font-weight: 600">1c</span>
+            <span style="font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 500">Feed — loading</span>
+          </div>
+          <div style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Skeleton geometry matches the real card exactly: 56px avatar, two header lines, three body lines, image block, action row. The rails render from the session, which is already loaded, so they are not skeletons.</div>
+        </div>
+      </sc-if>
+
+      <div style="width: 1240px; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden">
+        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.TopNav" items="{{ nav }}" active="feed" user="{{ viewer }}" notifications="{{ zero }}" hint-size="100%,64px"></x-import>
+        <div style="padding-inline: var(--space-6); padding-block: var(--space-6) var(--space-16)">
+          <div style="display: grid; grid-template-columns: 240px 604px 300px; gap: var(--space-6); align-items: start">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.LeftRail" links="{{ railLinks }}" active="feed" hint-size="240px,180px"></x-import>
+
+            <div style="display: grid; gap: var(--space-4); min-width: 0">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" padding="var(--space-4)" hint-size="100%,72px">
+                <div style="display: flex; align-items: center; gap: var(--space-3)">
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" width="{{ n40 }}" height="{{ n40 }}" radius="var(--radius-full)" hint-size="40px,40px"></x-import>
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" height="{{ n40 }}" radius="var(--radius-md)" style="flex: 1" hint-size="100%,40px"></x-import>
+                </div>
+              </x-import>
+
+              <sc-for list="{{ three }}" as="row" hint-placeholder-count="3">
+                <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" hint-size="100%,520px">
+                  <div style="display: grid; gap: var(--space-4)">
+                    <div style="display: flex; align-items: flex-start; gap: var(--space-4)">
+                      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" width="{{ n56 }}" height="{{ n56 }}" radius="var(--radius-full)" hint-size="56px,56px"></x-import>
+                      <div style="display: grid; gap: var(--space-2); padding-block-start: var(--space-1)">
+                        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" width="{{ n160 }}" height="{{ n15 }}" hint-size="160px,15px"></x-import>
+                        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" width="{{ n220 }}" height="{{ n13 }}" hint-size="220px,13px"></x-import>
+                      </div>
+                    </div>
+                    <div style="display: grid; gap: var(--space-2)">
+                      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" height="{{ n16 }}" hint-size="100%,16px"></x-import>
+                      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" height="{{ n16 }}" hint-size="100%,16px"></x-import>
+                      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" width="72%" height="{{ n16 }}" hint-size="72%,16px"></x-import>
+                    </div>
+                    <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" height="{{ n300 }}" radius="var(--radius-lg)" hint-size="100%,300px"></x-import>
+                    <div>
+                      <div style="height: 1px; background: var(--border-subtle); margin: 0 calc(var(--space-5) * -1) var(--space-3)"></div>
+                      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-1); justify-items: center">
+                        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" width="{{ n96 }}" height="{{ n20 }}" hint-size="96px,20px"></x-import>
+                        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" width="{{ n96 }}" height="{{ n20 }}" hint-size="96px,20px"></x-import>
+                        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Skeleton" width="{{ n96 }}" height="{{ n20 }}" hint-size="96px,20px"></x-import>
+                      </div>
+                    </div>
+                  </div>
+                </x-import>
+              </sc-for>
+            </div>
+
+            <div style="display: grid; gap: var(--space-4); position: sticky; inset-block-start: 88px; align-self: start">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" padding="var(--space-4)" hint-size="100%,150px">
+                <div style="display: grid; gap: var(--space-3)">
+                  <div style="display: grid; gap: var(--space-1)">
+                    <span style="font-size: var(--text-body-size); font-weight: 600">Complete your profile</span>
+                    <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Your career history is empty. Clubs and dates are what scouts search on.</span>
+                  </div>
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="secondary" size="sm" hint-size="100%,32px">Add career history</x-import>
+                </div>
+              </x-import>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="1d" style="display: grid; gap: var(--space-5)">
+      <sc-if value="{{ annotate }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; gap: var(--space-2); max-width: 604px">
+          <div style="display: flex; align-items: center; gap: var(--space-3)">
+            <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 24px; padding-inline: var(--space-2); border-radius: var(--radius-full); background: var(--color-accent-subtle); color: var(--color-accent-text); font-size: var(--text-xs-size); font-weight: 600">1d</span>
+            <span style="font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 500">Empty and error</span>
+          </div>
+          <div style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Three variants of the content column. The filter-empty state keeps the bar visible with the chip still active; the error is an inline card and leaves the composer usable.</div>
+        </div>
+      </sc-if>
+
+      <div style="width: 604px; display: grid; gap: var(--space-8); padding: var(--space-6); background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg)">
+        <div style="display: grid; gap: var(--space-3)">
+          <div style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Empty feed</div>
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" hint-size="100%,300px">
+            <div style="display: grid; justify-items: center; gap: var(--space-3)">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.EmptyState" icon="file-text" title="Nothing here yet" description="Posts from the people you follow will appear here." hint-size="100%,220px"></x-import>
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="primary" icon-start="pencil" hint-size="140px,40px">Create post</x-import>
+            </div>
+          </x-import>
+        </div>
+
+        <div style="display: grid; gap: var(--space-3)">
+          <div style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Role filter with no results</div>
+          <div style="display: grid; gap: var(--space-4)">
+            <dc-import name="FeedFilterBar" active="COACH" hint-size="100%,56px"></dc-import>
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" hint-size="100%,300px">
+              <div style="display: grid; justify-items: center; gap: var(--space-3)">
+                <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.EmptyState" icon="clipboard-list" title="No posts from coaches yet" description="The full feed has posts from every role." hint-size="100%,220px"></x-import>
+                <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="secondary" hint-size="150px,40px">Show all posts</x-import>
+              </div>
+            </x-import>
+          </div>
+        </div>
+
+        <div style="display: grid; gap: var(--space-3)">
+          <div style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Feed load error</div>
+          <div style="display: grid; gap: var(--space-4)">
+            <dc-import name="FeedComposer" mode="collapsed" avatar="{{ viewerAvatar }}" viewer-name="{{ viewerName }}" hint-size="100%,72px"></dc-import>
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" hint-size="100%,96px">
+              <div style="display: flex; align-items: center; gap: var(--space-4)">
+                <span style="color: var(--color-danger-text); display: inline-flex">
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="circle-alert" size="{{ n20 }}" hint-size="20px,20px"></x-import>
+                </span>
+                <div style="flex: 1; min-width: 0; display: grid; gap: 2px">
+                  <span style="font-size: var(--text-body-size); font-weight: 600">Couldn't load the feed</span>
+                  <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary)">Check your connection, then try again.</span>
+                </div>
+                <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" icon-start="rotate-ccw" hint-size="112px,40px">Try again</x-import>
+              </div>
+            </x-import>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="width: 420px; display: grid; gap: var(--space-5)">
+      <div style="font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 500">Notes for build</div>
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" hint-size="100%,600px">
+        <div style="display: grid; gap: var(--space-5)">
+          <sc-for list="{{ notes }}" as="note" hint-placeholder-count="8">
+            <div style="display: grid; gap: var(--space-1)">
+              <span style="font-size: var(--text-sm-size); font-weight: 600">{{ note.title }}</span>
+              <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">{{ note.body }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </x-import>
+    </div>
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;annotations&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;newPosts&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;min&quot;:1,&quot;max&quot;:99,&quot;tsType&quot;:&quot;number&quot;},&quot;viewerName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Tarek Fouad&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const DS_ROLE = {
+  PLAYER: 'PLAYER', COACH: 'COACH', SCOUT: 'SCOUT', ANALYST: 'ANALYST',
+  PHYSICAL_THERAPIST: 'PHYSIO', CLUB_ADMIN: 'CLUB',
+};
+const AV = 'placeholders/avatar.svg';
+const CREST = 'placeholders/crest.svg';
+const P = (n) => 'placeholders/photo-' + n + '.svg';
+
+const NAV = [
+  { value: 'feed', label: 'Feed', icon: 'house' },
+  { value: 'network', label: 'Network', icon: 'users' },
+  { value: 'messages', label: 'Messages', icon: 'send' },
+  { value: 'notifications', label: 'Alerts', icon: 'bell' },
+];
+const RAIL = [
+  { value: 'feed', label: 'Feed', icon: 'house' },
+  { value: 'network', label: 'Network', icon: 'users' },
+  { value: 'saved', label: 'Saved posts', icon: 'bookmark' },
+  { value: 'messages', label: 'Messages', icon: 'send' },
+];
+
+const POSTS = [
+  {
+    author: { name: 'Hossam Abdel Rahman', role: 'COACH', club: 'Al Ahly', crest: CREST, avatar: AV },
+    timestamp: '2h ago', menu: 'other',
+    body: 'Closed the pre-season block with the U19s this morning. Three weeks, nine sessions built around regains in the middle third, and the last two friendlies showed it: we won the ball back inside six seconds far more often, and the first pass after the regain went forward instead of sideways.\n\nSession plans are with the academy staff if anyone wants them.',
+    images: [{ src: P(1) }, { src: P(2) }],
+    likes: 34, comments: 7,
+  },
+  {
+    author: { name: 'Youssef Hegazy', role: 'PLAYER', club: 'Zamalek SC', crest: CREST, avatar: AV },
+    timestamp: '4h ago', liked: true, clamp: true, tall: true,
+    body: 'Six months ago I could not complete a full session. Today I finished ninety minutes for the first time since the surgery, and the knee held up through both halves without swelling afterwards.\n\nThe rehab was not glamorous. Eccentric work every morning at seven, isometrics between sessions, and a physio who refused to let me skip a single step even when the leg felt ready. I learned that "feels ready" and "is ready" are different things, and that the gap between them is where players lose careers.\n\nTo the academy players reading this: the boring block is the block that saves you. Do the boring block.\n\nBack to competitive minutes next month, and I am not taking one of them for granted.',
+    images: [{ src: 'placeholders/photo-tall.svg' }],
+    likes: 128, comments: 19,
+  },
+  {
+    author: { name: 'Tarek Fouad', role: 'SCOUT', club: 'Pyramids FC', crest: CREST, avatar: AV },
+    timestamp: '6h ago', menu: 'own', saved: true, clamp: true,
+    body: 'Five days at the regional U17 tournament in Ismailia. Forty-two matches, and the standard of left-footed centre backs was the story of the week — four genuine prospects, all comfortable playing out under pressure, none of them on a senior list yet.\n\nNotes are structured by position and I am happy to share the framework with anyone doing the same circuit. What I am not sharing is the shortlist.',
+    images: [{ src: P(1) }, { src: P(2) }, { src: P(3) }, { src: P(4) }, { src: P(1) }, { src: P(2) }],
+    likes: 12, comments: 3,
+  },
+  {
+    author: { name: 'Mai Serry', role: 'PHYSICAL_THERAPIST', club: 'El Gouna FC', crest: CREST, avatar: AV },
+    timestamp: '9h ago', edited: true,
+    body: 'A question for the physios here: how are you handling eccentric strength deficits in players who arrive mid-season with no baseline data? We are testing on arrival now, but the first four weeks are guesswork and I would rather learn from someone who has solved it.',
+    images: [],
+    likes: 0, comments: 0,
+  },
+  {
+    author: { name: 'Ismailia SC', role: 'CLUB_ADMIN', avatar: null },
+    timestamp: '1d ago', saved: true,
+    body: 'Open trials for the 2027 academy intake, 12 and 14 September at the training ground. Ages twelve to sixteen, registration closes on 5 September, and every player is seen by two coaches on the day.',
+    images: [{ src: 'placeholders/photo-wide.svg' }],
+    likes: 96, comments: 14,
+  },
+  {
+    author: { name: 'Karim Fathy', role: 'SCOUT', avatar: AV },
+    timestamp: '1d ago',
+    body: 'Three weeks of second-division matches and one thing keeps repeating: the players who move up are not the quickest, they are the ones who scan before they receive. It shows on video within ten minutes.',
+    images: [{ src: P(3) }, { src: P(4) }, { src: P(1) }],
+    likes: 41, comments: 5,
+  },
+];
+
+const SUGGESTIONS = [
+  { name: 'Amr Zaki', role: 'COACH', city: 'Alexandria' },
+  { name: 'Salma Nabil', role: 'ANALYST', city: 'Cairo' },
+  { name: 'Hany Ramzy', role: 'PHYSICAL_THERAPIST', city: 'Giza' },
+];
+
+const NOTES = [
+  { title: 'Role keys are the schema\u2019s', body: 'Posts carry PLAYER, COACH, SCOUT, ANALYST, PHYSICAL_THERAPIST, CLUB_ADMIN. The design system\u2019s RoleBadge uses PHYSIO and CLUB for the last two, so the mapping happens at the badge boundary only \u2014 never in the data.' },
+  { title: 'Role colour is confined to RoleBadge', body: 'Nothing else on this screen takes colour from the author\u2019s role, including the avatar corner badge, which is RoleBadge in its compact variant.' },
+  { title: 'Liked and saved carry a shape, not just colour', body: 'The icon set is outline-only, so there is no filled heart. The active state is an accent-subtle pill plus accent text, and Save changes its label to Saved. Both are optimistic \u2014 no spinner.' },
+  { title: 'Counters exclude tombstoned comments', body: 'A thread can render more items than the count claims. That is intended: the count is live comments, the thread shows deleted placeholders.' },
+  { title: 'Both post menus are drawn open', body: 'Edit and Delete for the author\u2019s own post, Report for everyone else. Delete is destructive-styled and has no confirmation on this screen \u2014 the confirm modal belongs to the delete flow.' },
+  { title: 'Club crest is 24px, not 16px', body: 'The design system\u2019s smallest crest is 24px, and its initials fallback stops being legible below that. Send real crest files and the meta line can drop to 16px.' },
+  { title: 'The bell carries no count', body: 'TopNav is passed zero notifications, so no dot renders. The label under it is the design system\u2019s pattern for that bar.' },
+  { title: 'Frame arithmetic', body: '1240px container, 24px inline padding, 24px column gaps: 1240 \u2212 48 \u2212 240 \u2212 300 \u2212 48 = 604. Same numbers as the profile screen.' },
+  { title: 'Feed end shows two states at once', body: 'The three-dot row and the caught-up rule are mutually exclusive in the build: the row while the next page loads, the rule once the cursor is exhausted.' },
+  { title: 'Wordmark still says Taktika', body: 'TopNav\u2019s wordmark is a design-system component and no Kooora mark exists in the kit. Send the mark and it goes in one place.' },
+  { title: 'RTL', body: 'Every offset here is logical (inset-inline, padding-inline, margin-inline), so the whole screen mirrors with dir="rtl". The chip row\u2019s edge fade is symmetric for the same reason. Position codes stay Latin in dir="ltr" wrappers.' },
+];
+
+class Component extends DCLogic {
+  state = { following: {} };
+
+  renderVals() {
+    const posts = POSTS;
+    return {
+      annotate: this.props.annotations !== false,
+      zero: 0, n13: 13, n15: 15, n16: 16, n20: 20, n40: 40, n56: 56,
+      n96: 96, n160: 160, n220: 220, n300: 300,
+      three: [1, 2, 3],
+      nav: NAV, railLinks: RAIL,
+      viewer: { name: this.props.viewerName || 'Tarek Fouad', avatar: AV },
+      viewerName: this.props.viewerName || 'Tarek Fouad',
+      viewerAvatar: AV,
+      newPostsText: (this.props.newPosts || 3) + ' new posts',
+      postsA: posts.slice(0, 5), postsB: posts.slice(5),
+      composerText: 'Two left-footed centre backs from the Ismailia tournament, both comfortable playing out under pressure. Clips below.',
+      composerTextLong: 'Full write-up from five days at the regional U17 tournament: forty-two matches, notes by position, and the four names I would put in front of a senior recruitment meeting tomorrow.',
+      nearLimit: 2847,
+      imagesMixed: [
+        { src: P(1), state: 'done' },
+        { src: P(2), state: 'uploading', pct: 64 },
+        { src: P(3), state: 'failed' },
+      ],
+      imagesNine: [P(1), P(2), P(3), P(4), P(1), P(2), P(3), P(4), P(1)].map((src) => ({ src, state: 'done' })),
+      suggestions: SUGGESTIONS.map((s, i) => ({
+        name: s.name, city: s.city, dsRole: DS_ROLE[s.role], avatar: AV,
+        following: !!this.state.following[i], notFollowing: !this.state.following[i],
+        toggle: () => this.setState((st) => ({
+          following: { ...st.following, [i]: !st.following[i] },
+        })),
+      })),
+      notes: NOTES,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

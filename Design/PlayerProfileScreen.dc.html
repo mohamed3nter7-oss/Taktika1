@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/roles.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+</helmet>
+<div style="width: 1280px; background: var(--surface-base); color: var(--text-primary); font-family: var(--font-latin); font-size: var(--text-body-size); line-height: var(--text-body-lh); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden">
+
+  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.TopNav" items="{{ nav }}" user="{{ viewerUser }}" notifications="{{ notifCount }}" hint-size="100%,64px"></x-import>
+
+  <div style="max-width: 1240px; margin: 0 auto; padding: var(--space-6) var(--space-6) var(--space-16)">
+    <div style="display: grid; grid-template-columns: 240px minmax(0, 1fr) 300px; gap: var(--space-6); align-items: start">
+
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.LeftRail" links="{{ railLinks }}" clubs="{{ railClubs }}" active="none" hint-size="240px,300px"></x-import>
+
+      <div style="display: grid; gap: var(--space-4); min-width: 0">
+
+        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" hint-size="100%,280px">
+          <div style="display: grid; gap: var(--space-5)">
+            <div style="display: flex; gap: var(--space-5); align-items: flex-start">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Avatar" src="{{ avatar }}" name="{{ name }}" size="xl" role="PLAYER" hint-size="120px,120px"></x-import>
+              <div style="flex: 1; min-width: 0; display: grid; gap: var(--space-3)">
+                <div style="display: grid; gap: var(--space-1)">
+                  <h1 style="margin: 0; font-size: var(--text-h1-size); line-height: var(--text-h1-lh); font-weight: 600; letter-spacing: -0.01em; text-wrap: pretty">{{ name }}</h1>
+                  <sc-if value="{{ hasHeadline }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-size: var(--text-body-size); line-height: var(--text-body-lh); color: var(--text-secondary); text-wrap: pretty">{{ headline }}</div>
+                  </sc-if>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap">
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.RoleBadge" role="PLAYER" hint-size="82px,24px"></x-import>
+                  <sc-for list="{{ positions }}" as="pos" hint-placeholder-count="2">
+                    <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.PositionChip" code="{{ pos.code }}" variant="{{ pos.variant }}" hint-size="34px,28px"></x-import>
+                  </sc-for>
+                  <span style="width: 1px; height: 14px; background: var(--border-default); margin-inline: var(--space-1)"></span>
+                  <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">{{ footLabel }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap">
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.ClubCrest" name="{{ clubName }}" size="sm" hint-size="24px,24px"></x-import>
+                  <span style="font-size: var(--text-body-size); font-weight: 500">{{ clubName }}</span>
+                  <span style="color: var(--text-muted)">·</span>
+                  <span style="font-size: var(--text-body-size); color: var(--text-secondary)">{{ leagueLevel }}</span>
+                </div>
+                <div style="font-size: var(--text-sm-size); color: var(--text-secondary)">{{ locationAge }}</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap">
+              <span class="t-num" style="font-size: var(--text-sm-size); color: var(--text-secondary)">{{ followText }}</span>
+              <div style="display: flex; gap: var(--space-2); margin-inline-start: auto">
+                <sc-if value="{{ isVisitor }}" hint-placeholder-val="{{ true }}">
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="secondary" icon-start="user-plus" hint-size="110px,40px">Follow</x-import>
+                </sc-if>
+                <sc-if value="{{ isVisitor }}" hint-placeholder-val="{{ true }}">
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="primary" icon-start="send" hint-size="128px,40px">Message</x-import>
+                </sc-if>
+                <sc-if value="{{ isSelf }}" hint-placeholder-val="{{ false }}">
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="primary" icon-start="pencil" hint-size="146px,40px">Edit profile</x-import>
+                </sc-if>
+              </div>
+            </div>
+            <div style="height: 1px; background: var(--pitch-line); margin: 0 calc(var(--space-5) * -1) calc(var(--space-5) * -1)"></div>
+          </div>
+        </x-import>
+
+        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Tabs" tabs="{{ tabList }}" value="{{ tab }}" on-change="{{ setTab }}" hint-size="100%,45px"></x-import>
+
+        <sc-if value="{{ isPosts }}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; gap: var(--space-4)">
+            <sc-for list="{{ posts }}" as="post" hint-placeholder-count="2">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.PostCard" author="{{ post.author }}" body="{{ post.body }}" images="{{ post.images }}" timestamp="{{ post.timestamp }}" likes="{{ post.likes }}" comments="{{ post.comments }}" hint-size="100%,300px"></x-import>
+            </sc-for>
+            <sc-if value="{{ noPosts }}" hint-placeholder-val="{{ false }}">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" hint-size="100%,260px">
+                <div style="display: grid; justify-items: center; gap: var(--space-2)">
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.EmptyState" icon="file-text" title="No posts yet" description="{{ emptyPostsLine }}" hint-size="100%,200px"></x-import>
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="link" icon-end="arrow-right" on-click="{{ goCareer }}" hint-size="150px,20px">See career history</x-import>
+                </div>
+              </x-import>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" hint-size="100%,320px">
+            <div style="display: grid; gap: var(--space-5)">
+              <sc-if value="{{ hasBio }}" hint-placeholder-val="{{ true }}">
+                <div style="font-size: var(--text-body-lg-size); line-height: var(--text-body-lg-lh); text-wrap: pretty; max-width: 60ch">{{ bio }}</div>
+              </sc-if>
+              <sc-if value="{{ hasBio }}" hint-placeholder-val="{{ true }}">
+                <div style="height: 1px; background: var(--border-subtle); margin: 0 calc(var(--space-5) * -1)"></div>
+              </sc-if>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5) var(--space-8)">
+                <sc-for list="{{ aboutRows }}" as="row" hint-placeholder-count="6">
+                  <div style="display: grid; gap: 2px; min-width: 0">
+                    <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">{{ row.label }}</span>
+                    <span class="t-num" style="font-size: var(--text-body-size); font-weight: 500" dir="{{ row.dir }}">{{ row.value }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ hasPortfolio }}" hint-placeholder-val="{{ true }}">
+                <div style="display: grid; gap: 2px">
+                  <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">Portfolio</span>
+                  <a href="{{ portfolioLink }}" style="display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--text-body-size); width: fit-content">{{ portfolioLabel }}<x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="external-link" size="{{ size14 }}" hint-size="14px,14px"></x-import></a>
+                </div>
+              </sc-if>
+            </div>
+          </x-import>
+        </sc-if>
+
+        <sc-if value="{{ isCareer }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" padding="var(--space-5) var(--space-5) 0" hint-size="100%,320px">
+            <div style="display: grid">
+              <sc-for list="{{ clubRows }}" as="row" hint-placeholder-count="3">
+                <div style="display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: var(--space-4)">
+                  <div style="display: grid; grid-template-rows: auto 1fr; justify-items: center">
+                    <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.ClubCrest" name="{{ row.club }}" size="md" hint-size="40px,40px"></x-import>
+                    <sc-if value="{{ row.connector }}" hint-placeholder-val="{{ true }}">
+                      <div style="width: 1px; background: var(--border-subtle); margin: var(--space-2) 0"></div>
+                    </sc-if>
+                  </div>
+                  <div style="display: grid; gap: var(--space-1); padding-block-end: var(--space-6)">
+                    <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap">
+                      <span style="font-size: var(--text-body-lg-size); font-weight: 500">{{ row.club }}</span>
+                      <sc-if value="{{ row.current }}" hint-placeholder-val="{{ true }}">
+                        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Badge" variant="success" hint-size="66px,20px">Current</x-import>
+                      </sc-if>
+                    </div>
+                    <span style="font-size: var(--text-body-size); color: var(--text-primary)">{{ row.role }}</span>
+                    <span class="t-num" style="font-size: var(--text-sm-size); color: var(--text-muted)">{{ row.period }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </x-import>
+        </sc-if>
+      </div>
+
+      <div style="display: grid; gap: var(--space-4); position: sticky; top: 88px; align-self: start">
+        <sc-if value="{{ hasDetails }}" hint-placeholder-val="{{ true }}">
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" padding="var(--space-4)" hint-size="100%,160px">
+            <div style="display: grid; gap: var(--space-3)">
+              <div style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Details</div>
+              <sc-for list="{{ detailRows }}" as="row" hint-placeholder-count="3">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3)">
+                  <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">{{ row.label }}</span>
+                  <span class="t-num" style="font-size: var(--text-sm-size); font-weight: 500">{{ row.value }}</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ hasPortfolio }}" hint-placeholder-val="{{ true }}">
+                <div style="height: 1px; background: var(--border-subtle); margin: 0 calc(var(--space-4) * -1)"></div>
+              </sc-if>
+              <sc-if value="{{ hasPortfolio }}" hint-placeholder-val="{{ true }}">
+                <a href="{{ portfolioLink }}" style="display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--text-sm-size); width: fit-content">View portfolio<x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="external-link" size="{{ size14 }}" hint-size="14px,14px"></x-import></a>
+              </sc-if>
+            </div>
+          </x-import>
+        </sc-if>
+
+        <sc-if value="{{ hasCerts }}" hint-placeholder-val="{{ true }}">
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" padding="var(--space-4)" hint-size="100%,180px">
+            <div style="display: grid; gap: var(--space-4)">
+              <div style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Certifications</div>
+              <sc-for list="{{ certRows }}" as="cert" hint-placeholder-count="2">
+                <div style="display: grid; gap: 2px">
+                  <div style="display: flex; align-items: center; gap: var(--space-1)">
+                    <span style="font-size: var(--text-sm-size); font-weight: 500">{{ cert.name }}</span>
+                    <sc-if value="{{ cert.verified }}" hint-placeholder-val="{{ true }}">
+                      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="badge-check" size="{{ size14 }}" color="var(--color-accent-text)" label="Verified" hint-size="14px,14px"></x-import>
+                    </sc-if>
+                  </div>
+                  <span style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); color: var(--text-secondary)">{{ cert.issuer }}</span>
+                  <span class="t-num" style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); color: var(--text-muted)">{{ cert.dates }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </x-import>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:1500},&quot;person&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;clubs&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;array&quot;},&quot;certs&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;array&quot;},&quot;posts&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;array&quot;},&quot;railClubs&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;array&quot;},&quot;viewer&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;scout&quot;,&quot;self&quot;],&quot;default&quot;:&quot;scout&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;posts&quot;,&quot;about&quot;,&quot;career&quot;],&quot;default&quot;:&quot;posts&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;viewerName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Tarek Fouad&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const POS = {
+  'Goalkeeper': 'GK', 'Right Back': 'RB', 'Center Back': 'CB', 'Left Back': 'LB',
+  'Defensive Midfielder': 'DM', 'Central Midfielder': 'CM', 'Attacking Midfielder': 'AM',
+  'Right Winger': 'RW', 'Left Winger': 'LW', 'Striker': 'ST',
+};
+const NAV = [
+  { value: 'feed', label: 'Feed', icon: 'house' },
+  { value: 'network', label: 'Network', icon: 'users' },
+  { value: 'messages', label: 'Messages', icon: 'send' },
+  { value: 'notifications', label: 'Alerts', icon: 'bell' },
+];
+const RAIL = [
+  { value: 'feed', label: 'Feed', icon: 'house' },
+  { value: 'saved', label: 'Saved profiles', icon: 'bookmark' },
+  { value: 'shortlists', label: 'Shortlists', icon: 'clipboard-list' },
+  { value: 'messages', label: 'Messages', icon: 'send' },
+];
+const num = (n) => Number(n || 0).toLocaleString('en-GB');
+
+class Component extends DCLogic {
+  state = { tab: null };
+
+  get tab() { return this.state.tab || this.props.tab || 'posts'; }
+
+  renderVals() {
+    const p = this.props.person || {};
+    const clubs = this.props.clubs || [];
+    const certs = this.props.certs || [];
+    const posts = this.props.posts || [];
+    const self = this.props.viewer === 'self';
+    const current = clubs.find((c) => !c.end) || clubs[0] || {};
+
+    const positions = [p.primaryPosition, p.secondaryPosition]
+      .filter(Boolean)
+      .map((label, i) => ({ code: POS[label] || label, variant: i === 0 ? 'primary' : 'secondary' }));
+
+    const detailRows = [];
+    if (p.heightCm) detailRows.push({ label: 'Height', value: p.heightCm + ' cm' });
+    if (p.weightKg) detailRows.push({ label: 'Weight', value: p.weightKg + ' kg' });
+    if (p.jerseyNumber) detailRows.push({ label: 'Shirt number', value: String(p.jerseyNumber) });
+
+    const posValue = positions.map((x) => x.code).join(' · ');
+    const aboutRows = [
+      { label: 'Position', value: posValue, dir: 'ltr' },
+      { label: 'Preferred foot', value: p.preferredFoot, dir: 'auto' },
+      { label: 'League level', value: p.leagueLevel, dir: 'auto' },
+      { label: 'Age', value: String(p.age || ''), dir: 'auto' },
+      p.heightCm ? { label: 'Height', value: p.heightCm + ' cm', dir: 'auto' } : null,
+      p.weightKg ? { label: 'Weight', value: p.weightKg + ' kg', dir: 'auto' } : null,
+      p.jerseyNumber ? { label: 'Shirt number', value: String(p.jerseyNumber), dir: 'auto' } : null,
+      { label: 'Based in', value: [p.city, p.country].filter(Boolean).join(', '), dir: 'auto' },
+    ].filter(Boolean);
+
+    const clubRows = clubs.map((c, i) => ({
+      club: c.club, role: c.role, current: !c.end,
+      period: c.start + ' – ' + (c.end || 'present'),
+      connector: i < clubs.length - 1,
+    }));
+
+    const certRows = certs.map((c) => ({
+      name: c.name, issuer: c.issuer, verified: !!c.verified,
+      dates: 'Issued ' + c.issued + (c.expires ? ' · Expires ' + c.expires : ''),
+    }));
+
+    const tab = this.tab;
+    return {
+      nav: NAV, railLinks: RAIL, railClubs: this.props.railClubs || [],
+      viewerUser: { name: this.props.viewerName || 'Tarek Fouad' }, notifCount: 3, size14: 14,
+      name: p.fullName, avatar: p.avatarUrl || undefined,
+      headline: p.headline, hasHeadline: !!p.headline,
+      bio: p.bio, hasBio: !!p.bio,
+      positions, footLabel: p.preferredFoot === 'Both' ? 'Both feet' : p.preferredFoot + ' foot',
+      clubName: current.club, leagueLevel: p.leagueLevel,
+      locationAge: [p.city, p.country].filter(Boolean).join(', ') + ' · Age ' + p.age,
+      followText: num(p.followersCount) + ' followers · ' + num(p.followingCount) + ' following',
+      isSelf: self, isVisitor: !self,
+      tabList: [
+        { value: 'posts', label: 'Posts', count: posts.length },
+        { value: 'about', label: 'About' },
+        { value: 'career', label: 'Career', count: clubs.length },
+      ],
+      tab, setTab: (v) => this.setState({ tab: v }),
+      isPosts: tab === 'posts', isAbout: tab === 'about', isCareer: tab === 'career',
+      posts, noPosts: posts.length === 0,
+      emptyPostsLine: (p.fullName || 'This player') + ' has not shared an update yet.',
+      goCareer: () => this.setState({ tab: 'career' }),
+      aboutRows, detailRows, hasDetails: detailRows.length > 0,
+      certRows, hasCerts: certRows.length > 0,
+      clubRows,
+      hasPortfolio: !!p.portfolioLink, portfolioLink: p.portfolioLink,
+      portfolioLabel: String(p.portfolioLink || '').replace(/^https?:\/\//, ''),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

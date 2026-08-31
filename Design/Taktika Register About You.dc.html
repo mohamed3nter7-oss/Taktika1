@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/roles.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+  <style>
+    body { margin: 0; background: var(--surface-sunken); }
+    a { color: var(--color-accent-text); text-decoration: none; }
+    a:hover { color: var(--text-primary); }
+  </style>
+</helmet>
+
+<section id="t2" style="padding: 64px 56px 96px; display: grid; gap: 72px; justify-items: start; width: max-content; min-width: 100%; background: var(--surface-sunken); font-family: var(--font-latin); color: var(--text-primary)">
+
+  <div style="display: grid; gap: var(--space-6); max-width: 880px">
+    <div style="display: grid; gap: var(--space-3)">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Taktika · registration 2 of 3 · about you · desktop 1280 · mobile 390 · EN + AR</span>
+      <h1 style="margin: 0; font-size: var(--text-display-size); line-height: var(--text-display-lh); font-weight: 600; letter-spacing: -0.02em">About you</h1>
+    </div>
+
+    <div style="display: grid; gap: var(--space-3); padding: var(--space-5); background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg)">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-accent-text)">Recommendation</span>
+      <p style="margin: 0; font-size: var(--text-body-size); line-height: var(--text-body-lh); color: var(--text-secondary); max-width: 74ch; text-wrap: pretty">Take <a href="#2a">2a</a>, four roles with the two unavailable ones omitted entirely. A disabled card is a dead end for exactly the person it excludes, and at registration there is no account yet to notify, so anticipation has nothing to convert into — the roadmap belongs on the marketing page or behind a notify-me capture, not in the form. The permanence warning sits directly above the submit button rather than in a dialogue afterwards, and it names the chosen role so it cannot be skimmed as boilerplate. When a role change invalidates an already-valid date, the message attaches to the role grid the user just touched and offers the two real exits, while the date field carries a factual age line instead of a red error it did not earn.</p>
+    </div>
+
+    <div style="display: grid; gap: var(--space-4); padding-block-start: var(--space-5); border-block-start: 1px solid var(--border-default)">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Primitives — naming the gaps rather than improvising them</span>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5) var(--space-8)">
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-size: var(--text-body-size); font-weight: 500">RoleSelectCard — genuine gap</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Radio semantics, selected state, unavailable state. Composed here from a tokened button plus <span class="bidi-isolate" style="font-family: var(--font-numeric)">RoleBadge</span> compact, so role colour stays inside the only component licensed to carry it and selection is carried by the accent border and fill. Needs to exist as a primitive before build.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-size: var(--text-body-size); font-weight: 500">No date field in the system</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Forms are <span class="bidi-isolate" style="font-family: var(--font-numeric)">Input</span>, <span class="bidi-isolate" style="font-family: var(--font-numeric)">Select</span>, <span class="bidi-isolate" style="font-family: var(--font-numeric)">Textarea</span> only. Shown as a text Input with tabular figures and marked placeholder — substitute the repository's date input. Privacy line kept on the field: the profile shows age, never date of birth.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-size: var(--text-body-size); font-weight: 500">No checkbox, so no acknowledgement</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Which the brief wants anyway. The permanence block is a statement above the submit, on the sunken surface with a strong hairline and a lock glyph, no semantic colour.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-size: var(--text-body-size); font-weight: 500">Country and city are one row</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Two dependent selects side by side at 1280, stacked at 390. Both loading states are shown: countries load on mount in state 1, cities load after the country lands in state 3.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap">
+
+    <div id="2a" style="display: grid; gap: var(--space-4)">
+      <div style="display: flex; align-items: baseline; gap: var(--space-3)">
+        <a href="#2a" style="font-family: var(--font-numeric); font-size: 11px; font-weight: 600; padding: 3px 7px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-sm); color: var(--text-secondary)">2a</a>
+        <span style="font-size: var(--text-body-size); font-weight: 500">Option A · four roles, the unavailable two omitted</span>
+        <span style="font-size: var(--text-sm-size); color: var(--color-accent-text)">recommended</span>
+      </div>
+
+      <div style="width: 1280px; height: 1240px; overflow: hidden; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); display: grid; grid-template-columns: 480px 1fr">
+        <dc-import name="StepRail" current="2" lang="en" hint-size="480px,100%"></dc-import>
+        <div style="position: relative; background: var(--surface-raised); border-inline-start: 1px solid var(--border-default); padding: var(--space-16) var(--space-12); display: grid; align-content: start; justify-items: center">
+          <div style="position: absolute; inset-block-start: var(--space-6); inset-inline-end: var(--space-6)">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" lang="ar" hint-size="auto,32px">العربية</x-import>
+          </div>
+          <div style="width: 100%; max-width: 440px">
+            <dc-import name="AboutYouPanel" state="role-selected" grid="four" lang="en" hint-size="440px,1080px"></dc-import>
+          </div>
+        </div>
+      </div>
+
+      <p style="margin: 0; max-width: 1280px; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Grid 2×2 above the fields · role glyph and role colour via RoleBadge · selection carried by accent border, accent-subtle fill and a check.</p>
+    </div>
+
+    <div id="2b" style="display: grid; gap: var(--space-4)">
+      <div style="display: flex; align-items: baseline; gap: var(--space-3)">
+        <a href="#2b" style="font-family: var(--font-numeric); font-size: 11px; font-weight: 600; padding: 3px 7px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-sm); color: var(--text-secondary)">2b</a>
+        <span style="font-size: var(--text-body-size); font-weight: 500">Option B · six roles, two not yet available</span>
+      </div>
+
+      <div style="width: 1280px; height: 1240px; overflow: hidden; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); display: grid; grid-template-columns: 480px 1fr">
+        <dc-import name="StepRail" current="2" lang="en" hint-size="480px,100%"></dc-import>
+        <div style="position: relative; background: var(--surface-raised); border-inline-start: 1px solid var(--border-default); padding: var(--space-16) var(--space-12); display: grid; align-content: start; justify-items: center">
+          <div style="position: absolute; inset-block-start: var(--space-6); inset-inline-end: var(--space-6)">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" lang="ar" hint-size="auto,32px">العربية</x-import>
+          </div>
+          <div style="width: 100%; max-width: 440px">
+            <dc-import name="AboutYouPanel" state="role-selected" grid="six" lang="en" hint-size="440px,1190px"></dc-import>
+          </div>
+        </div>
+      </div>
+
+      <p style="margin: 0; max-width: 1280px; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Grid 2×3, base surface and subtle hairline on the two closed cards, no interaction and no path · +108px, which pushes the permanence block and the submit below the fold at 1080.</p>
+    </div>
+
+  </div>
+
+  <div style="display: grid; gap: var(--space-6); width: 100%">
+    <div style="display: grid; gap: var(--space-2); max-width: 880px">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Recommended option · Arabic RTL and mobile</span>
+      <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); max-width: 70ch; text-wrap: pretty">Rail, grid and fields mirror on logical properties · Cairo replaces Inter · role labels from the system's own Arabic set · dates and ages tabular · at 390 the rail collapses to three segments and the two selects stack.</p>
+    </div>
+
+    <div style="display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap">
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">Arabic · RTL · 1280</span>
+        <div dir="rtl" lang="ar" style="width: 1280px; height: 1240px; overflow: hidden; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); display: grid; grid-template-columns: 480px 1fr; font-family: var(--font-arabic)">
+          <dc-import name="StepRail" current="2" lang="ar" hint-size="480px,100%"></dc-import>
+          <div style="position: relative; background: var(--surface-raised); border-inline-start: 1px solid var(--border-default); padding: var(--space-16) var(--space-12); display: grid; align-content: start; justify-items: center">
+            <div style="position: absolute; inset-block-start: var(--space-6); inset-inline-end: var(--space-6)">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" lang="en" hint-size="auto,32px">English</x-import>
+            </div>
+            <div style="width: 100%; max-width: 440px">
+              <dc-import name="AboutYouPanel" state="role-selected" grid="four" lang="ar" hint-size="440px,1080px"></dc-import>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">Mobile · 390 · clipped at the fold</span>
+        <div style="width: 390px; height: 844px; overflow: hidden; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-6) var(--space-5); display: grid; align-content: start; gap: var(--space-6)">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3)">
+            <span style="font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 600; letter-spacing: -0.01em">Taktika<span style="color: var(--color-accent-text)">.</span></span>
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" lang="ar" hint-size="auto,32px">العربية</x-import>
+          </div>
+          <div style="display: grid; gap: var(--space-2)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-2)">
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--color-accent)"></span>
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--color-accent)"></span>
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--surface-sunken)"></span>
+            </div>
+            <span class="t-num" style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Step 2 of 3 · about you</span>
+          </div>
+          <dc-import name="AboutYouPanel" state="role-selected" grid="four" lang="en" narrow="{{ true }}" hint-size="350px,1200px"></dc-import>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">Mobile · 390 · Arabic · clipped at the fold</span>
+        <div dir="rtl" lang="ar" style="width: 390px; height: 844px; overflow: hidden; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-6) var(--space-5); display: grid; align-content: start; gap: var(--space-6); font-family: var(--font-arabic)">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3)">
+            <span style="font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 600">تكتيكا<span style="color: var(--color-accent-text)">.</span></span>
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" lang="en" hint-size="auto,32px">English</x-import>
+          </div>
+          <div style="display: grid; gap: var(--space-2)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-2)">
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--color-accent)"></span>
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--color-accent)"></span>
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--surface-sunken)"></span>
+            </div>
+            <span class="t-num" style="font-size: var(--text-xs-size); letter-spacing: 0.06em; color: var(--text-muted)">الخطوة 2 من 3 · بياناتك</span>
+          </div>
+          <dc-import name="AboutYouPanel" state="role-selected" grid="four" lang="ar" narrow="{{ true }}" hint-size="350px,1200px"></dc-import>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; gap: var(--space-6); width: 100%">
+    <div style="display: grid; gap: var(--space-2); max-width: 880px">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Recommended option · states 1 to 7</span>
+      <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); max-width: 70ch; text-wrap: pretty">Frames cropped to the 440px form column of <a href="#2a">2a</a> on the raised surface — rail, wordmark and language toggle are identical in all of them and are shown once, above. Two extra frames carry the cases the numbered list folds together: city invalidation and the under-12 hard stop.</p>
+    </div>
+
+    <div style="display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap">
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">1</span> · Idle · no role, countries loading, fields disabled</span>
+        <div style="width: 504px; height: 1180px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="AboutYouPanel" state="idle" lang="en" hint-size="440px,1040px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">2</span> · Role selected · fields active</span>
+        <div style="width: 504px; height: 1180px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="AboutYouPanel" state="role-selected" lang="en" hint-size="440px,1040px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">3</span> · Country chosen · city loading</span>
+        <div style="width: 504px; height: 1180px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="AboutYouPanel" state="city-loading" lang="en" hint-size="440px,1040px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">3b</span> · Country changed · chosen city cleared</span>
+        <div style="width: 504px; height: 1180px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="AboutYouPanel" state="city-cleared" lang="en" hint-size="440px,1040px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">4</span> · Case (b) · role first, then an under-age date</span>
+        <div style="width: 504px; height: 1180px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="AboutYouPanel" state="age-invalid" lang="en" hint-size="440px,1080px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">4b</span> · Under 12 · hard stop, no workaround, submit blocked</span>
+        <div style="width: 504px; height: 1180px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="AboutYouPanel" state="under-12" lang="en" hint-size="440px,1040px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">5</span> · Case (a) · valid date invalidated by the role change</span>
+        <div style="width: 504px; height: 1240px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="AboutYouPanel" state="age-invalidated" lang="en" hint-size="440px,1180px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">6</span> · Submitting · the account is created here</span>
+        <div style="width: 504px; height: 1180px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="AboutYouPanel" state="submitting" lang="en" hint-size="440px,1040px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">7</span> · Server rejection after a client-side pass</span>
+        <div style="width: 504px; height: 1180px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="AboutYouPanel" state="server-reject" lang="en" hint-size="440px,1140px"></dc-import></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+</x-dc>
+</body>
+</html>

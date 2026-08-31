@@ -1,0 +1,22 @@
+:root{
+/* Modular scale, ratio 1.2, whole pixels. Desktop values. */
+--text-display-size:40px;--text-display-lh:48px;--text-display-weight:600;
+--text-h1-size:32px;--text-h1-lh:40px;--text-h1-weight:600;
+--text-h2-size:24px;--text-h2-lh:32px;--text-h2-weight:600;
+--text-h3-size:20px;--text-h3-lh:28px;--text-h3-weight:500;
+--text-body-lg-size:17px;--text-body-lg-lh:28px;--text-body-lg-weight:400;
+--text-body-size:15px;--text-body-lh:24px;--text-body-weight:400;
+--text-sm-size:13px;--text-sm-lh:20px;--text-sm-weight:400;
+--text-xs-size:12px;--text-xs-lh:16px;--text-xs-weight:500;
+--weight-regular:400;--weight-medium:500;--weight-semibold:600;
+}
+/* Arabic optical correction: +1px size on body sizes, +2px line-height, tracking never negative. */
+[lang="ar"]{font-family:var(--font-arabic);letter-spacing:0}
+[lang="ar"] .t-body{font-size:16px;line-height:26px}
+[lang="ar"] .t-body-lg{font-size:18px;line-height:30px}
+[lang="ar"] .t-sm{font-size:14px;line-height:22px}
+[lang="ar"] strong,[lang="ar"] .t-semibold{font-weight:700}
+/* Numbers that update or align in a column */
+.t-num{font-family:var(--font-numeric);font-variant-numeric:tabular-nums}
+/* Latin runs inside Arabic must be isolated — see readme.md > RTL */
+.bidi-isolate{unicode-bidi:isolate;direction:ltr}

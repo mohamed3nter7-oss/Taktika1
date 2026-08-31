@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/roles.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+</helmet>
+<div style="display: grid; gap: var(--space-6); width: 100%">
+
+  <sc-if value="{{ isForm }}" hint-placeholder-val="{{ true }}">
+    <div style="display: grid; gap: var(--space-6)">
+
+      <div style="display: grid; gap: var(--space-1)">
+        <h1 style="margin: 0; font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: 600; letter-spacing: -0.01em; color: var(--text-primary)">{{ heading }}</h1>
+        <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">{{ sub }}</p>
+      </div>
+
+      <sc-if value="{{ isInvalid }}" hint-placeholder-val="{{ false }}">
+        <div role="alert" style="padding: var(--space-3) var(--space-4); background: var(--color-danger-tint); border: 1px solid var(--border-default); border-radius: var(--radius-md)">
+          <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--color-danger-text); text-wrap: pretty">{{ noticeText }}</span>
+        </div>
+      </sc-if>
+
+      <div style="display: grid; gap: var(--space-4)">
+        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Input" label="{{ emailLabel }}" type="email" placeholder="name@club.com" numeric="{{ true }}" default-value="{{ emailValue }}" error="{{ emailError }}" disabled="{{ isPending }}" hint-size="100%,72px"></x-import>
+
+        <div style="display: grid; gap: var(--space-2)">
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Input" label="{{ passwordLabel }}" type="password" numeric="{{ true }}" default-value="{{ passwordValue }}" error="{{ passwordError }}" disabled="{{ isPending }}" hint-size="100%,72px"></x-import>
+          <div style="display: flex; justify-content: flex-end">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="link" size="sm" hint-size="auto,20px">{{ forgot }}</x-import>
+          </div>
+        </div>
+      </div>
+
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="primary" size="lg" full-width="{{ true }}" loading="{{ isPending }}" hint-size="100%,48px">{{ submit }}</x-import>
+
+      <div>
+        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.CardDivider" inset="0px" hint-size="100%,33px"></x-import>
+        <div style="display: flex; align-items: baseline; justify-content: center; gap: var(--space-2); flex-wrap: wrap">
+          <span style="flex: 0 0 auto; white-space: nowrap; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary)">{{ footerLead }}</span>
+          <span style="flex: 0 0 auto; display: inline-flex">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="link" size="sm" hint-size="auto,20px">{{ create }}</x-import>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isSuspended }}" hint-placeholder-val="{{ false }}">
+    <div style="display: grid; gap: var(--space-5)">
+      <div style="display: grid; gap: var(--space-3); justify-items: start">
+        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Badge" variant="warning" hint-size="auto,20px">{{ suspBadge }}</x-import>
+        <h1 style="margin: 0; font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 500; color: var(--text-primary)">{{ suspTitle }}</h1>
+      </div>
+
+      <p style="margin: 0; font-size: var(--text-body-size); line-height: var(--text-body-lh); color: var(--text-secondary); text-wrap: pretty">{{ suspBody }}</p>
+
+      <div style="display: grid; gap: var(--space-3); padding: var(--space-4); background: var(--surface-sunken); border-radius: var(--radius-md)">
+        <div style="display: grid; gap: var(--space-1)">
+          <span style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">{{ suspReasonLabel }}</span>
+          <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-primary); text-wrap: pretty">{{ suspReason }}</span>
+        </div>
+        <div style="display: grid; gap: var(--space-1)">
+          <span style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">{{ suspUntilLabel }}</span>
+          <span class="t-num" style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--color-warning-text)">{{ suspUntil }}</span>
+        </div>
+      </div>
+
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="secondary" size="md" full-width="{{ true }}" hint-size="100%,40px">{{ suspAction }}</x-import>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:400,&quot;height&quot;:460},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;idle&quot;,&quot;field-errors&quot;,&quot;pending&quot;,&quot;invalid&quot;,&quot;suspended&quot;],&quot;default&quot;:&quot;idle&quot;,&quot;tsType&quot;:&quot;'idle' | 'field-errors' | 'pending' | 'invalid' | 'suspended'&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;ar&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;'en' | 'ar'&quot;}}">
+const EN = {
+  heading: 'Log in',
+  sub: 'Use the email you registered with.',
+  emailLabel: 'Email',
+  passwordLabel: 'Password',
+  forgot: 'Forgot password',
+  submit: 'Log in',
+  footerLead: 'New to Taktika?',
+  create: 'Create account',
+  noticeText: 'Check your email and password, then try again.',
+  emailError: 'Enter a valid email address',
+  passwordError: 'Enter your password',
+  suspBadge: 'Suspended',
+  suspTitle: 'Account suspended',
+  suspBody: 'Your account is suspended and cannot be used to log in.',
+  suspReasonLabel: 'Reason',
+  suspReason: 'Contacting academy players outside the platform\u2019s messaging rules.',
+  suspUntilLabel: 'Access returns',
+  suspUntil: '12 September 2026',
+  suspAction: 'Use another account',
+};
+
+const AR = {
+  heading: 'تسجيل الدخول',
+  sub: 'استخدم البريد الإلكتروني الذي سجّلت به.',
+  emailLabel: 'البريد الإلكتروني',
+  passwordLabel: 'كلمة المرور',
+  forgot: 'نسيت كلمة المرور',
+  submit: 'تسجيل الدخول',
+  footerLead: 'جديد على تكتيكا؟',
+  create: 'إنشاء حساب',
+  noticeText: 'تحقّق من البريد الإلكتروني وكلمة المرور ثم أعد المحاولة.',
+  emailError: 'أدخل بريدًا إلكترونيًا صالحًا',
+  passwordError: 'أدخل كلمة المرور',
+  suspBadge: 'موقوف',
+  suspTitle: 'الحساب موقوف',
+  suspBody: 'حسابك موقوف ولا يمكن استخدامه لتسجيل الدخول.',
+  suspReasonLabel: 'السبب',
+  suspReason: 'التواصل مع لاعبي الأكاديميات خارج قواعد الرسائل في المنصة.',
+  suspUntilLabel: 'يُستأنف الوصول في',
+  suspUntil: '12 سبتمبر 2026',
+  suspAction: 'استخدام حساب آخر',
+};
+
+class Component extends DCLogic {
+  renderVals() {
+    const t = (this.props.lang || 'en') === 'ar' ? AR : EN;
+    const state = this.props.state || 'idle';
+    const errs = state === 'field-errors';
+    const email = { idle: '', 'field-errors': 'tarek.fouad@', pending: 'tarek.fouad@alahly.com', invalid: 'tarek.fouad@alahly.com', suspended: 'tarek.fouad@alahly.com' };
+    return {
+      ...t,
+      isForm: state !== 'suspended',
+      isSuspended: state === 'suspended',
+      isPending: state === 'pending',
+      isInvalid: state === 'invalid',
+      emailValue: email[state] || '',
+      passwordValue: state === 'pending' ? 'trialpass2026' : '',
+      emailError: errs ? t.emailError : '',
+      passwordError: errs ? t.passwordError : '',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+</helmet>
+<div style="height: 100%; background: var(--surface-sunken); padding: var(--space-12); display: grid; align-content: space-between; gap: var(--space-12)">
+
+  <span style="font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: 600; letter-spacing: -0.01em; color: var(--text-primary)">{{ wordmark }}<span style="color: var(--color-accent-text)">.</span></span>
+
+  <div style="display: grid; gap: var(--space-6)">
+    <div style="display: grid; gap: var(--space-3)">
+      <h2 style="margin: 0; font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 500; color: var(--text-primary); text-wrap: pretty">{{ title }}</h2>
+      <sc-if value="{{ pitchLine }}" hint-placeholder-val="{{ true }}">
+        <span style="display: block; width: 64px; height: 1px; background: var(--pitch-line)"></span>
+      </sc-if>
+    </div>
+
+    <div style="position: relative; display: grid; gap: var(--space-5)">
+      <span aria-hidden="true" style="position: absolute; inset-inline-start: 11px; inset-block: 24px; width: 1px; background: var(--border-default)"></span>
+      <sc-for list="{{ stages }}" as="stage" hint-placeholder-count="4">
+        <div style="position: relative; display: grid; grid-template-columns: 24px 1fr; gap: var(--space-4); align-items: center">
+          <span class="t-num" style="width: 24px; height: 24px; display: grid; place-items: center; border-radius: var(--radius-full); background: {{ stage.bg }}; border: 1px solid {{ stage.bd }}; color: {{ stage.numFg }}; font-size: var(--text-xs-size); font-weight: 500">
+            <sc-if value="{{ stage.showNum }}" hint-placeholder-val="{{ true }}">{{ stage.num }}</sc-if>
+            <sc-if value="{{ stage.showCheck }}" hint-placeholder-val="{{ false }}">
+              <span aria-hidden="true" style="width: 8px; height: 4px; border-inline-start: 1.5px solid {{ stage.numFg }}; border-block-end: 1.5px solid {{ stage.numFg }}; transform: rotate(-45deg) translate(0px, -1px)"></span>
+            </sc-if>
+          </span>
+          <span style="font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: {{ stage.weight }}; color: {{ stage.fg }}">{{ stage.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ showLockNote }}" hint-placeholder-val="{{ false }}">
+      <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-muted); max-width: 34ch; text-wrap: pretty">{{ lockNote }}</span>
+    </sc-if>
+  </div>
+
+  <span style="font-size: var(--text-sm-size); color: var(--text-muted)" lang="{{ altLang }}">{{ altWordmark }}</span>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:480,&quot;height&quot;:880},&quot;current&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:1,&quot;max&quot;:4,&quot;tsType&quot;:&quot;number&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;ar&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;'en' | 'ar'&quot;},&quot;pitchLine&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const EN = {
+  wordmark: 'Taktika',
+  altWordmark: 'تكتيكا',
+  altLang: 'ar',
+  title: 'Three steps, one account',
+  stages: ['Credentials', 'About you', 'Professional profile', 'Done'],
+  lockNote: 'Completed steps are locked. Your account exists and your role is set.',
+};
+
+const AR = {
+  wordmark: 'تكتيكا',
+  altWordmark: 'Taktika',
+  altLang: 'en',
+  title: 'ثلاث خطوات، حساب واحد',
+  stages: ['بيانات الدخول', 'بياناتك', 'الملف المهني', 'تم'],
+  lockNote: 'الخطوات المكتملة مقفلة. حسابك موجود ودورك محدَّد.',
+};
+
+class Component extends DCLogic {
+  renderVals() {
+    const t = this.props.lang === 'ar' ? AR : EN;
+    const current = Number(this.props.current || 2);
+    return {
+      ...t,
+      pitchLine: this.props.pitchLine !== false,
+      showLockNote: current >= 3,
+      stages: t.stages.map((label, i) => {
+        const n = i + 1;
+        const end = n === 4;
+        const done = n < current;
+        const on = n === current;
+        return {
+          label,
+          num: n,
+          showNum: !end && !done,
+          showCheck: end || done,
+          bg: done ? 'var(--color-accent)' : on ? 'var(--color-accent)' : 'var(--surface-sunken)',
+          bd: done || on ? 'var(--color-accent)' : 'var(--border-strong)',
+          numFg: done || on ? 'var(--text-on-accent)' : 'var(--text-muted)',
+          fg: on ? 'var(--text-primary)' : done ? 'var(--text-secondary)' : 'var(--text-secondary)',
+          weight: on ? 500 : 400,
+        };
+      }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

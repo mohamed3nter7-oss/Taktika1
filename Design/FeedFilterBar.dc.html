@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/roles.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+</helmet>
+<div role="group" aria-label="Filter the feed by role" style="position: sticky; inset-block-start: var(--layout-nav-height); z-index: var(--z-sticky); background: var(--surface-base); padding-block: var(--space-3); font-family: var(--font-latin)">
+  <div style="display: flex; align-items: center; gap: var(--space-2); overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; mask-image: linear-gradient(to right, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%)">
+    <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="7">
+      <sc-if value="{{ chip.on }}" hint-placeholder-val="{{ false }}">
+        <button type="button" aria-pressed="true" style="flex: 0 0 auto; height: 32px; padding-inline: var(--space-3); background: var(--color-accent); color: var(--text-inverse); border: 1px solid var(--color-accent); border-radius: var(--radius-sm); font-family: inherit; font-size: var(--text-sm-size); font-weight: 500; white-space: nowrap; cursor: pointer">{{ chip.label }}</button>
+      </sc-if>
+      <sc-if value="{{ chip.off }}" hint-placeholder-val="{{ true }}">
+        <button type="button" aria-pressed="false" onClick="{{ chip.select }}" style="flex: 0 0 auto; height: 32px; padding-inline: var(--space-3); background: var(--surface-raised); color: var(--text-secondary); border: 1px solid var(--border-default); border-radius: var(--radius-sm); font-family: inherit; font-size: var(--text-sm-size); font-weight: 500; white-space: nowrap; cursor: pointer; transition: background-color var(--duration-fast) var(--ease-in-out), color var(--duration-fast) var(--ease-in-out)" style-hover="background: var(--surface-overlay); color: var(--text-primary)">{{ chip.label }}</button>
+      </sc-if>
+    </sc-for>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:604,&quot;height&quot;:56},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ALL&quot;,&quot;PLAYER&quot;,&quot;COACH&quot;,&quot;SCOUT&quot;,&quot;ANALYST&quot;,&quot;PHYSICAL_THERAPIST&quot;,&quot;CLUB_ADMIN&quot;],&quot;default&quot;:&quot;ALL&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const CHIPS = [
+  { key: 'ALL', label: 'All' },
+  { key: 'PLAYER', label: 'Player' },
+  { key: 'COACH', label: 'Coach' },
+  { key: 'SCOUT', label: 'Scout' },
+  { key: 'ANALYST', label: 'Analyst' },
+  { key: 'PHYSICAL_THERAPIST', label: 'Physical Therapist' },
+  { key: 'CLUB_ADMIN', label: 'Club' },
+];
+
+class Component extends DCLogic {
+  state = { active: null };
+
+  renderVals() {
+    const active = this.state.active || this.props.active || 'ALL';
+    return {
+      chips: CHIPS.map((c) => ({
+        key: c.key, label: c.label,
+        on: c.key === active, off: c.key !== active,
+        select: () => this.setState({ active: c.key }),
+      })),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

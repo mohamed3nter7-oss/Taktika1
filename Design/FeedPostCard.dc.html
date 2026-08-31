@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/roles.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+</helmet>
+<x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Card" hint-size="100%,520px">
+  <div style="display: grid; gap: var(--space-4); font-family: var(--font-latin)">
+
+    <div style="display: flex; align-items: flex-start; gap: var(--space-4)">
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Avatar" src="{{ avatar }}" name="{{ authorName }}" size="lg" role="{{ dsRole }}" hint-size="56px,56px"></x-import>
+      <div style="flex: 1; min-width: 0; display: grid; gap: 2px">
+        <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap">
+          <span style="font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: 600">{{ authorName }}</span>
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.RoleBadge" role="{{ dsRole }}" hint-size="82px,24px"></x-import>
+        </div>
+        <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary)">
+          <sc-if value="{{ hasClub }}" hint-placeholder-val="{{ true }}">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.ClubCrest" name="{{ club }}" src="{{ crest }}" size="sm" hint-size="24px,24px"></x-import>
+          </sc-if>
+          <sc-if value="{{ hasClub }}" hint-placeholder-val="{{ true }}">
+            <span>{{ club }}</span>
+          </sc-if>
+          <sc-if value="{{ hasClub }}" hint-placeholder-val="{{ true }}">
+            <span style="color: var(--text-muted)">·</span>
+          </sc-if>
+          <time style="font-variant-numeric: tabular-nums">{{ timestamp }}</time>
+          <sc-if value="{{ edited }}" hint-placeholder-val="{{ false }}">
+            <span style="color: var(--text-muted)">·</span>
+          </sc-if>
+          <sc-if value="{{ edited }}" hint-placeholder-val="{{ false }}">
+            <span>Edited</span>
+          </sc-if>
+        </div>
+      </div>
+      <div style="position: relative; flex: 0 0 auto">
+        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.IconButton" icon="ellipsis" label="Post options" size="lg" on-click="{{ toggleMenu }}" hint-size="44px,44px"></x-import>
+        <sc-if value="{{ menuOwn }}" hint-placeholder-val="{{ false }}">
+          <div role="menu" style="position: absolute; inset-block-start: 48px; inset-inline-end: 0; min-width: 184px; display: grid; gap: 2px; padding: var(--space-1); background: var(--surface-overlay); border: 1px solid var(--border-default); border-radius: var(--radius-md); z-index: var(--z-dropdown)">
+            <button type="button" role="menuitem" style="display: flex; align-items: center; gap: var(--space-3); height: 40px; padding-inline: var(--space-3); background: none; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: var(--text-body-size); font-weight: 500; color: var(--text-primary); text-align: start; cursor: pointer" style-hover="background: var(--surface-raised)">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="pencil" size="{{ n16 }}" hint-size="16px,16px"></x-import>Edit post
+            </button>
+            <button type="button" role="menuitem" style="display: flex; align-items: center; gap: var(--space-3); height: 40px; padding-inline: var(--space-3); background: none; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: var(--text-body-size); font-weight: 500; color: var(--color-danger-text); text-align: start; cursor: pointer" style-hover="background: var(--color-danger-tint)">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="trash-2" size="{{ n16 }}" hint-size="16px,16px"></x-import>Delete post
+            </button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ menuOther }}" hint-placeholder-val="{{ false }}">
+          <div role="menu" style="position: absolute; inset-block-start: 48px; inset-inline-end: 0; min-width: 184px; display: grid; gap: 2px; padding: var(--space-1); background: var(--surface-overlay); border: 1px solid var(--border-default); border-radius: var(--radius-md); z-index: var(--z-dropdown)">
+            <button type="button" role="menuitem" style="display: flex; align-items: center; gap: var(--space-3); height: 40px; padding-inline: var(--space-3); background: none; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: var(--text-body-size); font-weight: 500; color: var(--text-primary); text-align: start; cursor: pointer" style-hover="background: var(--surface-raised)">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="flag" size="{{ n16 }}" hint-size="16px,16px"></x-import>Report post
+            </button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <sc-if value="{{ bodyClamped }}" hint-placeholder-val="{{ true }}">
+      <div dir="auto" style="font-size: var(--text-body-lg-size); line-height: var(--text-body-lg-lh); text-wrap: pretty; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden">{{ body }}</div>
+    </sc-if>
+    <sc-if value="{{ bodyOpen }}" hint-placeholder-val="{{ false }}">
+      <div dir="auto" style="font-size: var(--text-body-lg-size); line-height: var(--text-body-lg-lh); text-wrap: pretty; white-space: pre-wrap">{{ body }}</div>
+    </sc-if>
+    <sc-if value="{{ showSeeMore }}" hint-placeholder-val="{{ false }}">
+      <button type="button" onClick="{{ expand }}" style="justify-self: start; margin-block-start: calc(var(--space-2) * -1); padding: 0; background: none; border: none; font-family: inherit; font-size: var(--text-sm-size); font-weight: 500; color: var(--color-accent-text); cursor: pointer" style-hover="text-decoration: underline">See more</button>
+    </sc-if>
+
+    <sc-if value="{{ isOne }}" hint-placeholder-val="{{ false }}">
+      <div style="border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-image-plate); aspect-ratio: 16 / 9">
+        <img src="{{ img0 }}" alt="" style="width: 100%; height: 100%; display: block; object-fit: cover">
+      </div>
+    </sc-if>
+    <sc-if value="{{ isTall }}" hint-placeholder-val="{{ false }}">
+      <div style="border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-image-plate); height: 480px">
+        <img src="{{ img0 }}" alt="" style="width: 100%; height: 100%; display: block; object-fit: cover">
+      </div>
+    </sc-if>
+    <sc-if value="{{ isTwo }}" hint-placeholder-val="{{ false }}">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-1); border-radius: var(--radius-lg); overflow: hidden; height: 300px">
+        <img src="{{ img0 }}" alt="" style="width: 100%; height: 100%; display: block; object-fit: cover; background: var(--surface-image-plate)">
+        <img src="{{ img1 }}" alt="" style="width: 100%; height: 100%; display: block; object-fit: cover; background: var(--surface-image-plate)">
+      </div>
+    </sc-if>
+    <sc-if value="{{ isThree }}" hint-placeholder-val="{{ false }}">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: var(--space-1); border-radius: var(--radius-lg); overflow: hidden; height: 360px">
+        <img src="{{ img0 }}" alt="" style="grid-row: span 2; width: 100%; height: 100%; display: block; object-fit: cover; background: var(--surface-image-plate)">
+        <img src="{{ img1 }}" alt="" style="width: 100%; height: 100%; display: block; object-fit: cover; background: var(--surface-image-plate)">
+        <img src="{{ img2 }}" alt="" style="width: 100%; height: 100%; display: block; object-fit: cover; background: var(--surface-image-plate)">
+      </div>
+    </sc-if>
+    <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ false }}">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: var(--space-1); border-radius: var(--radius-lg); overflow: hidden; height: 420px">
+        <img src="{{ img0 }}" alt="" style="width: 100%; height: 100%; display: block; object-fit: cover; background: var(--surface-image-plate)">
+        <img src="{{ img1 }}" alt="" style="width: 100%; height: 100%; display: block; object-fit: cover; background: var(--surface-image-plate)">
+        <img src="{{ img2 }}" alt="" style="width: 100%; height: 100%; display: block; object-fit: cover; background: var(--surface-image-plate)">
+        <div style="position: relative">
+          <img src="{{ img3 }}" alt="" style="width: 100%; height: 100%; display: block; object-fit: cover; background: var(--surface-image-plate)">
+          <sc-if value="{{ hasExtra }}" hint-placeholder-val="{{ true }}">
+            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); color: var(--text-primary); font-size: var(--text-h2-size); font-weight: 600; font-variant-numeric: tabular-nums">{{ extraLabel }}</div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasCounters }}" hint-placeholder-val="{{ true }}">
+      <div style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); font-variant-numeric: tabular-nums">{{ counters }}</div>
+    </sc-if>
+
+    <div>
+      <div style="height: 1px; background: var(--border-subtle); margin: 0 calc(var(--space-5) * -1) var(--space-2)"></div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-1)">
+        <sc-if value="{{ liked }}" hint-placeholder-val="{{ false }}">
+          <button type="button" aria-pressed="true" onClick="{{ toggleLike }}" style="display: flex; align-items: center; justify-content: center; gap: var(--space-2); height: 44px; background: var(--color-accent-subtle); border: 1px solid transparent; border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm-size); font-weight: 500; color: var(--color-accent-text); cursor: pointer">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="heart" size="{{ n18 }}" hint-size="18px,18px"></x-import>Like
+          </button>
+        </sc-if>
+        <sc-if value="{{ notLiked }}" hint-placeholder-val="{{ true }}">
+          <button type="button" aria-pressed="false" onClick="{{ toggleLike }}" style="display: flex; align-items: center; justify-content: center; gap: var(--space-2); height: 44px; background: none; border: 1px solid transparent; border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm-size); font-weight: 500; color: var(--text-secondary); cursor: pointer" style-hover="background: var(--surface-overlay); color: var(--text-primary)">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="heart" size="{{ n18 }}" hint-size="18px,18px"></x-import>Like
+          </button>
+        </sc-if>
+        <button type="button" style="display: flex; align-items: center; justify-content: center; gap: var(--space-2); height: 44px; background: none; border: 1px solid transparent; border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm-size); font-weight: 500; color: var(--text-secondary); cursor: pointer" style-hover="background: var(--surface-overlay); color: var(--text-primary)">
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="message-circle" size="{{ n18 }}" hint-size="18px,18px"></x-import>Comment
+        </button>
+        <sc-if value="{{ saved }}" hint-placeholder-val="{{ false }}">
+          <button type="button" aria-pressed="true" onClick="{{ toggleSave }}" style="display: flex; align-items: center; justify-content: center; gap: var(--space-2); height: 44px; background: var(--color-accent-subtle); border: 1px solid transparent; border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm-size); font-weight: 500; color: var(--color-accent-text); cursor: pointer">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="bookmark-check" size="{{ n18 }}" hint-size="18px,18px"></x-import>Saved
+          </button>
+        </sc-if>
+        <sc-if value="{{ notSaved }}" hint-placeholder-val="{{ true }}">
+          <button type="button" aria-pressed="false" onClick="{{ toggleSave }}" style="display: flex; align-items: center; justify-content: center; gap: var(--space-2); height: 44px; background: none; border: 1px solid transparent; border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm-size); font-weight: 500; color: var(--text-secondary); cursor: pointer" style-hover="background: var(--surface-overlay); color: var(--text-primary)">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Icon" name="bookmark" size="{{ n18 }}" hint-size="18px,18px"></x-import>Save
+          </button>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</x-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:604,&quot;height&quot;:560},&quot;author&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;body&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Session report from this morning.&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;images&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;array&quot;},&quot;timestamp&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;2h ago&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;edited&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;clamp&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;tall&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;likes&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:12,&quot;tsType&quot;:&quot;number&quot;},&quot;comments&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;},&quot;liked&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;saved&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;menu&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;own&quot;,&quot;other&quot;],&quot;default&quot;:&quot;none&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+// Schema role keys are the wire values; the design system's RoleBadge uses its own
+// shorter keys for two of the six. Map only at the badge boundary.
+const DS_ROLE = {
+  PLAYER: 'PLAYER', COACH: 'COACH', SCOUT: 'SCOUT', ANALYST: 'ANALYST',
+  PHYSICAL_THERAPIST: 'PHYSIO', CLUB_ADMIN: 'CLUB',
+};
+const num = (n) => Number(n || 0).toLocaleString('en-GB');
+
+class Component extends DCLogic {
+  state = { menu: null, liked: null, saved: null, expanded: false };
+
+  renderVals() {
+    const a = this.props.author || {};
+    const imgs = this.props.images || [];
+    const n = imgs.length;
+    const src = (i) => (imgs[i] || {}).src || imgs[i];
+
+    const openMenu = this.state.menu === null ? (this.props.menu || 'none') : this.state.menu;
+    const liked = this.state.liked === null ? !!this.props.liked : this.state.liked;
+    const saved = this.state.saved === null ? !!this.props.saved : this.state.saved;
+    const likes = (this.props.likes || 0) + (liked ? 1 : 0) - (this.props.liked ? 1 : 0);
+    const comments = this.props.comments || 0;
+    const counters = [
+      likes ? num(likes) + (likes === 1 ? ' like' : ' likes') : null,
+      comments ? num(comments) + (comments === 1 ? ' comment' : ' comments') : null,
+    ].filter(Boolean).join(' · ');
+
+    const clamp = !!this.props.clamp && !this.state.expanded;
+
+    return {
+      n14: 14, n16: 16, n18: 18,
+      authorName: a.name, dsRole: DS_ROLE[a.role] || 'PLAYER', avatar: a.avatar,
+      club: a.club, crest: a.crest, hasClub: !!a.club,
+      timestamp: this.props.timestamp, edited: !!this.props.edited,
+      body: this.props.body,
+      bodyClamped: clamp, bodyOpen: !clamp,
+      showSeeMore: clamp,
+      expand: () => this.setState({ expanded: true }),
+      isOne: n === 1 && !this.props.tall,
+      isTall: n === 1 && !!this.props.tall,
+      isTwo: n === 2, isThree: n === 3, isGrid: n >= 4,
+      img0: src(0), img1: src(1), img2: src(2), img3: src(3),
+      hasExtra: n > 4, extraLabel: '+' + (n - 4),
+      counters, hasCounters: !!counters,
+      liked, notLiked: !liked, saved, notSaved: !saved,
+      toggleLike: () => this.setState({ liked: !liked }),
+      toggleSave: () => this.setState({ saved: !saved }),
+      menuOwn: openMenu === 'own', menuOther: openMenu === 'other',
+      toggleMenu: () => this.setState({
+        menu: openMenu === 'none' ? (this.props.menu === 'own' ? 'own' : 'other') : 'none',
+      }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

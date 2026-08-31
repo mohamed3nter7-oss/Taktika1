@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/roles.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+  <style>
+    body { margin: 0; background: var(--surface-sunken); }
+    a { color: var(--color-accent-text); text-decoration: none; }
+    a:hover { color: var(--text-primary); }
+  </style>
+</helmet>
+
+<section id="t3" style="padding: 64px 56px 96px; display: grid; gap: 72px; justify-items: start; width: max-content; min-width: 100%; background: var(--surface-sunken); font-family: var(--font-latin); color: var(--text-primary)">
+
+  <div style="display: grid; gap: var(--space-6); max-width: 880px">
+    <div style="display: grid; gap: var(--space-3)">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Taktika · registration 3 of 3 · player profile · authenticated · no back affordance</span>
+      <h1 style="margin: 0; font-size: var(--text-display-size); line-height: var(--text-display-lh); font-weight: 600; letter-spacing: -0.02em">Player profile</h1>
+    </div>
+
+    <div style="display: grid; gap: var(--space-3); padding: var(--space-5); background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg)">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-accent-text)">Recommendation</span>
+      <p style="margin: 0; font-size: var(--text-body-size); line-height: var(--text-body-lh); color: var(--text-secondary); max-width: 74ch; text-wrap: pretty">Ship <a href="#3a">3a</a>, the dropdown, and build the pitch for profile editing instead. Registration is the one moment the user is least willing to spend time and most likely to be on a 390px screen, where twelve 44px hit targets on a pitch either overlap or shrink below the touch minimum, and the exclusion rule reads more clearly as a struck-through row than as a dimmed marker. The pitch also costs a direction ruling — it has to stay <span class="bidi-isolate" style="font-family: var(--font-numeric)">dir="ltr"</span> in Arabic like the position codes do, because mirroring it moves LW to the right of the screen — and it spends the system's one-per-page pitch line, which is why the rail drops its rule in <a href="#3b">3b</a>. In profile editing none of that is a problem: the user has time, the screen is usually desktop, and the spatial picker is genuinely the better tool for the field that scout search depends on.</p>
+    </div>
+
+    <div style="display: grid; gap: var(--space-4); padding-block-start: var(--space-5); border-block-start: 1px solid var(--border-default)">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Primitives and placeholders</span>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5) var(--space-8)">
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-size: var(--text-body-size); font-weight: 500">Select needs one prop, not a new primitive</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">A per-option <span class="bidi-isolate" style="font-family: var(--font-numeric)">disabled</span> flag, so the secondary list can render the primary position as unavailable rather than accepting it and rejecting it afterwards. State 9 draws the open listbox to show the treatment: muted row, "primary" note, not selectable, still readable.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-size: var(--text-body-size); font-weight: 500">ChoiceGroup — genuine gap</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Preferred foot is three short values and a dropdown for three values is a needless dropdown. Composed here as 44px radio tiles with the accent-subtle selected treatment. Same primitive would serve the pitch option's primary/secondary pass toggle.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-size: var(--text-body-size); font-weight: 500">Position list is placeholder</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Five of twelve shown — GK, LB, CB, CM, ST — and marked in the field helper and at the foot of the list. Codes stay Latin in both locales through <span class="bidi-isolate" style="font-family: var(--font-numeric)">PositionChip</span>, which already isolates direction. The pitch draws the remaining seven as dashed placeholders with placeholder coordinates.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-size: var(--text-body-size); font-weight: 500">No retreat, and it is not hidden</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">No back button anywhere on the screen. Steps 1 and 2 in the rail carry the accent check with no chevron, no hover and no link, and one muted line states that completed steps are locked. The signed-in row under the heading is the standing proof that the account already exists.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap">
+
+    <div id="3a" style="display: grid; gap: var(--space-4)">
+      <div style="display: flex; align-items: baseline; gap: var(--space-3)">
+        <a href="#3a" style="font-family: var(--font-numeric); font-size: 11px; font-weight: 600; padding: 3px 7px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-sm); color: var(--text-secondary)">3a</a>
+        <span style="font-size: var(--text-body-size); font-weight: 500">Option A · dropdown baseline</span>
+        <span style="font-size: var(--text-sm-size); color: var(--color-accent-text)">recommended</span>
+      </div>
+
+      <div style="width: 1280px; height: 1180px; overflow: hidden; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); display: grid; grid-template-columns: 480px 1fr">
+        <dc-import name="StepRail" current="3" lang="en" hint-size="480px,100%"></dc-import>
+        <div style="position: relative; background: var(--surface-raised); border-inline-start: 1px solid var(--border-default); padding: var(--space-16) var(--space-12); display: grid; align-content: start; justify-items: center">
+          <div style="position: absolute; inset-block-start: var(--space-6); inset-inline-end: var(--space-6)">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" lang="ar" hint-size="auto,32px">العربية</x-import>
+          </div>
+          <div style="width: 100%; max-width: 440px">
+            <dc-import name="PlayerProfilePanel" state="idle" picker="dropdown" lang="en" hint-size="440px,1000px"></dc-import>
+          </div>
+        </div>
+      </div>
+
+      <p style="margin: 0; max-width: 1280px; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Two selects, one choice group, one marked placeholder block · identical geometry in Arabic and at 390 · submit reads as an arrival, not another Continue.</p>
+    </div>
+
+    <div id="3b" style="display: grid; gap: var(--space-4)">
+      <div style="display: flex; align-items: baseline; gap: var(--space-3)">
+        <a href="#3b" style="font-family: var(--font-numeric); font-size: 11px; font-weight: 600; padding: 3px 7px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-sm); color: var(--text-secondary)">3b</a>
+        <span style="font-size: var(--text-body-size); font-weight: 500">Option B · pitch picker</span>
+        <span style="font-size: var(--text-sm-size); color: var(--text-muted)">cost: a new primitive, a direction ruling, the page's pitch line</span>
+      </div>
+
+      <div style="width: 1280px; height: 1480px; overflow: hidden; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); display: grid; grid-template-columns: 480px 1fr">
+        <dc-import name="StepRail" current="3" lang="en" pitch-line="{{ false }}" hint-size="480px,100%"></dc-import>
+        <div style="position: relative; background: var(--surface-raised); border-inline-start: 1px solid var(--border-default); padding: var(--space-16) var(--space-12); display: grid; align-content: start; justify-items: center">
+          <div style="position: absolute; inset-block-start: var(--space-6); inset-inline-end: var(--space-6)">
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" lang="ar" hint-size="auto,32px">العربية</x-import>
+          </div>
+          <div style="width: 100%; max-width: 440px">
+            <dc-import name="PlayerProfilePanel" state="idle" picker="pitch" lang="en" hint-size="440px,1300px"></dc-import>
+          </div>
+        </div>
+      </div>
+
+      <p style="margin: 0; max-width: 1280px; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">One pitch, two passes: the pill group says which position you are placing, primary is the filled accent marker, secondary the outlined one, and the taken marker dims during the secondary pass · pitch stays LTR in both locales · rail rule dropped so the page keeps one pitch line.</p>
+    </div>
+
+  </div>
+
+  <div style="display: grid; gap: var(--space-6); width: 100%">
+    <div style="display: grid; gap: var(--space-2); max-width: 880px">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Recommended option · Arabic RTL and mobile</span>
+      <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); max-width: 70ch; text-wrap: pretty">Position codes sit Latin and direction-isolated inside Arabic labels — قلب دفاع next to CB — and heights, weights and jersey numbers stay tabular · role badge takes its Arabic label from the system · at 390 the rail collapses to three segments with step 3 current.</p>
+    </div>
+
+    <div style="display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap">
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">Arabic · RTL · 1280</span>
+        <div dir="rtl" lang="ar" style="width: 1280px; height: 1180px; overflow: hidden; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); display: grid; grid-template-columns: 480px 1fr; font-family: var(--font-arabic)">
+          <dc-import name="StepRail" current="3" lang="ar" hint-size="480px,100%"></dc-import>
+          <div style="position: relative; background: var(--surface-raised); border-inline-start: 1px solid var(--border-default); padding: var(--space-16) var(--space-12); display: grid; align-content: start; justify-items: center">
+            <div style="position: absolute; inset-block-start: var(--space-6); inset-inline-end: var(--space-6)">
+              <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" lang="en" hint-size="auto,32px">English</x-import>
+            </div>
+            <div style="width: 100%; max-width: 440px">
+              <dc-import name="PlayerProfilePanel" state="idle" picker="dropdown" lang="ar" hint-size="440px,1000px"></dc-import>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">Mobile · 390 · clipped at the fold</span>
+        <div style="width: 390px; height: 844px; overflow: hidden; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-6) var(--space-5); display: grid; align-content: start; gap: var(--space-6)">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3)">
+            <span style="font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 600; letter-spacing: -0.01em">Taktika<span style="color: var(--color-accent-text)">.</span></span>
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" lang="ar" hint-size="auto,32px">العربية</x-import>
+          </div>
+          <div style="display: grid; gap: var(--space-2)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-2)">
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--color-accent)"></span>
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--color-accent)"></span>
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--color-accent)"></span>
+            </div>
+            <span class="t-num" style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Step 3 of 3 · player profile · no way back</span>
+          </div>
+          <dc-import name="PlayerProfilePanel" state="idle" picker="dropdown" lang="en" hint-size="350px,1100px"></dc-import>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)">Mobile · 390 · Arabic · clipped at the fold</span>
+        <div dir="rtl" lang="ar" style="width: 390px; height: 844px; overflow: hidden; background: var(--surface-base); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-6) var(--space-5); display: grid; align-content: start; gap: var(--space-6); font-family: var(--font-arabic)">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3)">
+            <span style="font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: 600">تكتيكا<span style="color: var(--color-accent-text)">.</span></span>
+            <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="ghost" size="sm" lang="en" hint-size="auto,32px">English</x-import>
+          </div>
+          <div style="display: grid; gap: var(--space-2)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-2)">
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--color-accent)"></span>
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--color-accent)"></span>
+              <span style="height: 3px; border-radius: var(--radius-full); background: var(--color-accent)"></span>
+            </div>
+            <span class="t-num" style="font-size: var(--text-xs-size); letter-spacing: 0.06em; color: var(--text-muted)">الخطوة 3 من 3 · ملف اللاعب · لا رجوع</span>
+          </div>
+          <dc-import name="PlayerProfilePanel" state="idle" picker="dropdown" lang="ar" hint-size="350px,1100px"></dc-import>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; gap: var(--space-6); width: 100%">
+    <div style="display: grid; gap: var(--space-2); max-width: 880px">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Recommended option · states 8 to 11</span>
+      <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); max-width: 70ch; text-wrap: pretty">Frames cropped to the 440px form column of <a href="#3a">3a</a>. State 11 is the same screen a returning user lands on: already signed in, account created days ago, nothing added since, and the only route out is forward.</p>
+    </div>
+
+    <div style="display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap">
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">8</span> · Idle · nothing chosen</span>
+        <div style="width: 504px; height: 1160px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="PlayerProfilePanel" state="idle" lang="en" hint-size="440px,1000px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">9</span> · Primary chosen · ST unavailable in the secondary list</span>
+        <div style="width: 504px; height: 1440px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="PlayerProfilePanel" state="secondary-open" lang="en" hint-size="440px,1280px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">10</span> · Submitting · end of registration</span>
+        <div style="width: 504px; height: 1160px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="PlayerProfilePanel" state="submitting" lang="en" hint-size="440px,1000px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">11</span> · Returning · account exists, profile empty</span>
+        <div style="width: 504px; height: 1160px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center">
+          <div style="width: 440px"><dc-import name="PlayerProfilePanel" state="resuming" lang="en" hint-size="440px,1120px"></dc-import></div>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: var(--space-3)">
+        <span style="font-size: var(--text-sm-size); color: var(--text-secondary)"><span class="t-num" style="color: var(--text-muted)">11</span> · Returning · Arabic</span>
+        <div dir="rtl" lang="ar" style="width: 504px; height: 1160px; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; align-content: start; justify-items: center; font-family: var(--font-arabic)">
+          <div style="width: 440px"><dc-import name="PlayerProfilePanel" state="resuming" lang="ar" hint-size="440px,1120px"></dc-import></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+</x-dc>
+</body>
+</html>

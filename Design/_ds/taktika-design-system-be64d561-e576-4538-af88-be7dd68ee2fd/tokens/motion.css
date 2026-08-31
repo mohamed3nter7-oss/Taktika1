@@ -1,0 +1,2 @@
+:root{--duration-fast:120ms /* @kind other */;--duration-base:200ms /* @kind other */;--duration-slow:300ms /* @kind other */;--ease-out:cubic-bezier(0.16,1,0.3,1) /* @kind other */;--ease-in-out:cubic-bezier(0.4,0,0.2,1) /* @kind other */}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;transition-duration:0.01ms !important}}

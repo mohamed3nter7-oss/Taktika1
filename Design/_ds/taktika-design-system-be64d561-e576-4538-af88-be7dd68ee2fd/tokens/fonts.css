@@ -1,0 +1,5 @@
+/* Taktika webfonts. Inter (Latin) + Cairo (Arabic), self-hosted in production
+   via next/font/local with display:swap and per-script subsetting.
+   In this design system they are served from the Google Fonts CDN — see readme.md > Fonts. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap");
+:root{--font-latin:"Inter",system-ui,sans-serif;--font-arabic:"Cairo",system-ui,sans-serif;--font-numeric:"Inter",ui-monospace,monospace}

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/roles.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+</helmet>
+<div style="display: grid; gap: var(--space-8); width: 100%">
+
+  <div style="display: grid; gap: var(--space-5)">
+    <sc-if value="{{ resuming }}" hint-placeholder-val="{{ false }}">
+      <div role="status" style="display: grid; gap: var(--space-2); padding: var(--space-4); background: var(--surface-sunken); border: 1px solid var(--border-strong); border-radius: var(--radius-md)">
+        <span style="font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: 500; color: var(--text-primary); text-wrap: pretty">{{ resumeTitle }}</span>
+        <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">{{ resumeBody }}</span>
+      </div>
+    </sc-if>
+
+    <div style="display: grid; gap: var(--space-1)">
+      <h1 style="margin: 0; font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: 600; letter-spacing: -0.01em; color: var(--text-primary)">{{ heading }}</h1>
+      <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">{{ sub }}</p>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--surface-sunken); border: 1px solid var(--border-default); border-radius: var(--radius-md)">
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Avatar" name="{{ userName }}" size="sm" hint-size="32px,32px"></x-import>
+      <div style="flex: 1; display: grid; gap: 2px; min-width: 0">
+        <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ userName }}</span>
+        <span style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); color: var(--text-muted)">{{ signedIn }}</span>
+      </div>
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.RoleBadge" role="PLAYER" lang="{{ lang }}" hint-size="auto,24px"></x-import>
+    </div>
+  </div>
+
+  <div style="display: grid; gap: var(--space-5)">
+    <span style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">{{ positionsLabel }}</span>
+
+    <sc-if value="{{ isDropdown }}" hint-placeholder-val="{{ true }}">
+      <div style="display: grid; gap: var(--space-5)">
+        <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Select" label="{{ primaryLabel }}" options="{{ primaryOptions }}" value="{{ primaryValue }}" placeholder="{{ pickPosition }}" helper="{{ enumNote }}" hint-size="100%,92px"></x-import>
+
+        <div style="display: grid; gap: var(--space-2)">
+          <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Select" label="{{ secondaryLabel }}" options="{{ secondaryOptions }}" value="{{ secondaryValue }}" placeholder="{{ pickPosition }}" helper="{{ secondaryHelper }}" disabled="{{ secondaryOff }}" hint-size="100%,92px"></x-import>
+
+          <sc-if value="{{ listOpen }}" hint-placeholder-val="{{ false }}">
+            <div role="listbox" aria-label="{{ secondaryLabel }}" style="display: grid; gap: 2px; padding: var(--space-1); background: var(--surface-overlay); border: 1px solid var(--border-default); border-radius: var(--radius-md)">
+              <sc-for list="{{ listRows }}" as="row" hint-placeholder-count="5">
+                <div role="option" aria-selected="{{ row.on }}" aria-disabled="{{ row.taken }}" style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: {{ row.bg }}; cursor: {{ row.cursor }}">
+                  <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.PositionChip" code="{{ row.code }}" variant="{{ row.chip }}" hint-size="28px,28px"></x-import>
+                  <span style="flex: 1; font-size: var(--text-body-size); line-height: var(--text-body-lh); color: {{ row.fg }}">{{ row.label }}</span>
+                  <span style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); color: var(--text-muted)">{{ row.note }}</span>
+                </div>
+              </sc-for>
+              <div style="padding: var(--space-2) var(--space-3); border-block-start: 1px solid var(--border-subtle); font-size: var(--text-xs-size); line-height: var(--text-xs-lh); color: var(--text-muted); text-wrap: pretty">{{ enumNote }}</div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPitch }}" hint-placeholder-val="{{ false }}">
+      <div style="display: grid; gap: var(--space-4)">
+        <div role="radiogroup" aria-label="{{ passLabel }}" style="display: flex; gap: var(--space-2)">
+          <sc-for list="{{ passes }}" as="pass" hint-placeholder-count="2">
+            <div role="radio" aria-checked="{{ pass.on }}" style="padding: 6px var(--space-4); border-radius: var(--radius-full); background: {{ pass.bg }}; border: 1px solid {{ pass.bd }}; color: {{ pass.fg }}; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); font-weight: 500; cursor: pointer">{{ pass.label }}</div>
+          </sc-for>
+        </div>
+
+        <div dir="ltr" style="position: relative; width: 100%; height: 460px; background: var(--surface-sunken); border: 1px solid var(--pitch-line); border-radius: var(--radius-lg); overflow: hidden">
+          <span aria-hidden="true" style="position: absolute; inset-inline: 0; inset-block-start: 50%; height: 1px; background: var(--pitch-line)"></span>
+          <span aria-hidden="true" style="position: absolute; inset-block-start: 50%; inset-inline-start: 50%; width: 104px; height: 104px; margin-block-start: -52px; margin-inline-start: -52px; border: 1px solid var(--pitch-line); border-radius: var(--radius-full)"></span>
+          <span aria-hidden="true" style="position: absolute; inset-block-start: -1px; inset-inline-start: 21%; width: 58%; height: 76px; border: 1px solid var(--pitch-line); border-block-start: 0"></span>
+          <span aria-hidden="true" style="position: absolute; inset-block-end: -1px; inset-inline-start: 21%; width: 58%; height: 76px; border: 1px solid var(--pitch-line); border-block-end: 0"></span>
+          <sc-for list="{{ ghosts }}" as="ghost" hint-placeholder-count="5">
+            <span aria-hidden="true" style="position: absolute; left: {{ ghost.x }}; top: {{ ghost.y }}; width: 28px; height: 28px; margin: -14px 0 0 -14px; border: 1px dashed var(--border-strong); border-radius: var(--radius-full)"></span>
+          </sc-for>
+          <sc-for list="{{ markers }}" as="mark" hint-placeholder-count="5">
+            <div role="radio" aria-checked="{{ mark.on }}" aria-label="{{ mark.label }}" style="position: absolute; left: {{ mark.x }}; top: {{ mark.y }}; width: 44px; height: 44px; margin: -22px 0 0 -22px; display: grid; place-items: center; border-radius: var(--radius-full); background: {{ mark.bg }}; border: 1px solid {{ mark.bd }}; color: {{ mark.fg }}; font-family: var(--font-numeric); font-variant-numeric: tabular-nums; font-size: var(--text-sm-size); font-weight: 500; cursor: {{ mark.cursor }}">{{ mark.code }}</div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; gap: var(--space-4); flex-wrap: wrap; font-size: var(--text-xs-size); line-height: var(--text-xs-lh); color: var(--text-muted)">
+          <span>{{ legendPrimary }}</span>
+          <span>{{ legendSecondary }}</span>
+          <span>{{ legendTaken }}</span>
+          <span>{{ legendGhost }}</span>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="display: grid; gap: var(--space-3)">
+      <span style="font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary)">{{ footLabel }}</span>
+      <div role="radiogroup" aria-label="{{ footLabel }}" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-2)">
+        <sc-for list="{{ feet }}" as="foot" hint-placeholder-count="3">
+          <div role="radio" aria-checked="{{ foot.on }}" style="height: 44px; display: grid; place-items: center; border-radius: var(--radius-sm); background: {{ foot.bg }}; border: 1px solid {{ foot.bd }}; color: {{ foot.fg }}; font-size: var(--text-body-size); font-weight: 500; cursor: pointer">{{ foot.label }}</div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; gap: var(--space-4); padding: var(--space-5); background: var(--surface-sunken); border: 1px dashed var(--border-strong); border-radius: var(--radius-md)">
+    <span style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); text-wrap: pretty">{{ placeholderNote }}</span>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4)">
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Input" label="{{ heightLabel }}" placeholder="178" numeric="{{ true }}" hint-size="100%,72px"></x-import>
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Input" label="{{ weightLabel }}" placeholder="72" numeric="{{ true }}" hint-size="100%,72px"></x-import>
+    </div>
+    <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Input" label="{{ clubLabel }}" placeholder="{{ clubPlaceholder }}" hint-size="100%,72px"></x-import>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4)">
+      <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Input" label="{{ jerseyLabel }}" placeholder="9" numeric="{{ true }}" hint-size="100%,72px"></x-import>
+    </div>
+  </div>
+
+  <div style="display: grid; gap: var(--space-3)">
+    <x-import component-from-global-scope="TaktikaDesignSystem_be64d5.Button" variant="primary" size="lg" full-width="{{ true }}" loading="{{ submitting }}" hint-size="100%,48px">{{ primary }}</x-import>
+    <span role="status" style="font-size: var(--text-xs-size); line-height: var(--text-xs-lh); color: var(--text-secondary); text-wrap: pretty">{{ primaryNote }}</span>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:440,&quot;height&quot;:1100},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;idle&quot;,&quot;secondary-open&quot;,&quot;submitting&quot;,&quot;resuming&quot;],&quot;default&quot;:&quot;idle&quot;,&quot;tsType&quot;:&quot;'idle' | 'secondary-open' | 'submitting' | 'resuming'&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;ar&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;'en' | 'ar'&quot;},&quot;picker&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dropdown&quot;,&quot;pitch&quot;],&quot;default&quot;:&quot;dropdown&quot;,&quot;tsType&quot;:&quot;'dropdown' | 'pitch'&quot;}}">
+const POSITIONS = [
+  { code: 'GK', en: 'Goalkeeper', ar: 'حارس مرمى', x: '50%', y: '92%' },
+  { code: 'LB', en: 'Left-back', ar: 'ظهير أيسر', x: '14%', y: '74%' },
+  { code: 'CB', en: 'Centre-back', ar: 'قلب دفاع', x: '50%', y: '76%' },
+  { code: 'CM', en: 'Central midfielder', ar: 'وسط ملعب', x: '50%', y: '48%' },
+  { code: 'ST', en: 'Striker', ar: 'مهاجم', x: '50%', y: '13%' },
+];
+
+const GHOSTS = [
+  { x: '86%', y: '74%' }, { x: '22%', y: '50%' }, { x: '78%', y: '50%' },
+  { x: '20%', y: '22%' }, { x: '80%', y: '22%' }, { x: '50%', y: '30%' }, { x: '50%', y: '62%' },
+];
+
+const EN = {
+  heading: 'Player profile',
+  headingResume: 'Finish your player profile',
+  sub: 'The last step. Position is what scouts filter on, so it decides whether you appear in search at all.',
+  subResume: 'Your account was created on 12 August. Nothing has been added since.',
+  signedIn: 'Signed in · account created',
+  positionsLabel: 'Positions',
+  primaryLabel: 'Primary position',
+  secondaryLabel: 'Secondary position (optional)',
+  pickPosition: 'Select a position',
+  enumNote: 'Placeholder — five of twelve shown. Substitute the schema enum.',
+  secondaryHelper: 'Cannot be the same as your primary position.',
+  secondaryHelperOpen: 'Striker is taken by your primary position.',
+  takenNote: 'primary',
+  footLabel: 'Preferred foot',
+  feet: ['Left', 'Right', 'Both'],
+  passLabel: 'Which position you are placing',
+  passes: ['Primary', 'Secondary'],
+  legendPrimary: 'Filled — primary',
+  legendSecondary: 'Outlined — secondary',
+  legendTaken: 'Dimmed — taken by primary',
+  legendGhost: 'Dashed — remaining schema positions, placeholder coordinates',
+  placeholderNote: 'Placeholder fields — substitute the real set from the repository',
+  heightLabel: 'Height (cm)',
+  weightLabel: 'Weight (kg)',
+  clubLabel: 'Current club',
+  clubPlaceholder: 'Al Ahly',
+  jerseyLabel: 'Jersey number',
+  primary: 'Publish my profile',
+  primaryNote: 'This completes registration. Everything except your role can be edited later.',
+  primarySubmitting: 'Publishing your profile.',
+  userName: 'Tarek Fouad Mahmoud Hassan',
+  resumeTitle: 'Your account exists. Your player profile does not.',
+  resumeBody: 'Without a primary position you do not appear in scout search, and this is the only screen open to you until it is added.',
+};
+
+const AR = {
+  heading: 'ملف اللاعب',
+  headingResume: 'أكمل ملف اللاعب',
+  sub: 'الخطوة الأخيرة. المركز هو ما يبحث به الكشافون، وهو ما يحدد ظهورك في نتائج البحث من الأساس.',
+  subResume: 'أُنشئ حسابك في 12 أغسطس، ولم يُضف شيء بعدها.',
+  signedIn: 'مسجَّل الدخول · الحساب مُنشأ',
+  positionsLabel: 'المراكز',
+  primaryLabel: 'المركز الأساسي',
+  secondaryLabel: 'المركز الثاني (اختياري)',
+  pickPosition: 'اختر المركز',
+  enumNote: 'قائمة مؤقتة — خمسة من اثني عشر. تُستبدل بقيم المخطط.',
+  secondaryHelper: 'لا يمكن أن يكون نفس المركز الأساسي.',
+  secondaryHelperOpen: 'مركز ST محجوز لأنه مركزك الأساسي.',
+  takenNote: 'أساسي',
+  footLabel: 'القدم المفضّلة',
+  feet: ['اليسرى', 'اليمنى', 'كلتاهما'],
+  passLabel: 'المركز الذي تحدده الآن',
+  passes: ['الأساسي', 'الثاني'],
+  legendPrimary: 'ممتلئ — الأساسي',
+  legendSecondary: 'محدَّد بإطار — الثاني',
+  legendTaken: 'باهت — محجوز للأساسي',
+  legendGhost: 'متقطع — بقية مراكز المخطط، إحداثيات مؤقتة',
+  placeholderNote: 'حقول مؤقتة — تُستبدل بالحقول الفعلية من المستودع',
+  heightLabel: 'الطول (سم)',
+  weightLabel: 'الوزن (كجم)',
+  clubLabel: 'النادي الحالي',
+  clubPlaceholder: 'الأهلي',
+  jerseyLabel: 'رقم القميص',
+  primary: 'نشر ملفي',
+  primaryNote: 'بهذا تكتمل عملية التسجيل. كل شيء قابل للتعديل لاحقًا عدا الدور.',
+  primarySubmitting: 'يتم نشر ملفك.',
+  userName: 'طارق فؤاد محمود حسن',
+  resumeTitle: 'حسابك موجود، وملف اللاعب غير مكتمل.',
+  resumeBody: 'بدون مركز أساسي لن تظهر في بحث الكشافين، وهذه هي الشاشة الوحيدة المتاحة لك حتى تضيفه.',
+};
+
+class Component extends DCLogic {
+  renderVals() {
+    const ar = this.props.lang === 'ar';
+    const t = ar ? AR : EN;
+    const state = this.props.state || 'idle';
+    const pitch = this.props.picker === 'pitch';
+    const open = state === 'secondary-open';
+    const submitting = state === 'submitting';
+    const resuming = state === 'resuming';
+    const primaryValue = open || submitting ? 'ST' : undefined;
+
+    const opts = POSITIONS.map(p => ({ value: p.code, label: p.code + ' · ' + (ar ? p.ar : p.en) }));
+
+    return {
+      ...t,
+      lang: ar ? 'ar' : 'en',
+      heading: resuming ? t.headingResume : t.heading,
+      sub: resuming ? t.subResume : t.sub,
+      resuming,
+      submitting,
+      isDropdown: !pitch,
+      isPitch: pitch,
+      primaryOptions: opts,
+      primaryValue,
+      secondaryOptions: opts.filter(o => o.value !== primaryValue),
+      secondaryValue: submitting ? 'CM' : undefined,
+      secondaryOff: !primaryValue,
+      secondaryHelper: open ? t.secondaryHelperOpen : t.secondaryHelper,
+      listOpen: open,
+      listRows: POSITIONS.map(p => {
+        const taken = p.code === primaryValue;
+        const hi = p.code === 'CM' && open;
+        return {
+          code: p.code,
+          label: ar ? p.ar : p.en,
+          chip: taken ? 'secondary' : hi ? 'primary' : 'secondary',
+          note: taken ? t.takenNote : '',
+          taken,
+          on: false,
+          bg: hi ? 'var(--surface-raised)' : 'transparent',
+          fg: taken ? 'var(--text-muted)' : 'var(--text-primary)',
+          cursor: taken ? 'not-allowed' : 'pointer',
+        };
+      }),
+      passes: t.passes.map((label, i) => ({
+        label,
+        on: i === 0,
+        bg: i === 0 ? 'var(--color-accent-subtle)' : 'var(--surface-sunken)',
+        bd: i === 0 ? 'var(--border-accent)' : 'var(--border-default)',
+        fg: i === 0 ? 'var(--color-accent-text)' : 'var(--text-secondary)',
+      })),
+      ghosts: GHOSTS,
+      markers: POSITIONS.map(p => {
+        const on = p.code === 'ST' && !resuming;
+        const second = p.code === 'CM' && !resuming;
+        return {
+          code: p.code,
+          label: (ar ? p.ar : p.en) + ' ' + p.code,
+          x: p.x,
+          y: p.y,
+          on,
+          bg: on ? 'var(--color-accent)' : second ? 'var(--color-accent-subtle)' : 'var(--surface-raised)',
+          bd: on ? 'var(--color-accent)' : second ? 'var(--border-accent)' : 'var(--border-strong)',
+          fg: on ? 'var(--text-on-accent)' : second ? 'var(--color-accent-text)' : 'var(--text-primary)',
+          cursor: 'pointer',
+        };
+      }),
+      feet: t.feet.map((label, i) => {
+        const on = i === 1 && !resuming;
+        return {
+          label,
+          on,
+          bg: on ? 'var(--color-accent-subtle)' : 'var(--surface-sunken)',
+          bd: on ? 'var(--border-accent)' : 'var(--border-default)',
+          fg: on ? 'var(--color-accent-text)' : 'var(--text-secondary)',
+        };
+      }),
+      primaryNote: submitting ? t.primarySubmitting : t.primaryNote,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

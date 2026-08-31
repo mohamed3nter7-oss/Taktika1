@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/roles.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/radius.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/tokens/base.css">
+  <link rel="stylesheet" href="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/styles.css">
+  <script src="_ds/taktika-design-system-be64d561-e576-4538-af88-be7dd68ee2fd/_ds_bundle.js"></script>
+  <style>body{margin:0;background:var(--surface-sunken)}</style>
+</helmet>
+<section id="t1" style="padding: 64px 56px 96px; display: grid; gap: 72px; justify-items: start; width: max-content; min-width: 100%; background: var(--surface-sunken); font-family: var(--font-latin); color: var(--text-primary)">
+
+  <div style="display: grid; gap: var(--space-6); max-width: 880px">
+    <div style="display: grid; gap: var(--space-3)">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Taktika · UI mockups · desktop 1280</span>
+      <h1 style="margin: 0; font-size: var(--text-display-size); line-height: var(--text-display-lh); font-weight: 600; letter-spacing: -0.02em">Player profile, public view</h1>
+      <p style="margin: 0; font-size: var(--text-body-lg-size); line-height: var(--text-body-lg-lh); color: var(--text-secondary); max-width: 62ch; text-wrap: pretty">One job: a scout who does not know this player judges fit in about twenty seconds, then contacts him. Every element below is either evidence for that judgement or the contact action itself. Nothing on the page reports a number the platform does not hold — no goals, no appearances, no ratings.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6) var(--space-8); padding-block-start: var(--space-5); border-block-start: 1px solid var(--border-default)">
+      <div style="display: grid; gap: var(--space-2)">
+        <span style="font-size: var(--text-body-size); font-weight: 500">Header density</span>
+        <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Read order: name and role, then position and foot, then club and league level, then location and age, then followers. Position and foot outrank the administrative facts because they are what a scout filters on, and they are the only facts here no other role's profile carries. Followers land last at 13px — social proof, not evidence.</p>
+      </div>
+      <div style="display: grid; gap: var(--space-2)">
+        <span style="font-size: var(--text-body-size); font-weight: 500">Physical attributes</span>
+        <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Height, weight and shirt number are one right-rail block, not three header items. They are reference numbers a scout checks after he is interested, not facts he scans, and grouping them keeps three optional values out of the identity block. One present value renders one row; none renders no block.</p>
+      </div>
+      <div style="display: grid; gap: var(--space-2)">
+        <span style="font-size: var(--text-body-size); font-weight: 500">Club history</span>
+        <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">A timeline, not cards. Cards would give three affiliations equal weight; a career is read top-down. Current club carries three signals and no extra colour: it is first, it holds the only badge in the list, and its range ends in "present".</p>
+      </div>
+      <div style="display: grid; gap: var(--space-2)">
+        <span style="font-size: var(--text-body-size); font-weight: 500">Certifications</span>
+        <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Credentials are reference, not narrative, so they sit in the rail and never compete with the timeline. Verified is a 14px accent check after the name; unverified shows nothing. Absence is the signal, which keeps the flag quieter than the role badge instead of racing it.</p>
+      </div>
+    </div>
+
+    <div style="display: grid; gap: var(--space-2); padding: var(--space-4); background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg)">
+      <span style="font-size: var(--text-xs-size); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)">Two things to sign off</span>
+      <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">The header is composed from Card, Avatar, RoleBadge, PositionChip, ClubCrest and Button rather than the existing ProfileHeader, which has no props for headline, preferred foot or league level. Adding those three props to ProfileHeader makes this the component, not a one-off.</p>
+      <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Avatars, post images and club crests are placeholders. Crests use the design system's initials fallback; drop real PNGs in and the light image plate takes over with no layout change.</p>
+    </div>
+  </div>
+
+  <div id="1a" style="display: flex; gap: 40px; align-items: flex-start">
+    <div style="display: grid; gap: var(--space-4)">
+      <div style="display: flex; align-items: baseline; gap: var(--space-3)">
+        <a href="#1a" style="font-family: var(--font-numeric); font-size: 11px; font-weight: 600; padding: 3px 7px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none">1a</a>
+        <span style="font-size: var(--text-body-size); font-weight: 500">Complete profile · Posts tab, the default</span>
+        <span style="font-size: var(--text-sm-size); color: var(--text-muted)">every optional field present</span>
+      </div>
+      <dc-import name="PlayerProfileScreen" person="{{ full }}" clubs="{{ fullClubs }}" certs="{{ fullCerts }}" posts="{{ fullPosts }}" rail-clubs="{{ scoutClubs }}" viewer="scout" tab="posts" viewer-name="Tarek Fouad" hint-size="1280px,1720px"></dc-import>
+    </div>
+    <sc-if value="{{ notes }}" hint-placeholder-val="{{ true }}">
+      <div style="width: 340px; display: grid; gap: var(--space-6); padding-block-start: 44px">
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">01</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Identity block, top to bottom</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Name at 32px with the role badge on the avatar. Headline underneath in secondary — it is the player's own framing of what he wants, and it costs one line. Then the football row: role, primary position in accent, secondary position quiet, preferred foot after a hairline. Then club with crest and league level. Then city, country and age.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">02</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Actions sit on the card's last line</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Message is the single filled accent button on the page; Follow is secondary beside it. Anchoring both to the bottom-right of the card keeps them in the same place on every profile, however many optional lines the header carries — a scout reading twenty profiles clicks without re-aiming.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">03</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">The pitch line closes the header</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">One 1px accent rule at 24% alpha, bleeding to both card edges, directly under the identity block. It appears once on this page and nowhere else, and it is the whole athletic-personality budget.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">04</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Rail is persistent, tabs are not</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Details and certifications sit in the 300px rail so they survive a move into About or Career. The portfolio link lives with them: it is an attribute, not an action, and putting it in the header would put a second competing target next to Message.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">05</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Posts is the default tab</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">It is the only surface on the page written by the player rather than assembled from fields, so it is the fastest read on character and intent. Text and images only — there is no video anywhere in the product.</p>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div id="1b" style="display: flex; gap: 40px; align-items: flex-start">
+    <div style="display: grid; gap: var(--space-4)">
+      <div style="display: flex; align-items: baseline; gap: var(--space-3)">
+        <a href="#1b" style="font-family: var(--font-numeric); font-size: 11px; font-weight: 600; padding: 3px 7px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none">1b</a>
+        <span style="font-size: var(--text-body-size); font-weight: 500">Complete profile · About tab</span>
+        <span style="font-size: var(--text-sm-size); color: var(--text-muted)">tabs are live — click through on any board</span>
+      </div>
+      <dc-import name="PlayerProfileScreen" person="{{ full }}" clubs="{{ fullClubs }}" certs="{{ fullCerts }}" posts="{{ fullPosts }}" rail-clubs="{{ scoutClubs }}" viewer="scout" tab="about" viewer-name="Tarek Fouad" hint-size="1280px,900px"></dc-import>
+    </div>
+    <sc-if value="{{ notes }}" hint-placeholder-val="{{ true }}">
+      <div style="width: 340px; display: grid; gap: var(--space-6); padding-block-start: 44px">
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">06</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">The one labelled surface</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Header and rail are scan surfaces, so they carry facts without labels. About is the reference view: every attribute the API holds, spelled out with its label, in two columns. Bio at 17px on a 60-character measure above the divider.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">07</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">No empty rows, ever</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">An absent field is absent — no em dash, no "Not specified", no greyed row. The grid reflows and the card gets shorter. See <a href="#1d">1d</a> for what that leaves.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">08</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Position codes stay Latin</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">ST and LW are wrapped LTR and isolated here and in the chips, so an Arabic layout mirrors around them without reordering the pair.</p>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div id="1c" style="display: flex; gap: 40px; align-items: flex-start">
+    <div style="display: grid; gap: var(--space-4)">
+      <div style="display: flex; align-items: baseline; gap: var(--space-3)">
+        <a href="#1c" style="font-family: var(--font-numeric); font-size: 11px; font-weight: 600; padding: 3px 7px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none">1c</a>
+        <span style="font-size: var(--text-body-size); font-weight: 500">Complete profile · Career tab</span>
+        <span style="font-size: var(--text-sm-size); color: var(--text-muted)">three affiliations, current first</span>
+      </div>
+      <dc-import name="PlayerProfileScreen" person="{{ full }}" clubs="{{ fullClubs }}" certs="{{ fullCerts }}" posts="{{ fullPosts }}" rail-clubs="{{ scoutClubs }}" viewer="scout" tab="career" viewer-name="Tarek Fouad" hint-size="1280px,900px"></dc-import>
+    </div>
+    <sc-if value="{{ notes }}" hint-placeholder-val="{{ true }}">
+      <div style="width: 340px; display: grid; gap: var(--space-6); padding-block-start: 44px">
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">09</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Crest column doubles as the timeline</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">A 40px crest is the node and a subtle hairline connects it to the next one, so the spine costs no extra column. Club name at 17px, role at 15px, dates at 13px muted with an en dash — the club is what a scout recognises first, the years are what he checks second.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">10</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Current club, three quiet signals</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">First in the list, the only Current badge in the column, and the range ending in "present". No accent ring on the crest and no size change: the crest is user artwork and putting a system colour on it fights whatever the club's own palette is.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">11</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Certifications stay in the rail</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Even on the Career tab, where they would be a plausible second list. Two lists in one column makes the scout decide which one matters; keeping credentials in the rail means the timeline is the only thing to read here.</p>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div id="1d" style="display: flex; gap: 40px; align-items: flex-start">
+    <div style="display: grid; gap: var(--space-4)">
+      <div style="display: flex; align-items: baseline; gap: var(--space-3)">
+        <a href="#1d" style="font-family: var(--font-numeric); font-size: 11px; font-weight: 600; padding: 3px 7px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none">1d</a>
+        <span style="font-size: var(--text-body-size); font-weight: 500">Sparse profile · sixteen-year-old academy player</span>
+        <span style="font-size: var(--text-sm-size); color: var(--text-muted)">no photo, headline, bio, measurements, certifications or posts</span>
+      </div>
+      <dc-import name="PlayerProfileScreen" person="{{ sparse }}" clubs="{{ sparseClubs }}" certs="{{ none }}" posts="{{ none }}" rail-clubs="{{ scoutClubs }}" viewer="scout" tab="posts" viewer-name="Tarek Fouad" hint-size="1280px,900px"></dc-import>
+    </div>
+    <sc-if value="{{ notes }}" hint-placeholder-val="{{ true }}">
+      <div style="width: 340px; display: grid; gap: var(--space-6); padding-block-start: 44px">
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">12</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">The header holds its shape</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Every optional item is a whole row, never an inline fragment, so removing one closes a gap instead of re-flowing a sentence. What is left still answers the scout's first three questions: what he plays, which foot, what level. The initials avatar is the design system's own fallback, not a grey silhouette.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">13</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">The rail column keeps its width</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">With no measurements and no certifications there is nothing to put in it, and it stays empty on purpose. Collapsing it would move the identity block sideways, and a scout opening twenty profiles in a session would get a different page shape every time. The empty rail is the cheaper cost.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">14</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Empty posts, seen by a visitor</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">The owner's version of this state offers Create post. A visitor has no action here, so it offers none — one line naming the space, then a quiet link to the one tab that does have content. The tab counts do the same work: 0 and 1 tell him where to look before he clicks.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">15</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Age 16, and only age</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">No date, no birthday, no age band, at any age. The header reads "Age 16" rather than a bare number so it can never be mistaken for a shirt number.</p>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div id="1e" style="display: flex; gap: 40px; align-items: flex-start">
+    <div style="display: grid; gap: var(--space-4)">
+      <div style="display: flex; align-items: baseline; gap: var(--space-3)">
+        <a href="#1e" style="font-family: var(--font-numeric); font-size: 11px; font-weight: 600; padding: 3px 7px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none">1e</a>
+        <span style="font-size: var(--text-body-size); font-weight: 500">Own profile · the same player viewing himself</span>
+        <span style="font-size: var(--text-sm-size); color: var(--text-muted)">Follow and Message become Edit profile</span>
+      </div>
+      <dc-import name="PlayerProfileScreen" person="{{ full }}" clubs="{{ fullClubs }}" certs="{{ fullCerts }}" posts="{{ fullPosts }}" rail-clubs="{{ ownClubs }}" viewer="self" tab="posts" viewer-name="Youssef Abdelrahman" hint-size="1280px,1720px"></dc-import>
+    </div>
+    <sc-if value="{{ notes }}" hint-placeholder-val="{{ true }}">
+      <div style="width: 340px; display: grid; gap: var(--space-6); padding-block-start: 44px">
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">16</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">One action in, two actions out</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Edit profile takes the filled accent slot Message had, in the same position, so the rule holds at one primary action per view. Nothing else changes: no edit affordances on individual fields, no completeness meter, no owner-only rail card. The owner sees exactly what a scout sees, which is the only reliable way to know how he reads.</p>
+        </div>
+        <div style="display: grid; gap: var(--space-2)">
+          <span style="font-family: var(--font-numeric); font-size: var(--text-xs-size); color: var(--color-accent-text)">17</span>
+          <span style="font-size: var(--text-sm-size); font-weight: 500">Open questions</span>
+          <p style="margin: 0; font-size: var(--text-sm-size); line-height: var(--text-sm-lh); color: var(--text-secondary); text-wrap: pretty">Should the owner get an inline prompt when the profile is as sparse as <a href="#1d">1d</a>, or does that belong in onboarding? And does a scout need Save to shortlist next to Message — it is not in the field list, but it is the action a scout takes twenty times a session.</p>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <p style="margin: 0; font-size: var(--text-sm-size); color: var(--text-muted); max-width: 62ch">Try next: "move the details block into the header on <a href="#1a">1a</a>" · "show the Arabic RTL pass" · "add the scout's shortlist action"</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showAnnotations&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Document&quot;},&quot;showPostImages&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Document&quot;}}">
+const PH = 'placeholders/';
+const FULL = {
+  fullName: 'Youssef Abdelrahman',
+  avatarUrl: PH + 'avatar.svg',
+  headline: 'Striker in the Al Ahly first-team squad, open to a loan in the winter window',
+  bio: 'Left-footed striker, comfortable dropping between the lines and playing off a second forward. Came through the Wadi Degla academy and joined Al Ahly in 2023. Available for trials outside Egypt during the winter break — my agent\u2019s details are on the portfolio link.',
+  age: 24, city: 'Cairo', country: 'Egypt',
+  followersCount: 1240, followingCount: 318,
+  primaryPosition: 'Striker', secondaryPosition: 'Left Winger',
+  preferredFoot: 'Left', leagueLevel: 'Premier',
+  heightCm: 178, weightKg: 74, jerseyNumber: 9,
+  portfolioLink: 'https://youssefabdelrahman.com/football',
+};
+const SPARSE = {
+  fullName: 'Mostafa Kamal',
+  age: 16, city: 'Giza', country: 'Egypt',
+  followersCount: 12, followingCount: 41,
+  primaryPosition: 'Center Back',
+  preferredFoot: 'Right', leagueLevel: 'Youth Academy',
+};
+const FULL_CLUBS = [
+  { club: 'Al Ahly', role: 'Striker · First-team squad', start: 'Jul 2023', end: null },
+  { club: 'Pyramids FC', role: 'Striker · U21 squad', start: 'Aug 2021', end: 'Jun 2023' },
+  { club: 'Wadi Degla Academy', role: 'Forward · U18', start: 'Sep 2018', end: 'Jul 2021' },
+];
+const SPARSE_CLUBS = [
+  { club: 'Wadi Degla Academy', role: 'Centre back · U16', start: 'Sep 2024', end: null },
+];
+const FULL_CERTS = [
+  { name: 'Anti-doping essentials', issuer: 'Egyptian Anti-Doping Organisation', issued: 'Mar 2025', expires: 'Mar 2027', verified: true },
+  { name: 'First aid, level 1', issuer: 'Egyptian Red Crescent', issued: 'Nov 2023', expires: null, verified: false },
+];
+const AUTHOR = { name: FULL.fullName, subtitle: 'Striker · Al Ahly', role: 'PLAYER', avatar: FULL.avatarUrl };
+const POSTS = [
+  {
+    author: AUTHOR, timestamp: '2026-08-23T08:40:00Z', likes: 96, comments: 14, images: [],
+    body: 'Back in full training after three weeks out with a calf strain. Grateful to the medical staff for the rehab work — available for selection from Saturday.',
+  },
+  {
+    author: AUTHOR, timestamp: '2026-08-20T17:10:00Z', likes: 231, comments: 27,
+    images: [PH + 'photo-1.svg', PH + 'photo-2.svg', PH + 'photo-3.svg', PH + 'photo-4.svg'],
+    body: 'Pre-season camp in Ain Sokhna finished today. Two sessions a day, mostly pressing patterns and finishing under fatigue. The U21 group trained with us for the second week and none of them looked out of place.',
+  },
+  {
+    author: AUTHOR, timestamp: '2026-08-13T12:00:00Z', likes: 148, comments: 9, images: [PH + 'photo-wide.svg'],
+    body: 'Spoke to the U17 group at the academy about the step from youth football to senior minutes. Happy to do more of these.',
+  },
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    const withImages = this.props.showPostImages !== false;
+    return {
+      notes: this.props.showAnnotations !== false,
+      full: FULL, sparse: SPARSE,
+      fullClubs: FULL_CLUBS, sparseClubs: SPARSE_CLUBS, fullCerts: FULL_CERTS,
+      fullPosts: withImages ? POSTS : POSTS.map((p) => Object.assign({}, p, { images: [] })),
+      none: [],
+      scoutClubs: [{ name: 'Zamalek SC' }],
+      ownClubs: [{ name: 'Al Ahly' }],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+:root{
+--z-base:0 /* @kind other */;--z-sticky:10 /* @kind other */;--z-nav:20 /* @kind other */;--z-dropdown:30 /* @kind other */;--z-modal:40 /* @kind other */;--z-toast:50 /* @kind other */;
+--layout-container:1240px;--layout-nav-height:64px;--layout-rail-start:240px;--layout-rail-end:300px;
+--layout-feed-min:520px;--layout-feed-max:640px;--layout-column-gap:24px;--layout-tabbar-height:56px;
+--bp-wide:1280px;--bp-desktop:1024px;--bp-tablet:768px;
+}
